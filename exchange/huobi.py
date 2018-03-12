@@ -31,6 +31,11 @@ class HuobiEx(Exchange):
             'bids': [],
             'asks': [],
         }
+        if not symbol:
+            return None
+
+        symbol = symbol.replace('_', '')
+
         r = HuobiService.get_depth(symbol, 'step0')
         if r.get('status', None) is not None:
             tick = r.get('tick', None)
@@ -54,6 +59,9 @@ if __name__ == '__main__':
     #r = hbex.get_depth('iosteth')
     #print r
     r = hbex.get_symbols()
-    print r
-    
+    if r:
+        for k in r.keys():
+            print k
+            price1 = hbex.get_depth(k)
+            print price1
 

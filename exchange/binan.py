@@ -37,7 +37,12 @@ class BinanceEx(Exchange):
             'bids': [],
             'asks': [],
         }
-        r = self.client.get_order_book(symbol=symbol.upper(), limit=10)
+        if not symbol:
+            return None
+
+        symbol = symbol.replace('_', '')
+        print symbol
+        r = self.client.get_order_book(symbol=symbol.upper(), limit=3)
         if r.get('bids', None) is not None:
             bids = r.get('bids', [])
             if bids:
@@ -53,8 +58,10 @@ class BinanceEx(Exchange):
    
 if __name__ == '__main__':
     baex = BinanceEx('binance')
-    #r = baex.get_depth('iosteth')
-    #print r
     r = baex.get_symbols()
-    print r
+    if r:
+        for k in r.keys():
+            print k
+            price1 = baex.get_depth(k)
+            print price1
 
