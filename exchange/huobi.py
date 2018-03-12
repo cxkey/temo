@@ -12,9 +12,8 @@ from logger import alogger, elogger
 
 @singleton
 class HuobiEx(Exchange):
-    
     def __init__(self):
-        self.name = 'huobi'
+        Exchange.__init__(self,'huobi')
 
     def get_symbols(self):
         r = HuobiService.get_symbols()
