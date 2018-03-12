@@ -4,9 +4,6 @@ from abc import ABCMeta, abstractmethod
 
 class Exchange:
 
-    def __init__(self, name):
-        self.name = name
-
     @abstractmethod
     def get_symbols(self):
         '''

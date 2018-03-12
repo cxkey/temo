@@ -4,8 +4,18 @@ from abc import ABCMeta, abstractmethod
 from exchange import Exchange
 from sdk_huobi import HuobiService
 
+import sys
+sys.path.append('../')
+
+from singleton import singleton
+from logger import alogger, elogger
+
+@singleton
 class HuobiEx(Exchange):
     
+    def __init__(self):
+        self.name = 'huobi'
+
     def get_symbols(self):
         r = HuobiService.get_symbols()
         if 'data' not in r:
@@ -14,6 +24,10 @@ class HuobiEx(Exchange):
         ret = {}
         for s in r['data']:
             try:
+                if str(s['quote-currency'].lower()) == 'ht' or \
+                   str(s['base-currency'].lower()) == 'ht':
+                   continue
+
                 item = {
                     'base': str(s['base-currency'].lower()),
                     'quote': str(s['quote-currency'].lower()),
@@ -55,12 +69,13 @@ class HuobiEx(Exchange):
         return None
    
 if __name__ == '__main__':
-    hbex = HuobiEx('huobi')
+    hbex = HuobiEx.instance()
     #r = hbex.get_depth('iosteth')
     #print r
     r = hbex.get_symbols()
     if r:
         for k in r.keys():
+            print k
             price1 = hbex.get_depth(k)
             print price1
 

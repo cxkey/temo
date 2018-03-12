@@ -22,7 +22,7 @@ class Application:
         #self.server.listen(conf.PORT)
 
         funs = {
-            'check_task': 2,
+            'spider': 2,
         }
         self.running = {}
         self.handlers = []

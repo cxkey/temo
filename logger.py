@@ -5,13 +5,13 @@ import os
 import conf
 
 logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
-logging.getLogger("requests").setLevel(logging.DEBUG)
-logging.getLogger("urllib3").setLevel(logging.DEBUG)
+LOGLEVEL = logging.WARNING
+logging.getLogger('sqlalchemy.engine').setLevel(LOGLEVEL)
+logging.getLogger("requests").setLevel(LOGLEVEL)
+logging.getLogger("urllib3").setLevel(LOGLEVEL)
 
 #LOGFORMAT = '[%(asctime)s] %(message)s'
 LOGFORMAT = '[%(asctime)s] %(levelname)s %(module)s:%(lineno)d %(message)s'
-LOGLEVEL = logging.DEBUG
 BACKCOUNT = 15
 
 alogger = logging.getLogger('')

@@ -3,13 +3,20 @@
 from exchange import Exchange
 from binance.client import Client
 
+import sys
+sys.path.append('../')
+
+from singleton import singleton
+from logger import alogger, elogger
+
 api_key = 'kUImpef08tTdWHqBUjgRzcl3DGkVAMfTCEGKFzev2qSVGx7AaJg2oXWO9WytkzMQ'
 api_secret = 'N1eKTmppDwVXHvRS5jbKcvkYMZDN9xCfYxFRm2vOc1VflPmL3O3xGrSDuIa3K6Mw'
 
+@singleton
 class BinanceEx(Exchange):
     
-    def __init__(self, name):
-        Exchange.__init__(self, name)
+    def __init__(self):
+        self.name = 'binance'
         self.client = Client(api_key, api_secret)
 
     def get_symbols(self):
@@ -20,6 +27,9 @@ class BinanceEx(Exchange):
         ret = {}
         for s in r['symbols']:
             try:
+                if str(s['baseAsset'].lower()) == 'bnb' or \
+                   str(s['quoteAsset'].lower()) == 'bnb':
+                   continue
                 item = {
                     'base': str(s['baseAsset'].lower()),
                     'quote': str(s['quoteAsset'].lower()),
@@ -56,7 +66,7 @@ class BinanceEx(Exchange):
         return None
    
 if __name__ == '__main__':
-    baex = BinanceEx('binance')
+    baex = BinanceEx.instance()
     r = baex.get_symbols()
     if r:
         for k in r.keys():
