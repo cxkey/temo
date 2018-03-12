@@ -61,7 +61,6 @@ if __name__ == '__main__':
     r = hbex.get_symbols()
     if r:
         for k in r.keys():
-            print k
             price1 = hbex.get_depth(k)
             print price1
 
