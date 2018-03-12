@@ -12,6 +12,26 @@ class BinanceEx(Exchange):
         Exchange.__init__(self, name)
         self.client = Client(api_key, api_secret)
 
+    def get_symbols(self):
+        r = self.client.get_exchange_info()
+        if 'symbols' not in r:
+            return None
+
+        ret = {}
+        for s in r['symbols']:
+            try:
+                item = {
+                    'base': str(s['baseAsset'].lower()),
+                    'quote': str(s['quoteAsset'].lower()),
+                    'base_precision': s['baseAssetPrecision'],
+                    'quote_precision': s['quotePrecision'],
+                }
+                ret['%s_%s' % (item['base'], item['quote'])] = item
+            except Exception, e:
+                alogger.exception(e)
+
+        return ret
+
     def get_depth(self, symbol):
         ret = {
             'bids': [],
@@ -33,6 +53,8 @@ class BinanceEx(Exchange):
    
 if __name__ == '__main__':
     baex = BinanceEx('binance')
-    r = baex.get_depth('iosteth')
+    #r = baex.get_depth('iosteth')
+    #print r
+    r = baex.get_symbols()
     print r
 

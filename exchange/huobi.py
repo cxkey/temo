@@ -8,7 +8,23 @@ class HuobiEx(Exchange):
     
     def get_symbols(self):
         r = HuobiService.get_symbols()
-        print r
+        if 'data' not in r:
+            return None
+
+        ret = {}
+        for s in r['data']:
+            try:
+                item = {
+                    'base': str(s['base-currency'].lower()),
+                    'quote': str(s['quote-currency'].lower()),
+                    'base_precision': s['price-precision'],
+                    'quote_precision': s['price-precision'],
+                }
+                ret['%s_%s' % (item['base'], item['quote'])] = item
+            except Exception, e:
+                alogger.exception(e)
+
+        return ret
 
     def get_depth(self, symbol):
         ret = {
@@ -35,8 +51,9 @@ class HuobiEx(Exchange):
    
 if __name__ == '__main__':
     hbex = HuobiEx('huobi')
-    r = hbex.get_depth('iosteth')
-    print r
+    #r = hbex.get_depth('iosteth')
+    #print r
     r = hbex.get_symbols()
+    print r
     
 
