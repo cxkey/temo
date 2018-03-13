@@ -11,9 +11,13 @@ class Spider:
     def __init__(self):
         self.terminate = False
         self.exchanges = [
-            BinanceEx('binance') 
-            HuobiEx('huobi')
+            BinanceEx.instance(),
+            HuobiEx.instance(),
         ]
+
+    def a(self):
+        for exchange in self.exchanges:
+            nihao
 
     def runLoop(self):
         if self.terminate:
