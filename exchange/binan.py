@@ -2,6 +2,10 @@
 
 from exchange import Exchange
 from binance.client import Client
+from tornado import gen
+from tornado.ioloop import IOLoop
+import time
+import threading
 
 import sys
 sys.path.append('../')
@@ -16,13 +20,21 @@ api_secret = 'N1eKTmppDwVXHvRS5jbKcvkYMZDN9xCfYxFRm2vOc1VflPmL3O3xGrSDuIa3K6Mw'
 class BinanceEx(Exchange):
     
     def __init__(self):
-        self.name = 'binance'
+        Exchange.__init__(self,'binance')
         self.client = Client(api_key, api_secret)
 
-    def get_symbols(self):
+    def _do_get_symbols(self, callback):
         r = self.client.get_exchange_info()
+        IOLoop.instance().add_callback(callback, r)
+
+    def _get_symbols(self, callback):
+        threading.Thread(target=self._do_get_symbols, args=(callback,)).start()
+
+    @gen.coroutine
+    def get_symbols(self):
+        r = yield gen.Task(self._get_symbols)
         if 'symbols' not in r:
-            return None
+            raise gen.Return(None)
 
         ret = {}
         for s in r['symbols']:
@@ -39,8 +51,9 @@ class BinanceEx(Exchange):
                 ret['%s_%s' % (item['base'], item['quote'])] = item
             except Exception, e:
                 alogger.exception(e)
+                raise gen.Return(None)
 
-        return ret
+        raise gen.Return(ret)
 
     def get_depth(self, symbol):
         ret = {
@@ -64,15 +77,19 @@ class BinanceEx(Exchange):
             return ret
         
         return None
-   
-if __name__ == '__main__':
+
+@gen.engine
+def main():
     baex = BinanceEx.instance()
-    r = baex.get_symbols()
+    r = yield baex.get_symbols()
     if r:
         for k in r.keys():
             print k
             price1 = baex.get_depth(k)
             print price1
-    #price1 = baex.get_depth('LENDBTC')
-    #print price1
+    IOLoop.instance().stop() 
+   
+if __name__ == '__main__':
+    main()
+    IOLoop.instance().start() 
 

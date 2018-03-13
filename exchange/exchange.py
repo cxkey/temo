@@ -3,6 +3,8 @@
 from abc import ABCMeta, abstractmethod
 
 class Exchange:
+    def __init__(self,ex_name):
+        self.name = ex_name
 
     @abstractmethod
     def get_symbols(self):
@@ -21,7 +23,9 @@ class Exchange:
     @abstractmethod
     def get_depth(self, symbol):
         raise NotImplementedError('function: get_depth() must be defined')
-   
+  
+
+
 if __name__ == '__main__':
     pass
 
