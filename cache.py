@@ -20,7 +20,23 @@ class Cache:
             p4: { price: [bid1, ask1], timestamp: '' }
         },
     }
+    p1: {
+        ex1:
+        ex2:
+    },
+    find(p, ex)
+    1 p ex exist
+    2 p ex youxiao
+
+    get(p, ex)
+    return 
+
+    set(p, ex, value)
+    a[p][ex][price] = value
+    a[p][ex][timestemp] = timestamp 
+
     '''
+
     def __init__(self):
         self.data = {}
         self.timeout = 10 # sec
