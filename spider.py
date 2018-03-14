@@ -4,43 +4,10 @@ from exchange.binan import BinanceEx
 from exchange.huobi import HuobiEx
 from exchange.okex import OkexEx
 from tornado.ioloop import IOLoop
+from tornado import gen
+from tornado.ioloop import IOLoop
 import time
-
-class DataCache:
-    def __init__(self):
-        self.data={}
-        self.timeout = 10
-
-    def find_exchange(self,exchange_name):
-        if exchange_name in self.data.keys():
-            return True
-        return False
-
-    def exchanges(self): 
-        return self.data.keys()
-
-    def find_symbol(self,exchange_name,symbol):
-        if not self.find_exchange(exchange_name):
-            return False
-        if symbol in self.data[exchange_name].keys():
-            return True
-        return False            
-
-
-    def set_symbol(self,exchange_name,symbol,value):
-        if self.find_symbol(exchange_name,symbol):
-            self.data[exchange_name][symbol] = value
-
-    def get_symbol(self,exchange_name,symbol):
-        if self.find_symbol(exchange_name,symbol):
-            return self.data[exchange_name][symbol]
-        return None            
-
-    def symbols(self,exchange_name):
-        if find_exchange(exchange_name):
-            return self.data[exchange_name].keys()
-
-
+import threading
 
 
 @singleton
@@ -49,14 +16,29 @@ class Spider:
         self.terminate = False
         self.exchanges = [
             BinanceEx.instance(),
-            HuobiEx.instance(),
-            OkexEx.instance(),
+            #HuobiEx.instance(),
+            #OkexEx.instance(),
         ]
         self.datacache = DataCache()
 
-    def a(self):
-        for exchange in self.exchanges:
-            pass
+    @gen.coroutine
+    def process(self):
+        for ex in self.exchanges:
+            alogger.info('spider process start %s' % ex.name)
+            r = yield ex.get_symbols()
+            for symbol, value in r.iteritems():
+                if self.datacache.find_symbol(ex, symbol) and \
+                    now - self.data[ex_name][symbol]['timestamp'] <=  self.datacache.timeout:
+                    continue
+                info = ex.get_depth(symbol)
+                if info:
+                    info['timestamp'] = time.time()
+                    print ex.name, symbol, info
+                    self.datacache.set_symbol(ex, symbol, info)
+
+        end = time.time()
+        print 'done, time cost:', end-begin
+        IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
 
     def runLoop(self):
         if self.terminate:
