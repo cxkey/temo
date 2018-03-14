@@ -8,7 +8,11 @@ from tornado import gen
 from tornado.ioloop import IOLoop
 import time
 import threading
+from datetime import datetime
+from cache import Cache
+import tornado
 
+SCAN_TIMEOUT_INTERVAL = 3600 *1000
 
 @singleton
 class Spider:
@@ -16,58 +20,42 @@ class Spider:
         self.terminate = False
         self.exchanges = [
             BinanceEx.instance(),
-            #HuobiEx.instance(),
-            #OkexEx.instance(),
+            HuobiEx.instance(),
+            OkexEx.instance(),
         ]
-        self.datacache = DataCache()
+        self.datacache = Cache.instance()
 
     @gen.coroutine
     def process(self):
+        print 'spider process start'
+        begin = time.time()
         for ex in self.exchanges:
-            alogger.info('spider process start %s' % ex.name)
             r = yield ex.get_symbols()
             for symbol, value in r.iteritems():
-                if self.datacache.find_symbol(ex, symbol) and \
-                    now - self.data[ex_name][symbol]['timestamp'] <=  self.datacache.timeout:
-                    continue
-                info = ex.get_depth(symbol)
+                info = yield ex.get_depth(symbol)
                 if info:
-                    info['timestamp'] = time.time()
                     print ex.name, symbol, info
-                    self.datacache.set_symbol(ex, symbol, info)
+                    self.datacache.setvalue(symbol,ex.name,info)
+        print 'done, time cost:',time.time()-begin
+        IOLoop.instance().add_timeout(time.time() + 1000, self.process)
 
-        end = time.time()
-        print 'done, time cost:', end-begin
-        IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
-
-    def runLoop(self):
-        if self.terminate:
-            logger.info('spider is terminated')
-            tornado.ioloop.IOLoop.instance().stop()
-            return
-        
-        begin = time.time()
-        for exchange in self.exchanges:
-            print exchange.name
-            r = exchange.get_symbols()
-            for symbol, value in r.iteritems():
-                if self.datacache.find_symbol(exchange, symbol) and \
-                    now - self.data[exchange_name][symbol]['timestamp'] <=  self.datacache.timeout:
+    def scanTimeout(self):
+        print 'scan timeout start'
+        for symbol,v1 in self.datacache.data.iteritems():
+            for exchange,v2 in v1.iteritems():
+                print symbol,exchange,v2
+                now = time.time()
+                if now - v2['timestamp'] >= self.datacache.clean_timeout:
+                    del self.datacache[symbol][exchange]
+                    alogger.info('%s,%s,deleted in cache',symbol,exchange)
+                else:
                     continue
-                info = exchange.get_depth(symbol)
-                if info:
-                    info['timestamp'] = time.time()
-                    print exchange.name, symbol, info
-                    self.datacache.set_symbol(exchange, symbol, info)
-
-        end = time.time()
-        print 'done, time cost:', end-begin
-        IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
+        print 'scan timeout finished'
 
 
     def start(self):
-        #tornado.ioloop.PeriodicCallback(self.aaa, 3600000).start()
-        IOLoop.instance().add_timeout(time.time() + 0.01, self.runLoop)
+        tornado.ioloop.PeriodicCallback(self.scanTimeout, SCAN_TIMEOUT_INTERVAL).start()
+        IOLoop.instance().add_timeout(time.time() + 0.01, self.process)
         IOLoop.instance().start() 
 
 if __name__ == '__main__':

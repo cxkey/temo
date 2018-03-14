@@ -6,6 +6,8 @@
 # @github  : https://github.com/KlausQIU
 
 from HuobiUtil import *
+from tornado import gen
+from tornado.gen import coroutine
 
 '''
 Market data API
@@ -30,6 +32,7 @@ def get_kline(symbol, period, size):
 
 
 # 获取marketdepth
+@coroutine
 def get_depth(symbol, type):
     """
     :param symbol: 
@@ -40,7 +43,8 @@ def get_depth(symbol, type):
               'type': type}
 
     url = MARKET_URL + '/market/depth'
-    return http_get_request(url, params)
+    res = yield asyc_http_get_request(url, params)
+    raise gen.Return(res)
 
 
 # 获取tradedetail
@@ -67,13 +71,15 @@ def get_detail(symbol):
     return http_get_request(url, params)
 
 # 查询系统支持的所有交易对
+@coroutine
 def get_symbols():
     """
     :return:
     """
     url = MARKET_URL + '/v1/common/symbols'
     params = {}
-    return http_get_request(url, params)
+    res = yield asyc_http_get_request(url, params)
+    raise gen.Return(res)
 
 '''
 Trade/Account API
