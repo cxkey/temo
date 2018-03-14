@@ -1,17 +1,23 @@
 # -*- coding: utf-8 -*- 
+import sys
+sys.path.append('../')
 from singleton import singleton
 from exchange import Exchange
 from sdk_okex.Client import *
+from tornado.gen import coroutine
+from tornado.ioloop import IOLoop 
+from tornado import gen
 
 @singleton
 class OkexEx(Exchange):
     def __init__(self):
         Exchange.__init__(self,'okex')
 
+    @coroutine
     def get_symbols(self):        
-        r = okcoinSpot.tickers()
+        r = yield okcoinSpot.tickers()
         if 'data' not in r:
-            return None
+            raise gen.Return( None)
 
         ret = {}            
         for s in r['data']:
@@ -25,35 +31,39 @@ class OkexEx(Exchange):
                 ret['%s_%s' % (item['base'], item['quote'])] = item 
             except Exception, e:
                 alogger.exception(e)
-        return ret                
+        raise gen.Return(ret)                
 
+    @coroutine
     def get_depth(self, symbol):
         ret = {
             'bids':[],
             'asks':[],
         }
         if not symbol:
-            return None
+            raise gen.Return(None)
 
-        r = okcoinSpot.depth(symbol)
+        r = yield okcoinSpot.depth(symbol)
         bids = r.get('bids',[])
         if bids:
-            ret['bids'] = bids[0][0]
+            ret['bids'] = bids[0]
             asks = r.get('asks',[])
             if asks:
-                ret['asks'] = asks[-1][0]
-            return ret
-        return None                
+                ret['asks'] = asks[-1]
+            raise gen.Return(ret)
+        raise gen.Return(None)
 
+@gen.engine 
+def main():
+    okex = OkexEx.instance()
+    r = yield okex.get_symbols()
+    for key,value in r.iteritems():
+        r = yield okex.get_depth(key)
+        print key,r
 
 
 if __name__ == '__main__':
-    okex = OkexEx.instance()
-    r = okex.get_symbols()
-    for key,value in r.iteritems():
-        r = okex.get_depth(key)
-        print key,r
-       
+    main()
+    IOLoop.instance().start() 
 
         
 

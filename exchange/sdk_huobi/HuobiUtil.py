@@ -15,6 +15,9 @@ import datetime
 import requests
 import urllib2
 import urlparse
+from tornado.gen import coroutine
+from tornado import gen
+from tornado.httpclient import AsyncHTTPClient, HTTPError
 
 # timeout in 5 seconds:
 TIMEOUT = 5
@@ -70,6 +73,24 @@ def http_get_request(url, params, add_to_headers=None):
     except Exception as e:
         print("httpGet failed, detail is:%s" %e)
         return {"status":"fail","msg":e}
+
+@coroutine
+def asyc_http_get_request(url, params, add_to_headers=None):
+    headers = {
+        "Content-type": "application/x-www-form-urlencoded",
+        'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0'
+    }
+    if add_to_headers:
+        headers.update(add_to_headers)
+    postdata = urllib.urlencode(params)
+    try:
+        http_client = AsyncHTTPClient() 
+        response = yield http_client.fetch(url+'?'+postdata, headers=headers)
+        res = json.loads(response.body)
+    except Exception as e:
+        print e
+        raise gen.Return({"status":"fail","msg":e})
+    raise gen.Return(res)
 
 def http_post_request(url, params, add_to_headers=None):
     headers = {

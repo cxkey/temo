@@ -55,6 +55,7 @@ class BinanceEx(Exchange):
 
         raise gen.Return(ret)
 
+    @gen.coroutine
     def get_depth(self, symbol):
         ret = {
             'bids': [],

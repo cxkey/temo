@@ -6,6 +6,9 @@ import json
 import hashlib
 import time
 import requests
+from tornado.httpclient import AsyncHTTPClient, HTTPError
+from tornado.gen import coroutine
+from tornado import gen
 
 def buildMySign(params,secretKey):
     sign = ''
@@ -14,24 +17,42 @@ def buildMySign(params,secretKey):
     data = sign+'secret_key='+secretKey
     return  hashlib.md5(data.encode("utf8")).hexdigest().upper()
 
+@coroutine        
+def AsychttpGet(url,resource,params=''):
+    headers = {
+        "Content-type" : "application/x-www-form-urlencoded",
+    }
+    http_client = AsyncHTTPClient()
+    response = yield http_client.fetch(url + resource + '?' + params,headers=headers)
+    data = response.body
+    raise gen.Return( json.loads(data))
+
+
+@coroutine
+def AsychttpPost(url,resource,params):
+     headers = {
+            "Content-type" : "application/x-www-form-urlencoded",
+     }
+     http_client = AsyncHTTPClient()
+     response = yield http_client.fetch(url + resource + '?' + params, method='POST', headers=headers)
+     data = response.body
+     raise gen.Return( data)
+
+
+             
 def httpGet(url,resource,params=''):
     headers = {
         "Content-type" : "application/x-www-form-urlencoded",
     }
-    response = requests.get(url + resource + '?' + params,headers=headers)    	
+    response = requests.get(url + resource + '?' + params,headers=headers)
     data = response.text
     return json.loads(data)
 
-
-
 def httpPost(url,resource,params):
-     headers = {
+    headers = {
             "Content-type" : "application/x-www-form-urlencoded",
-     }
-     response = requests.post(url + resource + '?' + params,headers=headers)    	
-     data = response.body
-     return data
+    }
+    response = requests.post(url + resource + '?' + params, method='POST', headers=headers)
+    data = response.body
+    return data
 
-
-        
-     

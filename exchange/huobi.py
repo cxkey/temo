@@ -3,6 +3,9 @@
 from abc import ABCMeta, abstractmethod
 from exchange import Exchange
 from sdk_huobi import HuobiService
+from tornado import gen
+from tornado.gen import coroutine
+from tornado.ioloop import IOLoop
 
 import sys
 sys.path.append('../')
@@ -15,10 +18,11 @@ class HuobiEx(Exchange):
     def __init__(self):
         Exchange.__init__(self,'huobi')
 
+    @coroutine
     def get_symbols(self):
-        r = HuobiService.get_symbols()
+        r = yield HuobiService.get_symbols()
         if 'data' not in r:
-            return None
+            raise gen.Return( None)
 
         ret = {}
         for s in r['data']:
@@ -37,19 +41,20 @@ class HuobiEx(Exchange):
             except Exception, e:
                 alogger.exception(e)
 
-        return ret
+        raise gen.Return( ret)
 
+    @coroutine
     def get_depth(self, symbol):
         ret = {
             'bids': [],
             'asks': [],
         }
         if not symbol:
-            return None
+            raise gen.Return( None)
 
         symbol = symbol.replace('_', '')
 
-        r = HuobiService.get_depth(symbol, 'step0')
+        r = yield HuobiService.get_depth(symbol, 'step0')
         if r.get('status', None) is not None:
             tick = r.get('tick', None)
             if tick is not None:
@@ -61,20 +66,21 @@ class HuobiEx(Exchange):
                 if asks:
                     ret['asks'] = asks[0]
 
-                return ret
+                raise gen.Return(ret)
             else:
-                return None
+                raise gen.Return(None)
         
-        return None
-   
-if __name__ == '__main__':
+        raise gen.Return(None)
+
+@gen.engine   
+def main():
     hbex = HuobiEx.instance()
-    #r = hbex.get_depth('iosteth')
-    #print r
-    r = hbex.get_symbols()
-    if r:
-        for k in r.keys():
-            print k
-            price1 = hbex.get_depth(k)
-            print price1
+    r = yield hbex.get_symbols()
+    for key,value in r.iteritems(): 
+        r = yield hbex.get_depth(key)   
+        print key,r
+
+if __name__ == '__main__':
+    main()
+    IOLoop.instance().start()
 

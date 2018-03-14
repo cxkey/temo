@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #用于访问OKCOIN 现货REST API
-from HttpMD5Util import buildMySign,httpGet,httpPost
+from HttpMD5Util import *
+from tornado.gen import coroutine
 
 class OKCoinSpot:
 
@@ -11,26 +12,32 @@ class OKCoinSpot:
         self.__secretkey = secretkey
 
     #获取所有交易对现货行情信息
+    @coroutine
     def tickers(self):
         TICKER_RESOURCE = "/v2/spot/markets/tickers"
         params=''
-        return httpGet(self.__url,TICKER_RESOURCE,params)
+        res = yield AsychttpGet(self.__url,TICKER_RESOURCE,params)
+        raise gen.Return(res)
 
     #获取OKCOIN现货行情信息
+    @coroutine
     def ticker(self,symbol = ''):
         TICKER_RESOURCE = "/api/v1/ticker.do"
         params=''
         if symbol:
             params = 'symbol=%(symbol)s' %{'symbol':symbol}
-        return httpGet(self.__url,TICKER_RESOURCE,params)
+        res = yield AsychttpGet(self.__url,TICKER_RESOURCE,params)
+        raise gen.Return(res)
 
     #获取OKCOIN现货市场深度信息
+    @coroutine
     def depth(self,symbol = ''):
         DEPTH_RESOURCE = "/api/v1/depth.do"
         params=''
         if symbol:
             params = 'symbol=%(symbol)s' %{'symbol':symbol}
-        return httpGet(self.__url,DEPTH_RESOURCE,params) 
+        res = yield AsychttpGet(self.__url,DEPTH_RESOURCE,params) 
+        raise gen.Return(res)
 
     #获取OKCOIN现货历史交易信息
     def trades(self,symbol = ''):
