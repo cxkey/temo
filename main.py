@@ -11,50 +11,22 @@ import os, json
 from daemon import Daemon
 from tornado.options import define, options
 import tornado.httpserver
-#from web import WebEntry
+from spider import Spider
+from druid import Druid
+import time
 
 class Application:
     def __init__(self):
         pass
         
     def start(self):
-        #self.server = tornado.httpserver.HTTPServer(WebEntry())
-        #self.server.listen(conf.PORT)
-
-        funs = {
-            'spider': 2,
-        }
-        self.running = {}
-        self.handlers = []
-
-        for k, v in funs.items():
-            self.running[k] = False
-            self.handlers.append(ioloop.PeriodicCallback(eval('self.%s' % k), v * 1000))
-
-        for handler in self.handlers:
-            handler.start()
-
+        Spider.instance().start()
+        #Druid.instance().start()
         ioloop.IOLoop.instance().start()
 
     def stop(self):
-        #self.server.stop()
         pass
 
-    def check_task(self):
-        fun_name = sys._getframe().f_code.co_name
-        if self.running[fun_name]:
-            elogger.info('%s is running' % fun_name)
-            return
-
-        elogger.info('%s start' % fun_name)
-        self.running[fun_name] = True
-        try:
-            pass
-        except Exception, e:
-            elogger.exception(e)
-        finally:
-            self.running[fun_name] = False
-            elogger.info('%s end' % fun_name)
 
 app = Application()
 
@@ -69,7 +41,6 @@ class DaemonWrapper(Daemon):
     def __init__(self, instance_no):
         self.sigterm = False
 
-        #self.prefix = '/opt/%s/instances/%s_%s' % (PROJECT_NAME, INSTANCE_NAME, instance_no)
         self.prefix = '/tmp/%s/instances/%s_%s' % (PROJECT_NAME, INSTANCE_NAME, instance_no)
         pidfile = self.prefix + os.sep + '%s.pid' % INSTANCE_NAME
         stderr = self.prefix + os.sep + '%s.err' % INSTANCE_NAME
