@@ -22,12 +22,33 @@ class Wisp:
         self.cache = Cache.instance()
 
     @gen.coroutine
-    def dig(self):
+    def dig_symbols(self):
+        print 210
+        begin = time.time()
+        self.running = True
+        try:
+            r = yield self.exchange.get_symbols()
+            if r:
+                for s in r.keys():
+                    if s in self.cache.data.keys() and \
+                        self.exchange.name in self.cache.data[s].keys():
+                        print 215, s, self.exchange.name
+                        continue
+                    else:
+                        print 214, s, self.exchange.name
+                        self.cache.setkey(s, self.exchange.name)
+        except Exception, e:
+            print str(e)
+        finally:
+            self.running = False
+
+    @gen.coroutine
+    def dig_depth(self):
         print 110
         begin = time.time()
         self.running = True
         try:
-            for symbol in self.cache.all_symbols():
+            for symbol in self.cache.data.keys():
                 info = yield self.exchange.get_depth(symbol)
                 if info:
                     #alogger.info('%s, %s, %s' % (self.exchange.name, symbol, str(info)))
@@ -65,7 +86,7 @@ class Spider:
             self.busy = False
             return
 
-        IOLoop.instance().add_timeout(time.time() + 0.1, self.runLoop)
+        IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
 
         self.process()
 
@@ -87,20 +108,26 @@ class Spider:
 
     def refresh_symbols(self):
         print 'refresh symbols start'
-        for symbol,v1 in self.cache.data.iteritems():
-            for exchange,v2 in v1.iteritems():
-                now = time.time()
-                if now - v2['timestamp'] >= self.cache.clean_timeout:
-                    del self.cache[symbol][exchange]
-                    alogger.info('%s,%s,deleted in cache',symbol,exchange)
-                else:
-                    continue
-        print 'scan timeout finished'
+
+        for wisp in self.wisps:
+            print '11111111'
+            wisp.dig_symbols()
+
+        #for symbol, v1 in self.cache.data.iteritems():
+        #    for exchange,v2 in v1.iteritems():
+        #        now = time.time()
+        #        if now - v2['timestamp'] >= self.cache.clean_timeout:
+        #            del self.cache[symbol][exchange]
+        #            alogger.info('%s,%s,deleted in cache',symbol,exchange)
+        #        else:
+        #            continue
+
+        print 'refresh_symbols finished'
 
     def start(self):
-        tornado.ioloop.PeriodicCallback(self.scanTimeout, SCAN_TIMEOUT_INTERVAL).start()
-        tornado.ioloop.PeriodicCallback(self.scanTimeout, SCAN_TIMEOUT_INTERVAL).start()
-        IOLoop.instance().add_timeout(time.time() + 0.01, self.runLoop)
+        tornado.ioloop.PeriodicCallback(self.refresh_symbols, SCAN_TIMEOUT_INTERVAL).start()
+        IOLoop.instance().add_timeout(time.time() + 0.01, self.refresh_symbols)
+        IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
 
 if __name__ == '__main__':
     Spider.instance().start()

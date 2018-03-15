@@ -20,7 +20,7 @@ api_secret = 'N1eKTmppDwVXHvRS5jbKcvkYMZDN9xCfYxFRm2vOc1VflPmL3O3xGrSDuIa3K6Mw'
 class BinanceEx(Exchange):
     
     def __init__(self):
-        Exchange.__init__(self,'binance')
+        Exchange.__init__(self, 'binance')
         self.client = Client(api_key, api_secret)
 
     def _do_get_symbols(self, callback):

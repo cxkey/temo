@@ -16,7 +16,7 @@ from logger import alogger, elogger
 @singleton
 class HuobiEx(Exchange):
     def __init__(self):
-        Exchange.__init__(self,'huobi')
+        Exchange.__init__(self, 'huobi')
 
     @coroutine
     def get_symbols(self):
@@ -76,9 +76,10 @@ class HuobiEx(Exchange):
 def main():
     hbex = HuobiEx.instance()
     r = yield hbex.get_symbols()
-    for key,value in r.iteritems(): 
-        r = yield hbex.get_depth(key)   
-        print key,r
+    if r:
+        for key, value in r.iteritems(): 
+            r = yield hbex.get_depth(key)   
+            print key,r
 
 if __name__ == '__main__':
     main()
