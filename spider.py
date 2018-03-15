@@ -101,7 +101,7 @@ class Spider:
                 bingo -= 1
                 continue
             
-            wisp.dig()
+            wisp.dig_depth()
 
         if bingo == 0:
             self.busy = True
