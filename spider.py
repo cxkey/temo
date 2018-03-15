@@ -11,8 +11,9 @@ import threading
 from datetime import datetime
 from cache import Cache
 import tornado
+from druid import *
 
-SCAN_TIMEOUT_INTERVAL = 3600 *1000
+SCAN_TIMEOUT_INTERVAL = 3600 *1000 * 6
 
 @singleton
 class Spider:
@@ -43,7 +44,6 @@ class Spider:
         print 'scan timeout start'
         for symbol,v1 in self.datacache.data.iteritems():
             for exchange,v2 in v1.iteritems():
-                print symbol,exchange,v2
                 now = time.time()
                 if now - v2['timestamp'] >= self.datacache.clean_timeout:
                     del self.datacache[symbol][exchange]
@@ -56,8 +56,8 @@ class Spider:
     def start(self):
         tornado.ioloop.PeriodicCallback(self.scanTimeout, SCAN_TIMEOUT_INTERVAL).start()
         IOLoop.instance().add_timeout(time.time() + 0.01, self.process)
-        IOLoop.instance().start() 
 
 if __name__ == '__main__':
     Spider.instance().start()
+    IOLoop.instance().start() 
 

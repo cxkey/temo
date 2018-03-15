@@ -1,3 +1,4 @@
+#encoding: utf-8
 from singleton import singleton
 from logger import alogger, elogger
 import time
@@ -5,6 +6,7 @@ import time
 @singleton
 class Cache:
     '''
+    ask:卖价 bid:买价
     {
         symbol1: {
             ex1: { price: [bid1, ask1], timestamp: '' }
@@ -21,7 +23,7 @@ class Cache:
     '''
     def __init__(self):
         self.data = {}
-        self.update_timeout = 10 # sec
+        self.update_timeout = 10* 60 # sec
         self.clean_timeout = 3600 * 24 # one day
 
 
@@ -30,9 +32,9 @@ class Cache:
             return False
         if exchange not in self.data[symbol].keys():
             return False
-        ts = self.data[symbol][exchange]
+        ts = self.data[symbol][exchange]['timestamp']
         now = time.time()
-        if now - ts <=  self.datacache.update_timeout:
+        if now - ts <=  self.update_timeout:
             return True
         return False            
     
