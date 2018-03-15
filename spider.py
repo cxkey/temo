@@ -23,7 +23,6 @@ class Wisp:
 
     @gen.coroutine
     def dig_symbols(self):
-        print 210
         begin = time.time()
         self.running = True
         try:
@@ -32,11 +31,11 @@ class Wisp:
                 for s in r.keys():
                     if s in self.cache.data.keys() and \
                         self.exchange.name in self.cache.data[s].keys():
-                        print 215, s, self.exchange.name
                         continue
-                    else:
-                        print 214, s, self.exchange.name
-                        self.cache.setkey(s, self.exchange.name)
+
+                    print 214, s, self.exchange.name
+                    self.cache.setkey(s, self.exchange.name)
+                    print 215, self.cache.data[s]
         except Exception, e:
             print str(e)
         finally:
@@ -44,11 +43,13 @@ class Wisp:
 
     @gen.coroutine
     def dig_depth(self):
-        print 110
         begin = time.time()
         self.running = True
         try:
             for symbol in self.cache.data.keys():
+                if self.exchange.name not in self.cache.data[symbol].keys():
+                    continue
+
                 info = yield self.exchange.get_depth(symbol)
                 if info:
                     #alogger.info('%s, %s, %s' % (self.exchange.name, symbol, str(info)))
@@ -67,7 +68,7 @@ class Spider:
         self.terminate = False
         self.busy = False
         self.wisps = [
-            Wisp(BinanceEx.instance()),
+            #Wisp(BinanceEx.instance()),
             Wisp(HuobiEx.instance()),
             Wisp(OkexEx.instance()),
         ]
@@ -81,12 +82,13 @@ class Spider:
             return
 
         if self.busy:
-            alogger.info('spider busy')
+            #alogger.info('spider busy')
+            print 'spider busy'
             IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
             self.busy = False
             return
 
-        IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
+        IOLoop.instance().add_timeout(time.time() + 0.01, self.runLoop)
 
         self.process()
 
@@ -103,6 +105,7 @@ class Spider:
             
             wisp.dig_depth()
 
+        print 'bingo', bingo
         if bingo == 0:
             self.busy = True
 
@@ -110,7 +113,6 @@ class Spider:
         print 'refresh symbols start'
 
         for wisp in self.wisps:
-            print '11111111'
             wisp.dig_symbols()
 
         #for symbol, v1 in self.cache.data.iteritems():
