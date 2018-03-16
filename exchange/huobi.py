@@ -87,7 +87,6 @@ class HuobiEx(Exchange):
             ret[t1] = price
         raise gen.Return(ret)
 
-
 @gen.engine   
 def main():
     hbex = HuobiEx.instance()
@@ -95,8 +94,6 @@ def main():
     for key,value in r.iteritems(): 
         #r = yield hbex.get_depth(key)   
         r = yield hbex.get_history(key)
-        print key,
-        print r
         break
 
 if __name__ == '__main__':
