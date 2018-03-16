@@ -33,11 +33,9 @@ class Wisp:
                         self.exchange.name in self.cache.data[s].keys():
                         continue
 
-                    print 214, s, self.exchange.name
                     self.cache.setkey(s, self.exchange.name)
-                    print 215, self.cache.data[s]
         except Exception, e:
-            print str(e)
+            alogger.exception(e)
         finally:
             self.running = False
 
@@ -52,13 +50,10 @@ class Wisp:
 
                 info = yield self.exchange.get_depth(symbol)
                 if info:
-                    #alogger.info('%s, %s, %s' % (self.exchange.name, symbol, str(info)))
-                    print '%s, %s, %s' % (self.exchange.name, symbol, str(info))
                     self.cache.setvalue(symbol, self.exchange.name, info)
-            print 'dig done, %s, time cost:%s' % (self.exchange.name, str(time.time() - begin))
-            #alogger.info('dig done, %s, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
+            alogger.info('dig done, %s, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
         except Exception, e:
-            print str(e)
+            alogger.exception(e)
         finally:
             self.running = False
     
@@ -82,8 +77,7 @@ class Spider:
             return
 
         if self.busy:
-            #alogger.info('spider busy')
-            print 'spider busy'
+            alogger.info('spider busy')
             IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
             self.busy = False
             return
@@ -94,7 +88,7 @@ class Spider:
 
     @gen.coroutine
     def process(self):
-        print 'spider process start'
+        alogger.info('spider process start')
         begin = time.time()
 
         bingo = len(self.wisps)
@@ -105,12 +99,11 @@ class Spider:
             
             wisp.dig_depth()
 
-        print 'bingo', bingo
         if bingo == 0:
             self.busy = True
 
     def refresh_symbols(self):
-        print 'refresh symbols start'
+        alogger.info('refresh symbols start')
 
         for wisp in self.wisps:
             wisp.dig_symbols()
@@ -124,7 +117,7 @@ class Spider:
         #        else:
         #            continue
 
-        print 'refresh_symbols finished'
+        alogger.info('refresh_symbols finished')
 
     def start(self):
         tornado.ioloop.PeriodicCallback(self.refresh_symbols, SCAN_TIMEOUT_INTERVAL).start()
