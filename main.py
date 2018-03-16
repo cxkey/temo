@@ -21,7 +21,7 @@ class Application:
         
     def start(self):
         Spider.instance().start()
-        #Druid.instance().start()
+        Druid.instance().start()
         ioloop.IOLoop.instance().start()
 
     def stop(self):

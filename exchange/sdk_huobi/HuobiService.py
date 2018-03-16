@@ -30,6 +30,19 @@ def get_kline(symbol, period, size):
     url = MARKET_URL + '/market/history/kline'
     return http_get_request(url, params)
 
+@coroutine
+def get_history_trade(symbol,size):    
+    """
+    :param symbol
+    :param size:[1,2000]
+    :retun:
+    """
+    params = {'symbol': symbol,
+              'size': size}
+    url = MARKET_URL + '/market/history/trade'
+    res = yield asyc_http_get_request(url, params)
+    raise gen.Return(res)
+
 
 # 获取marketdepth
 @coroutine
