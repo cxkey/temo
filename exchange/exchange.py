@@ -22,6 +22,12 @@ class Exchange:
 
     @abstractmethod
     def get_depth(self, symbol):
+        '''
+        {
+            'bids': [5.252e-05, 580.0], 
+            'asks': [5.259e-05, 200.0]
+        }
+        '''
         raise NotImplementedError('function: get_depth() must be defined')
   
 
