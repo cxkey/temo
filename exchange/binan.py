@@ -79,11 +79,10 @@ class BinanceEx(Exchange):
         
         return None
 
-<<<<<<< HEAD
     def get_all_tickers(self):
         r = self.client.get_all_tickers()
         print r
-=======
+
     @gen.coroutine
     def get_history(self,symbol):
         ret = {}
@@ -97,10 +96,6 @@ class BinanceEx(Exchange):
             ret[t1] = price
             print t1,price
         return ret
-            
-        
-
->>>>>>> 90f365773e5e7ca3f7e096ad49943d7ba10f9b80
 
 @gen.engine
 def main():
@@ -108,18 +103,9 @@ def main():
     r = yield baex.get_symbols()
     if r:
         for k in r.keys():
-<<<<<<< HEAD
             price1 = yield baex.get_depth(k)
             print k, price1
     #baex.get_all_tickers()
-=======
-            print k
-            #price1 = baex.get_depth(k)
-            #print price1
-            ret = yield baex.get_history(k)
-            print ret
-            break
->>>>>>> 90f365773e5e7ca3f7e096ad49943d7ba10f9b80
     IOLoop.instance().stop() 
    
 if __name__ == '__main__':
