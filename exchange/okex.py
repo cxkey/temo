@@ -7,6 +7,7 @@ from sdk_okex.Client import *
 from tornado.gen import coroutine
 from tornado.ioloop import IOLoop 
 from tornado import gen
+import time
 
 @singleton
 class OkexEx(Exchange):
@@ -52,13 +53,29 @@ class OkexEx(Exchange):
             raise gen.Return(ret)
         raise gen.Return(None)
 
+    @coroutine
+    def get_history(self,symbol):        
+        ret = {}
+        r = yield okcoinSpot.trades(symbol)
+        for item in r:
+            t1 = time.strftime("%Y%m%d%H%M", time.localtime(item['date'])) 
+            price = item['price']
+            ret[t1] = price
+        raise gen.Return(ret)
+
+           
+
 @gen.engine 
 def main():
     okex = OkexEx.instance()
     r = yield okex.get_symbols()
     for key,value in r.iteritems():
-        r = yield okex.get_depth(key)
-        print key,r
+        #r = yield okex.get_depth(key)
+        print key
+        r = yield okex.get_history(key)
+        print r
+        break
+
 
 
 if __name__ == '__main__':

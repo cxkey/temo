@@ -40,12 +40,14 @@ class OKCoinSpot:
         raise gen.Return(res)
 
     #获取OKCOIN现货历史交易信息
+    @coroutine
     def trades(self,symbol = ''):
         TRADES_RESOURCE = "/api/v1/trades.do"
         params=''
         if symbol:
             params = 'symbol=%(symbol)s' %{'symbol':symbol}
-        return httpGet(self.__url,TRADES_RESOURCE,params)
+        res = yield  AsychttpGet(self.__url,TRADES_RESOURCE,params)
+        raise gen.Return(res)
     
     #获取用户现货账户信息
     def userinfo(self):

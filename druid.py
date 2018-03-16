@@ -14,7 +14,7 @@ class Druid:
         self.data_timeout = 60 * 10
 
     def start(self):
-        IOLoop.instance().add_timeout(time.time() + 3, self.scanSymbol)
+        IOLoop.instance().add_timeout(time.time() + 300, self.scanSymbol)
 
     def profit(self, price1, price2):
         return abs(price1-price2)/price1 
@@ -34,12 +34,10 @@ class Druid:
         for i in range(0, len(array)):
             for j in range(i+1, len(array)):
                 perm_list.append([array[i],array[j]])
-        print perm_list                
         return perm_list                
 
 
     def scanSymbol(self):
-        #self.data = deepcopy(Cache.instance().data)
         self.data = Cache.instance()
         #self.data = {
         #    'r_usdt':{'okex':{'bids': [0.9724, 265.75107117], 'asks': [1.1, 48.2973]},
@@ -56,8 +54,6 @@ class Druid:
                     price1 = self.data.get(symbol,item[0])
                     price2 = self.data.get(symbol,item[1])
                     
-                    #price1 = {'bids': [0.9724, 265.75107117], 'asks': [1.1, 48.2973]}
-                    #price2 = {'bids': [0.9824, 265.75107117], 'asks': [1.3, 48.2973]}
                     if self.diff(price1,price2):
                         print symbol, item, 'can trade'
                     else:
@@ -65,8 +61,8 @@ class Druid:
                 except Exception as e:
                     continue
         print 'scan symbol end'
-        IOLoop.instance().add_timeout(time.time() + 1, self.scanSymbol)                    
-    
+        #IOLoop.instance().add_timeout(time.time() + 1, self.scanSymbol)                    
+   
         
 
 if __name__ == '__main__':

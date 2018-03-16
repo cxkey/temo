@@ -6,6 +6,7 @@ from sdk_huobi import HuobiService
 from tornado import gen
 from tornado.gen import coroutine
 from tornado.ioloop import IOLoop
+import time
 
 import sys
 sys.path.append('../')
@@ -72,14 +73,31 @@ class HuobiEx(Exchange):
         
         raise gen.Return(None)
 
+    @coroutine
+    def get_history(self,symbol):
+        ret = {}
+        symbol = symbol.replace('_', '')
+        r = yield HuobiService.get_history_trade(symbol,2000)
+        if r['status'] != 'ok':
+            raise gen.Return(None)
+
+        for item in r['data']:
+            t1 = time.strftime("%Y%m%d%H%M", time.localtime(item['data'][0]['ts']/1000))
+            price = item['data'][0]['price']
+            ret[t1] = price
+        raise gen.Return(ret)
+
+
 @gen.engine   
 def main():
     hbex = HuobiEx.instance()
     r = yield hbex.get_symbols()
-    if r:
-        for key, value in r.iteritems(): 
-            r = yield hbex.get_depth(key)   
-            print key,r
+    for key,value in r.iteritems(): 
+        #r = yield hbex.get_depth(key)   
+        r = yield hbex.get_history(key)
+        print key,
+        print r
+        break
 
 if __name__ == '__main__':
     main()

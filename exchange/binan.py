@@ -79,6 +79,23 @@ class BinanceEx(Exchange):
         
         return None
 
+    @gen.coroutine
+    def get_history(self,symbol):
+        ret = {}
+        if not symbol:
+            return None
+        symbol = symbol.replace('_', '').upper()            
+        r = self.client.get_historical_trades(symbol=symbol)
+        for item in r:
+            t1 = time.strftime("%Y%m%d%H%M", time.localtime(item['time']/1000))
+            price = item['price']
+            ret[t1] = price
+            print t1,price
+        return ret
+            
+        
+
+
 @gen.engine
 def main():
     baex = BinanceEx.instance()
@@ -86,8 +103,11 @@ def main():
     if r:
         for k in r.keys():
             print k
-            price1 = baex.get_depth(k)
-            print price1
+            #price1 = baex.get_depth(k)
+            #print price1
+            ret = yield baex.get_history(k)
+            print ret
+            break
     IOLoop.instance().stop() 
    
 if __name__ == '__main__':
