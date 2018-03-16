@@ -15,7 +15,7 @@ class Druid:
         self.data_timeout = 60 * 10
 
     def start(self):
-        IOLoop.instance().add_timeout(time.time() + 3, self.scanSymbol)
+        IOLoop.instance().add_timeout(time.time() + 300, self.scanSymbol)
 
     def profit(self, price1, price2):
         return abs(price1-price2)/price1 
@@ -30,7 +30,6 @@ class Druid:
             return False
 
     def scanSymbol(self):
-        #self.data = deepcopy(Cache.instance().data)
         self.data = Cache.instance()
         # '''
         # self.data = {
@@ -49,8 +48,6 @@ class Druid:
                     price1 = self.data.get(symbol, item[0])
                     price2 = self.data.get(symbol, item[1])
                     
-                    #price1 = {'bids': [0.9724, 265.75107117], 'asks': [1.1, 48.2973]}
-                    #price2 = {'bids': [0.9824, 265.75107117], 'asks': [1.3, 48.2973]}
                     if self.diff(price1,price2):
                         print symbol, item, 'can trade'
                     else:
