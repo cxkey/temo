@@ -79,15 +79,19 @@ class BinanceEx(Exchange):
         
         return None
 
+    def get_all_tickers(self):
+        r = self.client.get_all_tickers()
+        print r
+
 @gen.engine
 def main():
     baex = BinanceEx.instance()
     r = yield baex.get_symbols()
     if r:
         for k in r.keys():
-            print k
-            price1 = baex.get_depth(k)
-            print price1
+            price1 = yield baex.get_depth(k)
+            print k, price1
+    #baex.get_all_tickers()
     IOLoop.instance().stop() 
    
 if __name__ == '__main__':
