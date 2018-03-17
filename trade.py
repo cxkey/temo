@@ -32,3 +32,10 @@ class TradeSet:
         except Exception as e:
             alogger.exception(e)
         return trade            
+
+
+    def process(self):
+        trade = self.pop()
+        if trade == None:
+            return
+

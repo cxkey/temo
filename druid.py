@@ -18,6 +18,10 @@ ex_dict = {
     'okex':instance()
 }
 
+#要买的币初始化值
+init_amount = {
+    'iost': 100
+}
 
 @singleton
 class Druid:
@@ -56,16 +60,20 @@ class Druid:
             return flag, trade            
 
 
+    def get_init_amount(self,asset):
+        return init_amount[asset]
+
     @coroutine
     def risk(self,trade):
         buyer = trade.buyer
         #TODO get symbol amount
-        now_amount = yield buyer.get_amount(trade.symbol)
-        if abs(now_amount - init_amount['symbol'])/init_amount > rsik_rate:
+        asset = trade.symbol.split('_')[0]
+        now_amount = yield buyer.get_asset_amount(asset)
+        if abs(now_amount - self.get_init_amount[asset])/init_amount > rsik_rate:
             return True
         seller = trader.seller
-        now_amount = yield seller.get_amount(trade.symbol)
-        if abs(now_amount - init_amount['symbol'])/init_amount > rsik_rate:
+        now_amount = yield seller.get_asset_amount(asset)
+        if abs(now_amount - self.get_init_amount[asset])/init_amount > rsik_rate:
             return True        
         return False
         
