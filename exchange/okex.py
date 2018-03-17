@@ -63,18 +63,30 @@ class OkexEx(Exchange):
             ret[t1] = price
         raise gen.Return(ret)
 
+    @coroutine
+    def get_asset_amount(self,asset):
+        ret = {}
+        r = okcoinSpot.userinfo()
+        ret  =  r['info']['funds']['free']
+        if asset in ret.keys():
+            return ret[asset]
+        else:
+            return 0
            
 
 @gen.engine 
 def main():
     okex = OkexEx.instance()
-    r = yield okex.get_symbols()
-    for key,value in r.iteritems():
-        #r = yield okex.get_depth(key)
-        print key
-        r = yield okex.get_history(key)
-        print r
-        break
+    #r = yield okex.get_symbols()
+    #for key,value in r.iteritems():
+    #    #r = yield okex.get_depth(key)
+    #    print key
+    #    r = yield okex.get_history(key)
+    #    print r
+    #    break
+    r = yield okex.get_asset_amount('iost')
+    print r
+    
 
 
 

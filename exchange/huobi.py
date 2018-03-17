@@ -13,6 +13,7 @@ sys.path.append('../')
 
 from singleton import singleton
 from logger import alogger, elogger
+from decimal import Decimal
 
 @singleton
 class HuobiEx(Exchange):
@@ -87,14 +88,33 @@ class HuobiEx(Exchange):
             ret[t1] = price
         raise gen.Return(ret)
 
+    @coroutine
+    def get_asset_amount(self,asset):        
+        ret = {}
+        if not asset: 
+            raise gen.Return( None) 
+        r = yield HuobiService.get_balance() 
+        if r['status'] != 'ok':
+            raise gen.Return( None)
+        for item in r['data']['list']:
+            if Decimal(item['balance']) > 0:
+                ret[item['currency']] = item['balance']
+        print ret                
+        if asset in ret.keys():
+            raise gen.Return( ret[asset])
+        raise gen.Return( 0)
+        
+
 @gen.engine   
 def main():
     hbex = HuobiEx.instance()
-    r = yield hbex.get_symbols()
-    for key,value in r.iteritems(): 
-        #r = yield hbex.get_depth(key)   
-        r = yield hbex.get_history(key)
-        break
+    #r = yield hbex.get_symbols()
+    #for key,value in r.iteritems(): 
+    #    #r = yield hbex.get_depth(key)   
+    #    r = yield hbex.get_history(key)
+    #    break
+    r = yield hbex.get_asset_amount('iost')
+    print r 
 
 if __name__ == '__main__':
     main()

@@ -130,6 +130,25 @@ def api_key_get(params, request_path):
     url = host_url + request_path
     return http_get_request(url, params)
 
+@coroutine
+def asyc_api_key_get(params, request_path):
+    method = 'GET'
+    timestamp = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+    params.update({'AccessKeyId': ACCESS_KEY,
+                   'SignatureMethod': 'HmacSHA256',
+                   'SignatureVersion': '2',
+                   'Timestamp': timestamp})
+
+    host_name = host_url = TRADE_URL
+    host_name = urlparse.urlparse(host_url).hostname
+    host_name = host_name.lower()
+
+
+    params['Signature'] = createSign(params, method, host_name, request_path, SECRET_KEY)
+    url = host_url + request_path
+    res = yield asyc_http_get_request(url, params)
+    raise gen.Return(res)
+
 
 def api_key_post(params, request_path):
     method = 'POST'

@@ -12,6 +12,7 @@ sys.path.append('../')
 
 from singleton import singleton
 from logger import alogger, elogger
+from decimal import Decimal
 
 api_key = 'kUImpef08tTdWHqBUjgRzcl3DGkVAMfTCEGKFzev2qSVGx7AaJg2oXWO9WytkzMQ'
 api_secret = 'N1eKTmppDwVXHvRS5jbKcvkYMZDN9xCfYxFRm2vOc1VflPmL3O3xGrSDuIa3K6Mw'
@@ -97,15 +98,31 @@ class BinanceEx(Exchange):
             print t1,price
         return ret
 
+    @gen.coroutine
+    def get_asset_amount(self,asset):
+        ret = {}
+        if not asset:
+            raise gen.Return( None)
+        asset = asset.upper()
+        r = self.client.get_account()
+        for item in r['balances']:
+            if Decimal(item['free']) > 0:
+                ret[item['asset']] = item['free']
+        if asset in ret:
+            return ret[asset]
+        return 0
+
 @gen.engine
 def main():
     baex = BinanceEx.instance()
-    r = yield baex.get_symbols()
-    if r:
-        for k in r.keys():
-            price1 = yield baex.get_depth(k)
-            print k, price1
+    #r = yield baex.get_symbols()
+    #if r:
+    #    for k in r.keys():
+    #        price1 = yield baex.get_depth(k)
+    #        print k, price1
     #baex.get_all_tickers()
+    r = yield baex.get_asset_amount('IOST')
+    print r
     IOLoop.instance().stop() 
    
 if __name__ == '__main__':

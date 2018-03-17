@@ -109,6 +109,7 @@ def get_accounts():
 
 ACCOUNT_ID = 0
 # 获取当前账户资产
+@coroutine
 def get_balance(acct_id=None):
     """
     :param acct_id
@@ -126,7 +127,8 @@ def get_balance(acct_id=None):
 
     url = "/v1/account/accounts/{0}/balance".format(acct_id)
     params = {"account-id": acct_id}
-    return api_key_get(params, url)
+    res = yield asyc_api_key_get(params, url)
+    raise gen.Return(res)
 
 
 # 创建并执行订单

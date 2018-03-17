@@ -5,6 +5,7 @@
 import json
 import hashlib
 import time
+import urllib
 import requests
 from tornado.httpclient import AsyncHTTPClient, HTTPError
 from tornado.gen import coroutine
@@ -52,7 +53,11 @@ def httpPost(url,resource,params):
     headers = {
             "Content-type" : "application/x-www-form-urlencoded",
     }
-    response = requests.post(url + resource + '?' + params, method='POST', headers=headers)
-    data = response.body
-    return data
+    print url
+    print resource
+    print params
+    temp_params = urllib.urlencode(params)
+    response = requests.post(url + resource, data= temp_params, headers=headers)
+    data = response.text
+    return json.loads(data)
 
