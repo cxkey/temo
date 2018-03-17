@@ -15,3 +15,4 @@ order = client.create_market_buy(
 
 # get list of filled orders
 filled_orders = client.get_orders(status=client.STATUS_FILLED)
+

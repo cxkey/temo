@@ -5,37 +5,91 @@ from copy import deepcopy
 from tornado.ioloop import IOLoop
 from util import permutation
 import time
+from decimal import Decimal
 
 class Trade:
-    def __init__(self,symbol):
+    def __init__(self, symbol, buyer, buy_price, buy_amount, seller, sell_price, sell_amount):
         self.symbol = symbol
-        self.buyer = None
-        self.seller = None
-        self.amount = 0
-        self.buy_price = 0.00
-        self.sell_price = 0.00
-        self.status = 0 #0:未交易 1:已交易
 
-    def set_amount(self,amount):
-        self.amount = amount
-
-    def set_buyer(self,buyer):
         self.buyer = buyer
+        self.buy_price = buy_price
+        self.buy_amount = buy_amount
 
-    def set_seller(self,seller):
         self.seller = seller
+        self.sell_price = sell_price
+        self.sell_amount = sell_amount
 
+        #self.key = self.symbol + '_' + self.buyer + '_' + self.seller
+        self.key = self.symbol + '_' + '_'.join(sorted[self.buyer, self.seller])
+
+        self.status = 0 # 0:未交易 1:交易succ  -1:fail
+    
+    def flag(self):
+        a = sorted[self.buyer, self.seller]
+        if a[0] == self.buyer:
+            return True
+        else:
+            return False
+        
+    def profit11(self):
+        #return self.sell_price * self.sell_amount - self.buy_price * self.buy_amount
+        return self.buy_price * self.buy_amount
+
+    def oppsite(self, o):
+        if o is None
+            return False
+
+        if self.symbol == o.symbol and \
+            self.buyer == o.seller and \
+            self.seller == o.buyer:
+            return True
+
+        return False
 
 @singleton
 class TradeSet:
     def __init__(self):
-        self.max_trade_num = 10 #同时最多有10笔交易
-        self.trades = {}
+        self.max_trade_num = 10 # 同时最多有10个交易对
+        '''
+        {
+            'iost_eth_ex1_ex2': {
+                'ex1': [t1, t2],  //此时 t1, t2 的 buyer 都为 ex1
+                'ex2': [t3, t4],  //此时 t3, t4 的 buyer 都为 ex2
+            },
+            'iost_eth_ex1_ex2': [t1, t2],
+            'iost_eth_ex1_ex3': {
+                'ex1': [t1, t2],
+                'ex3': [t3, t4],
+            }
+        }
+        '''
+        self.queue = {}
 
-    def push(self,trade):
-        if len(self.trades) > self.max_trade_num:
-            return
-        key = trade.symbol+'_' + trade.buyer + '_' + trade.seller
+    def risk_value(self, key):
+        if key not in self.queue.keys():
+            return 0
+
+        trade_sequence = self.queue[key]
+
+        s = Decimal(0.0)
+        for ts in trade_sequence:
+            if ts.flag():
+                s += Decimal(ts.profit11())
+            else:
+                s -= Decimal(ts.profit11())
+
+        return s
+
+    def push(self, trade):
+        if trade.key not in self.queue.keys():
+            if len(self.queue.keys()) >= self.max_trade_num:
+                print 'bbb'
+                return
+            else:
+                self.queue[trade.key] = [trade]
+        else:
+            # 正交易的风险值
+
         if key in self.trades.keys():
             return
         self.trades[key] = trade
@@ -44,8 +98,6 @@ class TradeSet:
         key = trade.symbol+'_' + trade.buyer + '_' + trade.seller
         if key in self.trades.keys():
             del self.trades[key]
-   
-
 
 @singleton
 class Druid:
@@ -61,29 +113,27 @@ class Druid:
         IOLoop.instance().add_timeout(time.time() + 300, self.scanSymbol)
 
     def profit_rate(self, price1, price2):
-        return abs(price1-price2)/price1 
+        #TODO calc the cost
+        return abs(price1 - price2) / price1 
 
-<<<<<<< HEAD
-
-    def check_trade(self, symbol, ex1,price1,ex2,price2):
+    def check_trade(self, symbol, ex1, price1, ex2, price2):
         flag = False
         trade = None
-        bid1 = price1['bids'][0]
-        ask1 = price1['ask'][0]
-        bid2 = price2['bids'][0]
-        ask2 = price2['ask'][0]
-        if (ask1 < bid2) and profit_rate(ask1,bid2) > self.trade_rate:
-            flag = True
-            trade = Trade()
-            trade.set_buyer(ex1)
-            trade.set_seller(ex2)
-        if (ask2 < bid1) and profit_rate(ask2,bid1) < self.trade_rate:
-            flag = True
-            trade = Trade()
-            trade.set_buyer(ex2)
-            trade.set_seller(ex1)
-        return flag,trade            
 
+        bid1 = price1['bids'][0]
+        ask1 = price1['asks'][0]
+        bid2 = price2['bids'][0]
+        ask2 = price2['asks'][0]
+
+        if ask1 < bid2 and profit_rate(ask1, bid2) > self.trade_rate:
+            flag = True
+            trade = Trade(symbol, ex1, ask1, price1['asks'][1], ex2, bid2, price2['bids'][1])
+            return flag, trade
+
+        if ask2 < bid1 and profit_rate(ask2, bid1) < self.trade_rate:
+            flag = True
+            trade = Trade(symbol, ex2, ask2, price2['asks'][1], ex1, bid1, price1['bids'][1])
+            return flag, trade            
 
     def permutation(self, array):
         perm_list = []
@@ -93,20 +143,11 @@ class Druid:
         return perm_list         
 
     def pushtrade(self):
-        
+        pass
 
     def scanSymbol(self):
         self.data = Cache.instance()
         print 'scan symbol start'
-=======
-    def diff(self, price1,price2):
-        bid = price1['bids'][0]
-        ask = price2['asks'][0]
-        print bid, ask, self.profit(bid,ask)
-        if self.profit(bid,ask) >= 0.1:
-            return True
-        else:
-            return False
 
     def scanSymbol(self):
         self.data = Cache.instance()
@@ -119,40 +160,23 @@ class Druid:
         # }
         # '''
         alogger.info('scan symbol start')
->>>>>>> 90f365773e5e7ca3f7e096ad49943d7ba10f9b80
         for symbol, value in self.data.data.iteritems():
             exs = self.data.data[symbol].keys()
             perm_list = util.permutation(exs)
             for item in perm_list:
                 try:
-<<<<<<< HEAD
                     ex1 = item[0]
                     ex2 = item[1]
-                    price1 = self.data.get(symbol,ex1)
-                    price2 = self.data.get(symbol,ex2)
-                    flag,trade =  self.check_trade(symbol,ex1,price1,ex2,price2)
+                    price1 = self.data.get(symbol, ex1)
+                    price2 = self.data.get(symbol, ex2)
+                    flag, trade = self.check_trade(symbol, ex1, price1, ex2, price2)
                     if flag:
                         self.tset.push(trade)
                         #redis.set(trade)
-=======
-                    price1 = self.data.get(symbol, item[0])
-                    price2 = self.data.get(symbol, item[1])
-                    
-                    if self.diff(price1,price2):
-                        print symbol, item, 'can trade'
-                    else:
-                        print symbol, item, 'can not trade'
->>>>>>> 90f365773e5e7ca3f7e096ad49943d7ba10f9b80
                 except Exception as e:
                     alogger.exception(e)
         print 'scan symbol end'
         IOLoop.instance().add_timeout(time.time() + 1, self.scanSymbol)                    
-<<<<<<< HEAD
-
-   
-        
-=======
->>>>>>> 90f365773e5e7ca3f7e096ad49943d7ba10f9b80
 
 if __name__ == '__main__':
     Druid.instance().start()
