@@ -11,16 +11,14 @@ from exchange.huobi import HuobiEx
 from exchange.okex import OkexEx 
 from Queue import Queue
 from trade import *
+from init import *
+import conf
+from util import *
 
 ex_dict = {
     'binan':BinanceEx.instance(),
     'huobi':HuobiEx.instance(),
     'okex':instance()
-}
-
-# 要买的币初始化值
-init_amount = {
-    'iost': 100
 }
 
 @singleton
@@ -30,59 +28,32 @@ class Druid:
         self.handlers = []
         self.data = None
         self.data_timeout = 60 * 10
-        self.trade_rate = 0.1
         self.tset = TradeSet.instance()
 
     def start(self):
         IOLoop.instance().add_timeout(time.time() + 300, self.scanSymbol)
 
-    def profit_rate(self, price1, price2):
-        #TODO calc the cost
-        return abs(price1 - price2) / price1 
-
-    def check_trade(self, symbol, ex1, price1, ex2, price2):
-        flag = False
+    @staticmethod
+    def check_trade(symbol, ex1, price1, ex2, price2):
         trade = None
 
-        bid1 = price1['bids'][0]
-        ask1 = price1['asks'][0]
-        bid2 = price2['bids'][0]
-        ask2 = price2['asks'][0]
+        # TODO Decimal should be packaged in spider 
+        bid1, bid1_amount = Decimal(price1['bids'][0]), Decimal(price1['bids'][1]) 
+        ask1, ask1_amount = Decimal(price1['asks'][0]), Decimal(price1['asks'][1])
+        bid2, bid2_amount = Decimal(price2['bids'][0]), Decimal(price2['bids'][1])
+        ask2, ask2_amount = Decimal(price2['asks'][0]), Decimal(price2['asks'][1])
 
-        if ask1 < bid2 and profit_rate(ask1, bid2) > self.trade_rate:
-            flag = True
-            trade = Trade(symbol, ex_dict[ex1], ask1, price1['asks'][1], ex_dict[ex2], bid2, price2['bids'][1])
-            return flag, trade
-
-        if ask2 < bid1 and profit_rate(ask2, bid1) < self.trade_rate:
-            flag = True
-            trade = Trade(symbol, ex_dict[ex2], ask2, price2['asks'][1], ex_dict[ex1], bid1, price1['bids'][1])
-            return flag, trade            
-
-    def get_init_amount(self,asset):
-        return init_amount[asset]
-
-    @coroutine
-    def risk(self,trade):
-        buyer = trade.buyer
-        #TODO get symbol amount
-        asset = trade.symbol.split('_')[0]
-        now_amount = yield buyer.get_asset_amount(asset)
-        if abs(now_amount - self.get_init_amount[asset])/init_amount > rsik_rate:
-            return True
-        seller = trader.seller
-        now_amount = yield seller.get_asset_amount(asset)
-        if abs(now_amount - self.get_init_amount[asset])/init_amount > rsik_rate:
-            return True        
-        return False
-        
-
-    def push(self,trade):
-        if self.risk(trade):
-            pass
+        if ask1 < bid2 and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
+            trade = Trade(symbol, ex1, ask1, ask1_amount, ex2, bid2, bid2_amount)
+        elif ask2 < bid1 and util.profit_rate(ask2, bid1) > conf.PROFIT_RATE:
+            trade = Trade(symbol, ex2, ask2, ask2_amount, ex1, bid1, bid1_amount)
         else:
-            self.tset.push(trade)
+            return False, None
 
+        if not trade.has_risk():
+            return True, trade
+
+        return False, None
 
     def scanSymbol(self):
         self.data = Cache.instance()
@@ -100,12 +71,13 @@ class Druid:
             perm_list = util.permutation(exs)
             for item in perm_list:
                 try:
-                    ex1, ex2 = item[0], item[1]
+                    # ex1, ex2 is exchange instance 
+                    ex1, ex2 = ex_dict[item[0]], ex_dict[item[1]]
                     price1 = self.data.get(symbol, ex1)
                     price2 = self.data.get(symbol, ex2)
-                    flag, trade = self.check_trade(symbol, ex1, price1, ex2, price2)
-                    if flag:
-                        self.push(trade)
+                    flag, trade = Druid.check_trade(symbol, ex1, price1, ex2, price2)
+                    if flag and trade is not None:
+                        self.tset.produce(trade)
                 except Exception as e:
                     alogger.exception(e)
         print 'scan symbol end'
