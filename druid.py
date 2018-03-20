@@ -18,7 +18,7 @@ ex_dict = {
     'okex':instance()
 }
 
-#要买的币初始化值
+# 要买的币初始化值
 init_amount = {
     'iost': 100
 }
@@ -58,7 +58,6 @@ class Druid:
             flag = True
             trade = Trade(symbol, ex_dict[ex2], ask2, price2['asks'][1], ex_dict[ex1], bid1, price1['bids'][1])
             return flag, trade            
-
 
     def get_init_amount(self,asset):
         return init_amount[asset]
@@ -101,8 +100,7 @@ class Druid:
             perm_list = util.permutation(exs)
             for item in perm_list:
                 try:
-                    ex1 = item[0]
-                    ex2 = item[1]
+                    ex1, ex2 = item[0], item[1]
                     price1 = self.data.get(symbol, ex1)
                     price2 = self.data.get(symbol, ex2)
                     flag, trade = self.check_trade(symbol, ex1, price1, ex2, price2)
