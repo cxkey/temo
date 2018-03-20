@@ -11,16 +11,14 @@ from exchange.huobi import HuobiEx
 from exchange.okex import OkexEx 
 from Queue import Queue
 from trade import *
+from init import *
+import conf
+from util import *
 
 ex_dict = {
     'binan':BinanceEx.instance(),
     'huobi':HuobiEx.instance(),
     'okex':instance()
-}
-
-#要买的币初始化值
-init_amount = {
-    'iost': 100
 }
 
 @singleton
@@ -30,15 +28,11 @@ class Druid:
         self.handlers = []
         self.data = None
         self.data_timeout = 60 * 10
-        self.trade_rate = 0.1
         self.tset = TradeSet.instance()
 
     def start(self):
         IOLoop.instance().add_timeout(time.time() + 300, self.scanSymbol)
 
-    def profit_rate(self, price1, price2):
-        #TODO calc the cost
-        return abs(price1 - price2) / price1 
 
     def check_trade(self, symbol, ex1, price1, ex2, price2):
         flag = False
@@ -49,12 +43,12 @@ class Druid:
         bid2 = price2['bids'][0]
         ask2 = price2['asks'][0]
 
-        if ask1 < bid2 and profit_rate(ask1, bid2) > self.trade_rate:
+        if Decimal(ask1) < Decimal(bid2) and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
             flag = True
             trade = Trade(symbol, ex_dict[ex1], ask1, price1['asks'][1], ex_dict[ex2], bid2, price2['bids'][1])
             return flag, trade
 
-        if ask2 < bid1 and profit_rate(ask2, bid1) < self.trade_rate:
+        if Decimal(ask2) < Decimal(bid1) and util.profit_rate(ask2, bid1) > conf.PROFIT_RATE:
             flag = True
             trade = Trade(symbol, ex_dict[ex2], ask2, price2['asks'][1], ex_dict[ex1], bid1, price1['bids'][1])
             return flag, trade            
@@ -69,11 +63,11 @@ class Druid:
         #TODO get symbol amount
         asset = trade.symbol.split('_')[0]
         now_amount = yield buyer.get_asset_amount(asset)
-        if abs(now_amount - self.get_init_amount[asset])/init_amount > rsik_rate:
+        if abs(now_amount - self.get_init_amount[asset])/init_amount > conf.RISK_RATE:
             return True
         seller = trader.seller
         now_amount = yield seller.get_asset_amount(asset)
-        if abs(now_amount - self.get_init_amount[asset])/init_amount > rsik_rate:
+        if abs(now_amount - self.get_init_amount[asset])/init_amount > conf.RISK_RATE:
             return True        
         return False
         
@@ -82,7 +76,7 @@ class Druid:
         if self.risk(trade):
             pass
         else:
-            self.tset.push(trade)
+            self.tset.produce(trade)
 
 
     def scanSymbol(self):
