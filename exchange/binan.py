@@ -14,6 +14,7 @@ sys.path.append('../')
 from singleton import singleton
 from logger import alogger, elogger
 from decimal import Decimal
+from enum import *
 
 api_key = 'kUImpef08tTdWHqBUjgRzcl3DGkVAMfTCEGKFzev2qSVGx7AaJg2oXWO9WytkzMQ'
 api_secret = 'N1eKTmppDwVXHvRS5jbKcvkYMZDN9xCfYxFRm2vOc1VflPmL3O3xGrSDuIa3K6Mw'
@@ -105,31 +106,35 @@ class BinanceEx(Exchange):
         if not asset:
             raise gen.Return(None)
         asset = asset.replace('_', '').upper()            
-        # TODO should be use get_asset_balance(asset)
-        # {
-        #     "asset": "BTC",
-        #     "free": "4723846.89208129",
-        #     "locked": "0.00000000"
-        # }
-        r = self.client.get_account()
-        for item in r['balances']:
-            if Decimal(item['free']) > 0:
-                ret[item['asset']] = item['free']
-        if asset in ret:
-            return ret[asset]
-        return 0
+        r = self.client.get_asset_balance(asset=asset)
+        raise gen.Return(r['free'])
 
-    def create_trade(self, ):
-        pass
+    @gen.coroutine
+    def create_trade(self, symbol,amount,price,side):
+        if side == BUY:
+            side = SIDE_BUY
+        else:
+            side = SIDE_SELL
 
-    def create_test_trade(self, ):
-        order = client.create_test_order(
+        order = self.client.create_order(
+            symbol = symbol,
+            side = side,
+            type = ORDER_TYPE_LIMIT,
+            timeInForce=TIME_IN_FORCE_GTC,
+            quantity=amount,
+            price=price)
+        return order
+
+    @gen.coroutine
+    def create_test_trade(self):
+        order = self.client.create_test_order(
             symbol='BNBBTC',
             side=SIDE_BUY,
             type=ORDER_TYPE_LIMIT,
             timeInForce=TIME_IN_FORCE_GTC,
             quantity=100,
             price='0.00001')
+        return order
 
 @gen.engine
 def main():
@@ -140,7 +145,9 @@ def main():
     #        price1 = yield baex.get_depth(k)
     #        print k, price1
     #baex.get_all_tickers()
-    r = yield baex.get_asset_amount('IOST')
+    #r = yield baex.get_asset_amount('IOST')
+    #print r
+    r = yield baex.create_test_trade()
     print r
     IOLoop.instance().stop() 
    

@@ -8,6 +8,7 @@ from tornado.gen import coroutine
 from tornado.ioloop import IOLoop 
 from tornado import gen
 import time
+from enum import *
 
 @singleton
 class OkexEx(Exchange):
@@ -72,7 +73,16 @@ class OkexEx(Exchange):
             return ret[asset]
         else:
             return 0
-           
+    
+    @coroutine        
+    def create_trade(self,symbol,amount,price,side):
+        if side == BUY:
+            side = 'buy'
+        else:
+            side = 'sell'
+        r = okcoinSpot.trade(symbol=symbol,tradeType=side,price=price,amount=amount)
+        return r
+        
 
 @gen.engine 
 def main():

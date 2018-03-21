@@ -14,6 +14,7 @@ sys.path.append('../')
 from singleton import singleton
 from logger import alogger, elogger
 from decimal import Decimal
+from enum import *
 
 @singleton
 class HuobiEx(Exchange):
@@ -103,7 +104,16 @@ class HuobiEx(Exchange):
         if asset in ret.keys():
             raise gen.Return( ret[asset])
         raise gen.Return( 0)
-        
+
+    @coroutine
+    def create_trade(self,symbol,amount,price,side):
+        if side == BUY:
+            side = 'buy-limit'
+        else:
+            side = 'sell-limit'
+        r = HuobiService.send_order(amount=amount, symbol=symbol, _type=side, price=price)
+        return r
+
 
 @gen.engine   
 def main():

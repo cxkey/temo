@@ -3,6 +3,7 @@ from Queue import Queue
 from util import *
 from init import *
 import conf
+from exchange.enum import *
 
 class Trade:
     def __init__(self, symbol, buyer, buy_price, buy_amount, seller, sell_price, sell_amount):
@@ -26,13 +27,13 @@ class Trade:
                 str(self.sell_amount), str(self.seller_asset_amount)) 
 
     @coroutine
-    def make_deal(self):
+    def make_deal(self,amount):
         # TODO 如果一方失败, 另一方要尝试回滚 
         
         # 先卖, 后买
-        yield trade.seller.create_trade(symbol, amount, sell)
+        yield trade.seller.create_trade(symbol=self.symbol, amount=amount, side=SELL)
 
-        yield trade.buyer.create_trade(symbol, amount, buy)
+        yield trade.buyer.create_trade(symbol=self.symbol, amount=amount, side=BUY)
 
     @coroutine
     def calc_final_amount(self):
@@ -136,8 +137,7 @@ class TradeSet:
                     amount = yield trade.calc_final_amount()
                     if amount <= 0 :
                         # TODO 这里还要考虑下
-                        yield trade.buyer.create_trade(symbol, amount, buy)
-                        yield trade.seller.create_trade(symbol, amount, sell)
+                        yield trade.make_deal(amount)
                 else:
                     alogger.info('trade real_check fail: %s' % str(trade))
             except Exception as e :
