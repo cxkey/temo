@@ -2,6 +2,7 @@
 
 from exchange import Exchange
 from binance.client import Client
+from binance.enums import *
 from tornado import gen
 from tornado.ioloop import IOLoop
 import time
@@ -99,11 +100,17 @@ class BinanceEx(Exchange):
         return ret
 
     @gen.coroutine
-    def get_asset_amount(self,asset):
+    def get_asset_amount(self, asset):
         ret = {}
         if not asset:
-            raise gen.Return( None)
-        asset = asset.upper()
+            raise gen.Return(None)
+        asset = asset.replace('_', '').upper()            
+        # TODO should be use get_asset_balance(asset)
+        # {
+        #     "asset": "BTC",
+        #     "free": "4723846.89208129",
+        #     "locked": "0.00000000"
+        # }
         r = self.client.get_account()
         for item in r['balances']:
             if Decimal(item['free']) > 0:
@@ -111,6 +118,18 @@ class BinanceEx(Exchange):
         if asset in ret:
             return ret[asset]
         return 0
+
+    def create_trade(self, ):
+        pass
+
+    def create_test_trade(self, ):
+        order = client.create_test_order(
+            symbol='BNBBTC',
+            side=SIDE_BUY,
+            type=ORDER_TYPE_LIMIT,
+            timeInForce=TIME_IN_FORCE_GTC,
+            quantity=100,
+            price='0.00001')
 
 @gen.engine
 def main():
