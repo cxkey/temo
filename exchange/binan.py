@@ -72,11 +72,11 @@ class BinanceEx(Exchange):
         if r.get('bids', None) is not None:
             bids = r.get('bids', [])
             if bids:
-                ret['bids'] = [ float(i) for i in bids[0][0:-1]]
+                ret['bids'] = [Decimal(i) for i in bids[0][0:-1]]
             
             asks = r.get('asks', [])
             if asks:
-                ret['asks'] = [ float(i) for i in asks[0][0:-1]]
+                ret['asks'] = [Decimal(i) for i in asks[0][0:-1]]
 
             return ret
         
@@ -139,16 +139,16 @@ class BinanceEx(Exchange):
 @gen.engine
 def main():
     baex = BinanceEx.instance()
-    #r = yield baex.get_symbols()
-    #if r:
-    #    for k in r.keys():
-    #        price1 = yield baex.get_depth(k)
-    #        print k, price1
+    r = yield baex.get_symbols()
+    if r:
+        for k in r.keys():
+            price1 = yield baex.get_depth(k)
+            print k, price1
     #baex.get_all_tickers()
     #r = yield baex.get_asset_amount('IOST')
     #print r
-    r = yield baex.create_test_trade()
-    print r
+    #r = yield baex.create_test_trade()
+    #print r
     IOLoop.instance().stop() 
    
 if __name__ == '__main__':

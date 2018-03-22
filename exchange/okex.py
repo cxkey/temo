@@ -47,10 +47,10 @@ class OkexEx(Exchange):
         r = yield okcoinSpot.depth(symbol)
         bids = r.get('bids',[])
         if bids:
-            ret['bids'] = bids[0]
+            ret['bids'] = [Decimal(i) for i in bids[0]]
             asks = r.get('asks',[])
             if asks:
-                ret['asks'] = asks[-1]
+                ret['asks'] = [Decimal(i) for i in asks[-1]]
             raise gen.Return(ret)
         raise gen.Return(None)
 
@@ -87,15 +87,15 @@ class OkexEx(Exchange):
 @gen.engine 
 def main():
     okex = OkexEx.instance()
-    #r = yield okex.get_symbols()
-    #for key,value in r.iteritems():
-    #    #r = yield okex.get_depth(key)
-    #    print key
-    #    r = yield okex.get_history(key)
-    #    print r
-    #    break
-    r = yield okex.get_asset_amount('iost')
-    print r
+    r = yield okex.get_symbols()
+    for key,value in r.iteritems():
+        #r = yield okex.get_depth(key)
+        print key
+        r = yield okex.get_history(key)
+        print r
+        break
+    #r = yield okex.get_asset_amount('iost')
+    #print r
     
 
 

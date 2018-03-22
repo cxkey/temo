@@ -27,7 +27,7 @@ class Trade:
                 str(self.sell_amount), str(self.seller_asset_amount)) 
 
     @coroutine
-    def make_deal(self,amount):
+    def make_deal(self, amount):
         # TODO 如果一方失败, 另一方要尝试回滚 
         
         # 先卖, 后买
@@ -135,9 +135,9 @@ class TradeSet:
                 real_check_result = yield trade.check()
                 if real_check_result:
                     amount = yield trade.calc_final_amount()
-                    if amount <= 0 :
+                    if amount > 0 :
                         # TODO 这里还要考虑下
-                        yield trade.make_deal(amount)
+                        trade.make_deal(amount)
                 else:
                     alogger.info('trade real_check fail: %s' % str(trade))
             except Exception as e :

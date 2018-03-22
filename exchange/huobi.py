@@ -63,11 +63,11 @@ class HuobiEx(Exchange):
             if tick is not None:
                 bids = tick.get('bids', [])
                 if bids:
-                    ret['bids'] = bids[0]
+                    ret['bids'] = [Decimal(i) for i in bids[0]]
                 
                 asks = tick.get('asks', [])
                 if asks:
-                    ret['asks'] = asks[0]
+                    ret['asks'] = [Decimal(i) for i in asks[0]]
 
                 raise gen.Return(ret)
             else:
@@ -118,13 +118,13 @@ class HuobiEx(Exchange):
 @gen.engine   
 def main():
     hbex = HuobiEx.instance()
-    #r = yield hbex.get_symbols()
-    #for key,value in r.iteritems(): 
-    #    #r = yield hbex.get_depth(key)   
-    #    r = yield hbex.get_history(key)
-    #    break
-    r = yield hbex.get_asset_amount('iost')
-    print r 
+    r = yield hbex.get_symbols()
+    for key,value in r.iteritems(): 
+        #r = yield hbex.get_depth(key)   
+        r = yield hbex.get_history(key)
+        break
+    #r = yield hbex.get_asset_amount('iost')
+    #print r 
 
 if __name__ == '__main__':
     main()
