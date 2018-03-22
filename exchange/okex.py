@@ -7,6 +7,7 @@ from sdk_okex.Client import *
 from tornado.gen import coroutine
 from tornado.ioloop import IOLoop 
 from tornado import gen
+from decimal import Decimal
 import time
 from enum import *
 
@@ -89,16 +90,13 @@ def main():
     okex = OkexEx.instance()
     r = yield okex.get_symbols()
     for key,value in r.iteritems():
-        #r = yield okex.get_depth(key)
-        print key
-        r = yield okex.get_history(key)
+        r = yield okex.get_depth(key)
+        #print key
+        #r = yield okex.get_history(key)
         print r
-        break
+        #break
     #r = yield okex.get_asset_amount('iost')
     #print r
-    
-
-
 
 if __name__ == '__main__':
     main()

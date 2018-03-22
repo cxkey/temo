@@ -120,9 +120,9 @@ def main():
     hbex = HuobiEx.instance()
     r = yield hbex.get_symbols()
     for key,value in r.iteritems(): 
-        #r = yield hbex.get_depth(key)   
-        r = yield hbex.get_history(key)
-        break
+        r = yield hbex.get_depth(key)   
+        print r
+        #r = yield hbex.get_history(key)
     #r = yield hbex.get_asset_amount('iost')
     #print r 
 
