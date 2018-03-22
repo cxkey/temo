@@ -82,7 +82,8 @@ class Trade:
         else:
             raise gen.Return(False)
 
-        if not self.has_risk(): 
+        ret_risk = yield self.has_risk()
+        if not ret_risk:
             raise gen.Return(True)
         else:
             raise gen.Return(False)
@@ -90,14 +91,18 @@ class Trade:
     @coroutine
     def has_risk(self):
         asset = self.symbol.split('_')[0]
+        raise gen.Return(False)
+        return
 
         self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)
         if abs(self.buyer_asset_amount - conf.INIT_AMOUNT[asset]) / conf.INIT_AMOUNT[asset] > conf.RISK_RATE:
             raise gen.Return(True)
+            return
 
         trade.seller_asset_amount = yield trade.seller.get_asset_amount(asset)
         if abs(trade.seller_asset_amount - conf.INIT_AMOUNT[asset]) / conf.INIT_AMOUNT[asset] > conf.RISK_RATE:
             raise gen.Return(True)
+            return
 
         raise gen.Return(False)
 

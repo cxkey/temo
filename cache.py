@@ -39,6 +39,7 @@ class Cache:
     def stat(self):
         s = ''
         s += 'symbol length:{}\n'.format(len(self.data.keys()))
+        return s
 
     def find(self, symbol, exchange):
         if symbol not in self.data.keys():

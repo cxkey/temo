@@ -4,7 +4,7 @@ from tornado import ioloop
 import conf
 from daemon import Daemon
 from conf import PROJECT_NAME, INSTANCE_NAME, MAX_WAIT_SECONDS_BEFORE_SHUTDOWN
-from logger import alogger, elogger, init_logger
+from logger import alogger, slogger, elogger, init_logger
 import signal
 import sys
 import os, json
@@ -88,11 +88,8 @@ if __name__ == '__main__':
     '''
 
     if sys.argv[1] == "debug":
-        print 1
         init_logger('.')
-        print 2
         main()
-        print 3
     else:
         print sys.argv
         action = sys.argv[1]

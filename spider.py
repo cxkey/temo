@@ -1,5 +1,5 @@
 from singleton import singleton
-from logger import alogger, elogger, init_logger
+from logger import alogger, slogger, elogger, init_logger
 from exchange.binan import BinanceEx
 from exchange.huobi import HuobiEx
 from exchange.okex import OkexEx
@@ -37,10 +37,10 @@ class Wisp:
                         continue
 
                     self.cache.setkey(s, self.exchange.name)
-                alogger.info('wisp symbol [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
+                slogger.info('wisp symbol [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
         except Exception, e:
-            alogger.info('wisp symbol [%s] exception' % self.exchange.name)
-            alogger.exception(e)
+            slogger.info('wisp symbol [%s] exception' % self.exchange.name)
+            slogger.exception(e)
         finally:
             self.running = False
 
@@ -56,10 +56,10 @@ class Wisp:
                 info = yield self.exchange.get_depth(symbol)
                 if info:
                     self.cache.setvalue(symbol, self.exchange.name, info)
-            alogger.info('wisp depth [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
+            slogger.info('wisp depth [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
         except Exception, e:
-            alogger.info('wisp depth [%s] exception' % self.exchange.name)
-            alogger.exception(e)
+            slogger.info('wisp depth [%s] exception' % self.exchange.name)
+            slogger.exception(e)
         finally:
             self.running = False
     
@@ -77,7 +77,7 @@ class Spider:
 
     def runLoop(self):
         if self.terminate:
-            alogger.info('spider terminate')
+            slogger.info('spider terminate')
             tornado.ioloop.IOLoop.instance().stop()
             return
 
@@ -100,18 +100,18 @@ class Spider:
                 bingo -= 1
                 continue
             
-            alogger.info('wisp depth [%s] start' % wisp.exchange.name)
+            slogger.info('wisp depth [%s] start' % wisp.exchange.name)
             wisp.dig_depth()
 
         if bingo == 0:
             self.busy = True
-            alogger.info('wisps are all busy')
+            slogger.info('wisps are all busy')
 
     def refresh_symbols(self):
-        alogger.info('refresh symbols start')
+        slogger.info('refresh symbols start')
 
         for wisp in self.wisps:
-            alogger.info('wisp symbol [%s] start' % wisp.exchange.name)
+            slogger.info('wisp symbol [%s] start' % wisp.exchange.name)
             wisp.dig_symbols()
 
         #for symbol, v1 in self.cache.data.iteritems():
@@ -119,17 +119,17 @@ class Spider:
         #        now = time.time()
         #        if now - v2['timestamp'] >= self.cache.clean_timeout:
         #            del self.cache[symbol][exchange]
-        #            alogger.info('%s,%s,deleted in cache',symbol,exchange)
+        #            slogger.info('%s,%s,deleted in cache',symbol,exchange)
         #        else:
         #            continue
 
-        alogger.info('refresh_symbols finished')
+        slogger.info('refresh_symbols finished')
 
     def show_cache(self):
-        alogger.info('--------cache--------')
-        alogger.info(str(self.cache))
-        alogger.info('--------cache--------')
-        alogger.info('--------cache--------')
+        slogger.info('--------cache--------')
+        slogger.info(str(self.cache))
+        slogger.info('--------cache--------')
+        slogger.info('--------cache--------{}'.format(self.cache.stat()))
 
     def start(self):
         tornado.ioloop.PeriodicCallback(self.refresh_symbols, SCAN_TIMEOUT_INTERVAL).start()

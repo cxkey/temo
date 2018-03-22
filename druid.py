@@ -13,10 +13,10 @@ from Queue import Queue
 from trade import *
 from init import *
 import conf
-from util import *
+import util
 
 ex_dict = {
-    'binan':BinanceEx.instance(),
+    'binance':BinanceEx.instance(),
     'huobi':HuobiEx.instance(),
     'okex':OkexEx.instance()
 }
@@ -26,15 +26,14 @@ class Druid:
     def __init__(self):
         self.terminate = False
         self.handlers = []
-        self.data = None
+        self.cache = None
         self.data_timeout = 60 * 10
         self.tset = TradeSet.instance()
 
     def start(self):
-        IOLoop.instance().add_timeout(time.time() + 300, self.scanSymbol)
+        IOLoop.instance().add_timeout(time.time() + 20, self.scanSymbol)
 
-    @staticmethod
-    def check_trade(symbol, ex1, price1, ex2, price2):
+    def check_trade(self, symbol, ex1, price1, ex2, price2):
         trade = None
 
         bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
@@ -49,15 +48,16 @@ class Druid:
         else:
             return False, None
 
-        if not trade.has_risk():
+        ret_risk = yield trade.has_risk()
+        if not ret_risk:
             return True, trade
 
         return False, None
 
     def scanSymbol(self):
-        self.data = Cache.instance()
+        self.cache = Cache.instance()
         # '''
-        # self.data = {
+        # self.cache = {
         #     'r_usdt':{'okex':{'bids': [0.9724, 265.75107117], 'asks': [1.1, 48.2973]},
         #               'binan':{'bids': [0.9824, 265.75107117], 'asks': [1.3, 48.2973]},
         #               'huobi':{'bids': [0.9624, 265.75107117], 'asks': [1.2, 48.2973]}
@@ -65,16 +65,20 @@ class Druid:
         # }
         # '''
         alogger.info('scan symbol start')
-        for symbol, value in self.data.data.iteritems():
-            exs = self.data.data[symbol].keys()
+        for symbol, value in self.cache.data.iteritems():
+            exs = self.cache.data[symbol].keys()
             perm_list = util.permutation(exs)
             for item in perm_list:
                 try:
                     # ex1, ex2 is exchange instance 
                     ex1, ex2 = ex_dict[item[0]], ex_dict[item[1]]
-                    price1 = self.data.get(symbol, ex1)
-                    price2 = self.data.get(symbol, ex2)
-                    flag, trade = Druid.check_trade(symbol, ex1, price1, ex2, price2)
+                    price1 = self.cache.get(symbol, ex1.name)
+                    if price1 is None:
+                        continue
+                    price2 = self.cache.get(symbol, ex2.name)
+                    if price2 is None:
+                        continue
+                    flag, trade = self.check_trade(symbol, ex1, price1, ex2, price2)
                     if flag and trade is not None:
                         self.tset.produce(trade)
                 except Exception as e:

@@ -13,7 +13,6 @@ def permutation(array):
     for i in range(0, len(array)):
         for j in range(i+1, len(array)):
             perm_list.append([array[i],array[j]])
-    print perm_list                
     return perm_list                
 
 def profit_rate(price1, price2):
