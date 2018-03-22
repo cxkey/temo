@@ -58,6 +58,13 @@ class BinanceEx(Exchange):
 
         raise gen.Return(ret)
 
+    def _do_get_depth(self, symbol, callback):
+        r = self.client.get_order_book(symbol=symbol, limit=10)
+        IOLoop.instance().add_callback(callback, r)
+
+    def _get_depth(self, symbol, callback):
+        threading.Thread(target=self._do_get_depth, args=(symbol, callback)).start()
+
     @gen.coroutine
     def get_depth(self, symbol):
         ret = {
@@ -65,29 +72,28 @@ class BinanceEx(Exchange):
             'asks': [],
         }
         if not symbol:
-            return None
+            raise gen.Return(None)
 
         symbol = symbol.replace('_', '').upper()
-        r = self.client.get_order_book(symbol=symbol.upper(), limit=10)
-        if r.get('bids', None) is not None:
-            bids = r.get('bids', [])
-            if bids:
-                ret['bids'] = [Decimal(i) for i in bids[0][0:-1]]
-            
-            asks = r.get('asks', [])
-            if asks:
-                ret['asks'] = [Decimal(i) for i in asks[0][0:-1]]
+        #r = self.client.get_order_book(symbol=symbol, limit=10)
+        r = yield gen.Task(self._get_depth, symbol)
 
-            return ret
+        bids = r.get('bids', [])
+        if bids:
+            ret['bids'] = [Decimal(i) for i in bids[0][0:-1]]
         
-        return None
+        asks = r.get('asks', [])
+        if asks:
+            ret['asks'] = [Decimal(i) for i in asks[0][0:-1]]
+
+        raise gen.Return(ret)
 
     def get_all_tickers(self):
         r = self.client.get_all_tickers()
         print r
 
     @gen.coroutine
-    def get_history(self,symbol):
+    def get_history(self, symbol):
         ret = {}
         if not symbol:
             return None

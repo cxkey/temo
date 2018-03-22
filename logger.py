@@ -14,6 +14,7 @@ logging.getLogger("urllib3").setLevel(LOGLEVEL)
 LOGFORMAT = '[%(asctime)s] %(levelname)s %(module)s:%(lineno)d %(message)s'
 BACKCOUNT = 15
 
+LOGLEVEL = logging.INFO
 alogger = logging.getLogger('')
 alogger.setLevel(LOGLEVEL)
 alogger.propagate = False

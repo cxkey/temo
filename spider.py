@@ -1,5 +1,5 @@
 from singleton import singleton
-from logger import alogger, elogger
+from logger import alogger, elogger, init_logger
 from exchange.binan import BinanceEx
 from exchange.huobi import HuobiEx
 from exchange.okex import OkexEx
@@ -14,6 +14,8 @@ import tornado
 from druid import *
 
 SCAN_TIMEOUT_INTERVAL = 3600 *1000 * 6
+PROCESS_BUSY_INTERVAL = 10
+PROCESS_INTERVAL = 2
 
 class Wisp:
     def __init__(self, exchange):
@@ -34,7 +36,9 @@ class Wisp:
                         continue
 
                     self.cache.setkey(s, self.exchange.name)
+                alogger.info('wisp symbol [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
         except Exception, e:
+            alogger.info('wisp symbol [%s] exception' % self.exchange.name)
             alogger.exception(e)
         finally:
             self.running = False
@@ -51,8 +55,9 @@ class Wisp:
                 info = yield self.exchange.get_depth(symbol)
                 if info:
                     self.cache.setvalue(symbol, self.exchange.name, info)
-            alogger.info('dig done, %s, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
+            alogger.info('wisp depth [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
         except Exception, e:
+            alogger.info('wisp depth [%s] exception' % self.exchange.name)
             alogger.exception(e)
         finally:
             self.running = False
@@ -70,26 +75,22 @@ class Spider:
         self.cache = Cache.instance()
 
     def runLoop(self):
-        alogger.info('spider start')
         if self.terminate:
             alogger.info('spider terminate')
             tornado.ioloop.IOLoop.instance().stop()
             return
 
         if self.busy:
-            alogger.info('spider busy')
-            IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
+            IOLoop.instance().add_timeout(time.time() + PROCESS_BUSY_INTERVAL, self.runLoop)
             self.busy = False
             return
 
-        IOLoop.instance().add_timeout(time.time() + 0.01, self.runLoop)
+        IOLoop.instance().add_timeout(time.time() + PROCESS_INTERVAL, self.runLoop)
 
         self.process()
 
     @gen.coroutine
     def process(self):
-        alogger.info('spider process start')
-        print 'process start'
         begin = time.time()
 
         bingo = len(self.wisps)
@@ -98,16 +99,18 @@ class Spider:
                 bingo -= 1
                 continue
             
+            alogger.info('wisp depth [%s] start' % wisp.exchange.name)
             wisp.dig_depth()
 
         if bingo == 0:
             self.busy = True
-        print 'busy:',self.busy            
+            alogger.info('wisps are all busy')
 
     def refresh_symbols(self):
         alogger.info('refresh symbols start')
 
         for wisp in self.wisps:
+            alogger.info('wisp symbol [%s] start' % wisp.exchange.name)
             wisp.dig_symbols()
 
         #for symbol, v1 in self.cache.data.iteritems():
@@ -127,6 +130,7 @@ class Spider:
         IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
 
 if __name__ == '__main__':
+    init_logger('.')
     Spider.instance().start()
     IOLoop.instance().start() 
 
