@@ -93,17 +93,20 @@ class HuobiEx(Exchange):
     def get_asset_amount(self,asset):        
         ret = {}
         if not asset: 
-            raise gen.Return( None) 
+            raise gen.Return(Decimal(0.00)) 
+            return
+
         r = yield HuobiService.get_balance() 
         if r['status'] != 'ok':
-            raise gen.Return( None)
+            raise gen.Return(Decimal(0.00)) 
+            return
+
         for item in r['data']['list']:
-            if Decimal(item['balance']) > 0:
-                ret[item['currency']] = item['balance']
-        print ret                
-        if asset in ret.keys():
-            raise gen.Return( ret[asset])
-        raise gen.Return( 0)
+            if item['currency'] == asset:
+                raise gen.Return(Decimal(item['balance']))
+                return
+
+        raise gen.Return(Decimal(0.00)) 
 
     @coroutine
     def create_trade(self,symbol,amount,price,side):

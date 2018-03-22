@@ -104,10 +104,15 @@ class BinanceEx(Exchange):
     def get_asset_amount(self, asset):
         ret = {}
         if not asset:
-            raise gen.Return(None)
+            raise gen.Return(Decimal(0.00))
+            return
+
         asset = asset.replace('_', '').upper()            
         r = self.client.get_asset_balance(asset=asset)
-        raise gen.Return(r['free'])
+        if r and 'free' in r:
+            raise gen.Return(Decimal(r['free']))
+        else:
+            raise gen.Return(Decimal(0.00))
 
     @gen.coroutine
     def create_trade(self, symbol,amount,price,side):

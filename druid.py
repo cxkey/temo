@@ -37,11 +37,10 @@ class Druid:
     def check_trade(symbol, ex1, price1, ex2, price2):
         trade = None
 
-        # TODO Decimal should be packaged in spider 
-        bid1, bid1_amount = Decimal(price1['bids'][0]), Decimal(price1['bids'][1]) 
-        ask1, ask1_amount = Decimal(price1['asks'][0]), Decimal(price1['asks'][1])
-        bid2, bid2_amount = Decimal(price2['bids'][0]), Decimal(price2['bids'][1])
-        ask2, ask2_amount = Decimal(price2['asks'][0]), Decimal(price2['asks'][1])
+        bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
+        ask1, ask1_amount = price1['asks'][0], price1['asks'][1]
+        bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
+        ask2, ask2_amount = price2['asks'][0], price2['asks'][1]
 
         if ask1 < bid2 and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
             trade = Trade(symbol, ex1, ask1, ask1_amount, ex2, bid2, bid2_amount)

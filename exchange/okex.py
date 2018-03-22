@@ -71,9 +71,9 @@ class OkexEx(Exchange):
         r = okcoinSpot.userinfo()
         ret  =  r['info']['funds']['free']
         if asset in ret.keys():
-            return ret[asset]
+            raise gen.Return(Decimal(ret[asset]))
         else:
-            return 0
+            raise gen.Return(Decimal(0.00))
     
     @coroutine        
     def create_trade(self,symbol,amount,price,side):
