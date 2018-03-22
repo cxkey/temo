@@ -1,9 +1,11 @@
+#encoding: utf-8
 from singleton import singleton
 from Queue import Queue  
 from util import *
 from init import *
 import conf
 from exchange.enum import *
+from tornado.gen import coroutine
 
 class Trade:
     def __init__(self, symbol, buyer, buy_price, buy_amount, seller, sell_price, sell_amount):
@@ -91,15 +93,15 @@ class Trade:
         asset = self.symbol.split('_')[0]
 
         # TODO Decimal should be packaged in spider 
-        self.buyer_asset_amount = Decimal(yield self.buyer.get_asset_amount(asset))
+        self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)
         if abs(self.buyer_asset_amount - conf.INIT_AMOUNT[asset]) / conf.INIT_AMOUNT[asset] > conf.RISK_RATE:
-            return True
+            raise gen.Return(True)
 
-        trade.seller_asset_amount = Decimal(yield trade.seller.get_asset_amount(asset))
+        trade.seller_asset_amount = yield trade.seller.get_asset_amount(asset)
         if abs(trade.seller_asset_amount - conf.INIT_AMOUNT[asset]) / conf.INIT_AMOUNT[asset] > conf.RISK_RATE:
-            return True        
+            raise gen.Return(True)
 
-        return False
+        raise gen.Return(False)
 
 @singleton
 class TradeSet:

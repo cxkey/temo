@@ -63,7 +63,7 @@ class Spider:
         self.terminate = False
         self.busy = False
         self.wisps = [
-            #Wisp(BinanceEx.instance()),
+            Wisp(BinanceEx.instance()),
             Wisp(HuobiEx.instance()),
             Wisp(OkexEx.instance()),
         ]
@@ -89,6 +89,7 @@ class Spider:
     @gen.coroutine
     def process(self):
         alogger.info('spider process start')
+        print 'process start'
         begin = time.time()
 
         bingo = len(self.wisps)
@@ -101,6 +102,7 @@ class Spider:
 
         if bingo == 0:
             self.busy = True
+        print 'busy:',self.busy            
 
     def refresh_symbols(self):
         alogger.info('refresh symbols start')

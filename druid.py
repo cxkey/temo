@@ -18,7 +18,7 @@ from util import *
 ex_dict = {
     'binan':BinanceEx.instance(),
     'huobi':HuobiEx.instance(),
-    'okex':instance()
+    'okex':OkexEx.instance()
 }
 
 @singleton

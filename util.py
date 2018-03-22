@@ -1,6 +1,7 @@
 import uuid, datetime, time, json
 from hashlib import md5
 import re
+from decimal import Decimal
 
 def gen_md5(fp):
     m = md5()    
