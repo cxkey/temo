@@ -1,4 +1,4 @@
-#encoding: utf-8
+# encoding: utf-8
 from singleton import singleton
 from Queue import Queue  
 from util import *
@@ -142,5 +142,4 @@ class TradeSet:
                     alogger.info('trade real_check fail: %s' % str(trade))
             except Exception as e :
                 alogger.exception(e)
-
 

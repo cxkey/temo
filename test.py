@@ -13,7 +13,6 @@ binan = BinanceEx.instance()
 huobi = HuobiEx.instance()
 okex = OkexEx.instance()
 
-
 @coroutine
 def get_symbols():
     s1 = yield binan.get_symbols()

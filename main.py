@@ -27,7 +27,6 @@ class Application:
     def stop(self):
         pass
 
-
 app = Application()
 
 def main():
