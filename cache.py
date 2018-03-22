@@ -33,6 +33,10 @@ class Cache:
         for k, v in self.data.items():
             s += '{}:{}'.format(k, v.keys())
 
+    def stat(self):
+        s = ''
+        s += 'symbol length:{}\n'.format(len(self.data.keys()))
+
     def find(self, symbol, exchange):
         if symbol not in self.data.keys():
             return False
