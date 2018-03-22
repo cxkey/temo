@@ -30,8 +30,11 @@ class Cache:
         self.clean_timeout = 3600 * 24 # one day
 
     def __str__(self):
+        s = ''
         for k, v in self.data.items():
-            s += '{}:{}'.format(k, v.keys())
+            s += '{}:{}\n'.format(k, v.keys())
+
+        return s
 
     def find(self, symbol, exchange):
         if symbol not in self.data.keys():

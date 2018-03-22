@@ -13,7 +13,8 @@ from cache import Cache
 import tornado
 from druid import *
 
-SCAN_TIMEOUT_INTERVAL = 3600 *1000 * 6
+SCAN_TIMEOUT_INTERVAL = 3600 * 6 * 1000
+SHOW_CACHE_INTERVAL = 10 * 1000
 PROCESS_BUSY_INTERVAL = 10
 PROCESS_INTERVAL = 2
 
@@ -124,8 +125,15 @@ class Spider:
 
         alogger.info('refresh_symbols finished')
 
+    def show_cache(self):
+        alogger.info('--------cache--------')
+        alogger.info(str(self.cache))
+        alogger.info('--------cache--------')
+        alogger.info('--------cache--------')
+
     def start(self):
         tornado.ioloop.PeriodicCallback(self.refresh_symbols, SCAN_TIMEOUT_INTERVAL).start()
+        tornado.ioloop.PeriodicCallback(self.show_cache, SHOW_CACHE_INTERVAL).start()
         IOLoop.instance().add_timeout(time.time() + 0.01, self.refresh_symbols)
         IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
 
