@@ -63,11 +63,11 @@ class HuobiEx(Exchange):
             if tick is not None:
                 bids = tick.get('bids', [])
                 if bids:
-                    ret['bids'] = bids[0]
+                    ret['bids'] = [Decimal(i) for i in bids[0]]
                 
                 asks = tick.get('asks', [])
                 if asks:
-                    ret['asks'] = asks[0]
+                    ret['asks'] = [Decimal(i) for i in asks[0]]
 
                 raise gen.Return(ret)
             else:
@@ -93,17 +93,20 @@ class HuobiEx(Exchange):
     def get_asset_amount(self,asset):        
         ret = {}
         if not asset: 
-            raise gen.Return( None) 
+            raise gen.Return(Decimal(0.00)) 
+            return
+
         r = yield HuobiService.get_balance() 
         if r['status'] != 'ok':
-            raise gen.Return( None)
+            raise gen.Return(Decimal(0.00)) 
+            return
+
         for item in r['data']['list']:
-            if Decimal(item['balance']) > 0:
-                ret[item['currency']] = item['balance']
-        print ret                
-        if asset in ret.keys():
-            raise gen.Return( ret[asset])
-        raise gen.Return( 0)
+            if item['currency'] == asset:
+                raise gen.Return(Decimal(item['balance']))
+                return
+
+        raise gen.Return(Decimal(0.00)) 
 
     @coroutine
     def create_trade(self,symbol,amount,price,side):
@@ -118,13 +121,13 @@ class HuobiEx(Exchange):
 @gen.engine   
 def main():
     hbex = HuobiEx.instance()
-    #r = yield hbex.get_symbols()
-    #for key,value in r.iteritems(): 
-    #    #r = yield hbex.get_depth(key)   
-    #    r = yield hbex.get_history(key)
-    #    break
-    r = yield hbex.get_asset_amount('iost')
-    print r 
+    r = yield hbex.get_symbols()
+    for key,value in r.iteritems(): 
+        r = yield hbex.get_depth(key)   
+        print r
+        #r = yield hbex.get_history(key)
+    #r = yield hbex.get_asset_amount('iost')
+    #print r 
 
 if __name__ == '__main__':
     main()

@@ -20,6 +20,8 @@ class Cache:
             ex4: { price: [bid1, ask1], timestamp: '' }
         },
     }
+    bid1 -> [Decimal(), Decimal()]
+    ask1 -> [Decimal(), Decimal()]
     '''
 
     def __init__(self):

@@ -7,6 +7,7 @@ from sdk_okex.Client import *
 from tornado.gen import coroutine
 from tornado.ioloop import IOLoop 
 from tornado import gen
+from decimal import Decimal
 import time
 from enum import *
 
@@ -47,10 +48,10 @@ class OkexEx(Exchange):
         r = yield okcoinSpot.depth(symbol)
         bids = r.get('bids',[])
         if bids:
-            ret['bids'] = bids[0]
+            ret['bids'] = [Decimal(i) for i in bids[0]]
             asks = r.get('asks',[])
             if asks:
-                ret['asks'] = asks[-1]
+                ret['asks'] = [Decimal(i) for i in asks[-1]]
             raise gen.Return(ret)
         raise gen.Return(None)
 
@@ -70,9 +71,9 @@ class OkexEx(Exchange):
         r = okcoinSpot.userinfo()
         ret  =  r['info']['funds']['free']
         if asset in ret.keys():
-            return ret[asset]
+            raise gen.Return(Decimal(ret[asset]))
         else:
-            return 0
+            raise gen.Return(Decimal(0.00))
     
     @coroutine        
     def create_trade(self,symbol,amount,price,side):
@@ -87,18 +88,15 @@ class OkexEx(Exchange):
 @gen.engine 
 def main():
     okex = OkexEx.instance()
-    #r = yield okex.get_symbols()
-    #for key,value in r.iteritems():
-    #    #r = yield okex.get_depth(key)
-    #    print key
-    #    r = yield okex.get_history(key)
-    #    print r
-    #    break
-    r = yield okex.get_asset_amount('iost')
-    print r
-    
-
-
+    r = yield okex.get_symbols()
+    for key,value in r.iteritems():
+        r = yield okex.get_depth(key)
+        #print key
+        #r = yield okex.get_history(key)
+        print r
+        #break
+    #r = yield okex.get_asset_amount('iost')
+    #print r
 
 if __name__ == '__main__':
     main()

@@ -12,7 +12,7 @@ class Trade:
         self.symbol = symbol
 
         self.buyer = buyer # exchange instance
-        self.buy_price = buy_price # Decimal
+        self.buy_price = buy_price
         self.buy_amount = buy_amount
         self.buyer_asset_amount = None
 
@@ -29,7 +29,7 @@ class Trade:
                 str(self.sell_amount), str(self.seller_asset_amount)) 
 
     @coroutine
-    def make_deal(self,amount):
+    def make_deal(self, amount):
         # TODO 如果一方失败, 另一方要尝试回滚 
         
         # 先卖, 后买
@@ -57,14 +57,13 @@ class Trade:
     def check(self):
         # 再检查一遍实时数据，是否能继续交易
 
-        # TODO Decimal should be packaged in spider 
         price1 = yield self.buyer.get_depth(self.symbol)
         price2 = yield self.seller.get_depth(self.symbol) 
 
-        bid1, bid1_amount = Decimal(price1['bids'][0]), Decimal(price1['bids'][1]) 
-        ask1, ask1_amount = Decimal(price1['asks'][0]), Decimal(price1['asks'][1])
-        bid2, bid2_amount = Decimal(price2['bids'][0]), Decimal(price2['bids'][1])
-        ask2, ask2_amount = Decimal(price2['asks'][0]), Decimal(price2['asks'][1])
+        bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
+        ask1, ask1_amount = price1['asks'][0], price1['asks'][1]
+        bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
+        ask2, ask2_amount = price2['asks'][0], price2['asks'][1]
 
         if ask1 < bid2 and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
             self.buy_price = ask1
@@ -92,7 +91,6 @@ class Trade:
     def has_risk(self):
         asset = self.symbol.split('_')[0]
 
-        # TODO Decimal should be packaged in spider 
         self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)
         if abs(self.buyer_asset_amount - conf.INIT_AMOUNT[asset]) / conf.INIT_AMOUNT[asset] > conf.RISK_RATE:
             raise gen.Return(True)
@@ -137,9 +135,9 @@ class TradeSet:
                 real_check_result = yield trade.check()
                 if real_check_result:
                     amount = yield trade.calc_final_amount()
-                    if amount <= 0 :
+                    if amount > 0 :
                         # TODO 这里还要考虑下
-                        yield trade.make_deal(amount)
+                        trade.make_deal(amount)
                 else:
                     alogger.info('trade real_check fail: %s' % str(trade))
             except Exception as e :
