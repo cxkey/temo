@@ -4,8 +4,12 @@ from Queue import Queue
 from util import *
 from init import *
 import conf
+from logger import alogger, elogger
 from exchange.enum import *
-from tornado.gen import coroutine
+from tornado import gen
+import threading
+import util
+from decimal import *
 
 class Trade:
     def __init__(self, symbol, buyer, buy_price, buy_amount, seller, sell_price, sell_amount):
@@ -24,11 +28,16 @@ class Trade:
         self.status = 0 # 0: 未交易 1: 交易成功  -1: 交易失败
 
     def __str__(self):
-        return '[%s] buyer:%s,%s,%s,%s, seller:%s,%s,%s,%s' % (self.symbol, self.buyer.name, str(self.buy_price), \
-                str(self.buy_amount), str(self.buyer_asset_amount), self.seller.name, str(self.sell_price), \
-                str(self.sell_amount), str(self.seller_asset_amount)) 
+        return '[%s] buyer:%s,%s,%s,%s, seller:%s,%s,%s,%s' % (self.symbol, self.buyer.name, \
+                str(self.buy_price.quantize(Decimal('0.00000001'), rounding=ROUND_HALF_EVEN)), \
+                str(self.buy_amount), \
+                str(self.buyer_asset_amount), \
+                self.seller.name, \
+                str(self.sell_price.quantize(Decimal('0.00000001'), rounding=ROUND_HALF_EVEN)), \
+                str(self.sell_amount), \
+                str(self.seller_asset_amount)) 
 
-    @coroutine
+    @gen.coroutine
     def make_deal(self, amount):
         # TODO 如果一方失败, 另一方要尝试回滚 
         
@@ -37,23 +46,30 @@ class Trade:
 
         yield trade.buyer.create_trade(symbol=self.symbol, amount=amount, side=BUY)
 
-    @coroutine
+    @gen.coroutine
     def calc_final_amount(self):
         # 小币, 主币
         asset, base = self.symbol.split('_')[0], self.symbol.split('_')[1]
 
-        buyer_base_balance = yield buyer.get_assert_amount(base)
-        buy_amount = min(conf.INIT_AMOUNT[asset] * (1 + conf.RISK_RATE) - self.buyer_asset_amount, \
+        if conf.ENV == 'test':
+            buyer_base_balance = 100000
+            init_amount = 1000
+        else:
+            buyer_base_balance = yield self.buyer.get_asset_amount(base)
+            init_amount = conf.INIT_AMOUNT[asset]
+
+        buy_amount = min(init_amount * (1 + conf.RISK_RATE) - self.buyer_asset_amount, \
                          buyer_base_balance / self.buy_price, \
                          self.buy_amount)
 
-        sell_amount = min(seller_now_amount - conf.INIT_AMOUNT[asset] * (1 - conf.RISK_RATE), \
+        sell_amount = min(self.seller_asset_amount - init_amount * (1 - conf.RISK_RATE), \
                           self.seller_asset_amount,
                           self.sell_amount)
+        alogger.info('buy:{}, sell:{}'.format(buy_amount, sell_amount))
         trade_amount = min(buy_amount, sell_amount)
         raise gen.Return(trade_amount)
 
-    @coroutine
+    @gen.coroutine
     def check(self):
         # 再检查一遍实时数据，是否能继续交易
 
@@ -88,11 +104,15 @@ class Trade:
         else:
             raise gen.Return(False)
 
-    @coroutine
+    @gen.coroutine
     def has_risk(self):
         asset = self.symbol.split('_')[0]
-        raise gen.Return(False)
-        return
+
+        if conf.ENV == 'test':
+            self.buyer_asset_amount = 100
+            self.seller_asset_amount = 100
+            raise gen.Return(False)
+            return
 
         self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)
         if abs(self.buyer_asset_amount - conf.INIT_AMOUNT[asset]) / conf.INIT_AMOUNT[asset] > conf.RISK_RATE:
@@ -118,31 +138,39 @@ class TradeSet:
     def pop(self):
         trade = None
         try:
-            trade = self.queue.get(False)
+            trade = self.queue.get(True, 10)
         except Exception as e:
-            alogger.exception(e)
-        return trade  
+            pass
+            #alogger.info('trade_set is empty')
+        finally:
+            return trade  
     
     def produce(self, trade):
+        alogger.info(1)
         self.queue.put(trade)
         if self._thread == None or self._thread.is_alive() == False:
             self._thread = threading.Thread(target=self._process)
             self._thread.start()
 
-    @coroutine
+    @gen.coroutine
     def _process(self):
+        alogger.info(2)
         while True:
             trade = self.pop()
-            if trade == None:
-                alogger.info('no trade to do now')
+            if trade is None:
+                alogger.info('trade_set is empty')
                 return
+
             try:
                 real_check_result = yield trade.check()
                 if real_check_result:
                     amount = yield trade.calc_final_amount()
                     if amount > 0 :
                         # TODO 这里还要考虑下
-                        trade.make_deal(amount)
+                        alogger.info('! make deal: {}'.format(str(trade)))
+                        #trade.make_deal(amount)
+                    else:
+                        alogger.info('amount is invalid. {}. {}'.format(amount, str(trade)))
                 else:
                     alogger.info('trade real_check fail: %s' % str(trade))
             except Exception as e :

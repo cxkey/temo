@@ -3,6 +3,7 @@ from logger import alogger, elogger
 from cache import Cache
 from copy import deepcopy
 from tornado.ioloop import IOLoop
+from tornado import gen
 from util import permutation
 import time
 from decimal import Decimal
@@ -33,6 +34,7 @@ class Druid:
     def start(self):
         IOLoop.instance().add_timeout(time.time() + 20, self.scanSymbol)
 
+    @gen.coroutine
     def check_trade(self, symbol, ex1, price1, ex2, price2):
         trade = None
 
@@ -41,19 +43,25 @@ class Druid:
         bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
         ask2, ask2_amount = price2['asks'][0], price2['asks'][1]
 
+        #alogger.info('check_trade info1. {}, {}'.format(ask1<bid2, util.profit_rate(ask1, bid2)))
+        #alogger.info('check_trade info2. {}, {}'.format(ask2<bid1, util.profit_rate(ask2, bid1)))
         if ask1 < bid2 and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
             trade = Trade(symbol, ex1, ask1, ask1_amount, ex2, bid2, bid2_amount)
         elif ask2 < bid1 and util.profit_rate(ask2, bid1) > conf.PROFIT_RATE:
             trade = Trade(symbol, ex2, ask2, ask2_amount, ex1, bid1, bid1_amount)
         else:
-            return False, None
+            raise gen.Return((False, None))
+            return
 
         ret_risk = yield trade.has_risk()
         if not ret_risk:
-            return True, trade
+            raise gen.Return((True, trade))
+            return
 
-        return False, None
+        raise gen.Return((False, None))
+        return
 
+    @gen.coroutine
     def scanSymbol(self):
         self.cache = Cache.instance()
         # '''
@@ -78,12 +86,13 @@ class Druid:
                     price2 = self.cache.get(symbol, ex2.name)
                     if price2 is None:
                         continue
-                    flag, trade = self.check_trade(symbol, ex1, price1, ex2, price2)
+                    flag, trade = yield self.check_trade(symbol, ex1, price1, ex2, price2)
                     if flag and trade is not None:
+                        alogger.info('check_trade bingo. {}'.format(str(trade)))
                         self.tset.produce(trade)
                 except Exception as e:
                     alogger.exception(e)
-        print 'scan symbol end'
+        alogger.info('scan symbol end')
         IOLoop.instance().add_timeout(time.time() + 1, self.scanSymbol)                    
 
 if __name__ == '__main__':
