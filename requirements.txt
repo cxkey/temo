@@ -2,3 +2,5 @@ requests
 python-binance
 tornado==3.2
 python-quoine
+redis==2.9.1
+PyMySQL==0.6.2

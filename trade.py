@@ -10,6 +10,13 @@ from tornado import gen
 import threading
 import util
 from decimal import *
+from dao import *
+from exchange.binan import BinanceEx 
+from exchange.huobi import HuobiEx  
+from exchange.okex import OkexEx  
+import datetime
+from redisclient import *
+from profit import *
 
 class Trade:
     def __init__(self, symbol, buyer, buy_price, buy_amount, seller, sell_price, sell_amount):
@@ -37,14 +44,51 @@ class Trade:
                 str(self.sell_amount), \
                 str(self.seller_asset_amount)) 
 
+    def db_action(self,side,amount):       
+        if sid == BUY:
+            params = {}
+            params['trade_id'] = util.gen_id()
+            params['quote'] = self.symbol.split('_')[0]
+            params['base'] = self.symbol.split('_')[1]
+            params['side'] = BUY
+            params['exchange'] = self.buyer.name
+            params['price'] = self.buy_price
+            params['amount'] = amount
+            params['deal_price'] = self.buy_price
+            params['deal_amount'] = amount
+            params['status'] = 0
+            params['fee'] = 0
+            params['create_time'] = datetime.datetime.now()
+            DBTrade.instance().insert(params)
+            cal_single_prodit(params)
+        else:            
+            params = {}
+            params['trade_id'] = util.gen_id()
+            params['quote'] = self.symbol.split('_')[0]
+            params['base'] = self.symbol.split('_')[1]
+            params['side'] = SELL
+            params['exchange'] = self.seller.name
+            params['price'] = self.sell_price
+            params['amount'] = amount
+            params['deal_price'] = self.sell_price
+            params['deal_amount'] = amount
+            params['status'] = 0
+            params['fee'] = 0
+            params['create_time'] = datetime.datetime.now()
+            DBTrade.instance().insert(params)
+            cal_single_prodit(params)
+
+
     @gen.coroutine
     def make_deal(self, amount):
         # TODO 如果一方失败, 另一方要尝试回滚 
         
         # 先卖, 后买
-        yield trade.seller.create_trade(symbol=self.symbol, amount=amount, side=SELL)
+        #yield self.seller.create_trade(symbol=self.symbol, amount=amount, side=SELL)
 
-        yield trade.buyer.create_trade(symbol=self.symbol, amount=amount, side=BUY)
+        #yield self.buyer.create_trade(symbol=self.symbol, amount=amount, side=BUY)
+        self.db_action(side=SELL,amount)
+        self.db_action(side=BUY,amount)
 
     @gen.coroutine
     def calc_final_amount(self):
@@ -52,11 +96,11 @@ class Trade:
         asset, base = self.symbol.split('_')[0], self.symbol.split('_')[1]
 
         if conf.ENV == 'test':
-            buyer_base_balance = 100000
+            buyer_base_balance = 500
             init_amount = 1000
         else:
             buyer_base_balance = yield self.buyer.get_asset_amount(base)
-            init_amount = conf.INIT_AMOUNT[asset]
+            init_amount = conf.INIT_AMOUNT[asset]['amount']
 
         buy_amount = min(init_amount * (1 + conf.RISK_RATE) - self.buyer_asset_amount, \
                          buyer_base_balance / self.buy_price, \
@@ -109,18 +153,18 @@ class Trade:
         asset = self.symbol.split('_')[0]
 
         if conf.ENV == 'test':
-            self.buyer_asset_amount = 100
-            self.seller_asset_amount = 100
+            self.buyer_asset_amount = 800
+            self.seller_asset_amount = 600
             raise gen.Return(False)
             return
 
         self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)
-        if abs(self.buyer_asset_amount - conf.INIT_AMOUNT[asset]) / conf.INIT_AMOUNT[asset] > conf.RISK_RATE:
+        if abs(self.buyer_asset_amount - conf.INIT_AMOUNT[asset]['amount']) / conf.INIT_AMOUNT[asset]['amount'] > conf.RISK_RATE:
             raise gen.Return(True)
             return
 
         trade.seller_asset_amount = yield trade.seller.get_asset_amount(asset)
-        if abs(trade.seller_asset_amount - conf.INIT_AMOUNT[asset]) / conf.INIT_AMOUNT[asset] > conf.RISK_RATE:
+        if abs(trade.seller_asset_amount - conf.INIT_AMOUNT[asset]['amount']) / conf.INIT_AMOUNT[asset]['amount'] > conf.RISK_RATE:
             raise gen.Return(True)
             return
 
@@ -162,13 +206,15 @@ class TradeSet:
                 return
 
             try:
-                real_check_result = yield trade.check()
+                #real_check_result = yield trade.check()
+                real_check_result = True
                 if real_check_result:
-                    amount = yield trade.calc_final_amount()
+                    #amount = yield trade.calc_final_amount()
+                    amount = 100
                     if amount > 0 :
                         # TODO 这里还要考虑下
                         alogger.info('! make deal: {}'.format(str(trade)))
-                        #trade.make_deal(amount)
+                        trade.make_deal(amount)
                     else:
                         alogger.info('amount is invalid. {}. {}'.format(amount, str(trade)))
                 else:
@@ -176,3 +222,18 @@ class TradeSet:
             except Exception as e :
                 alogger.exception(e)
 
+@gen.coroutine
+def test():
+    symbol = 'ost_eth'
+    ex1 = OkexEx.instance()  
+    ask1 = Decimal('0.00032757')
+    ask1_amount = 100
+    ex2 = HuobiEx.instance()
+    bid2 = Decimal('0.00035228')
+    bid2_amount = 100
+    t = Trade(symbol, ex1, ask1, ask1_amount, ex2, bid2, bid2_amount)
+    TradeSet.instance().produce(t) 
+
+if __name__ == '__main__':
+    test()
+    IOLoop.instance().start()

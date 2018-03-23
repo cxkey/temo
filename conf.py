@@ -4,17 +4,19 @@ import socket
 HOST = '0.0.0.0'
 PORT = 9998
 
-DB_HOST = '127.0.0.1'
+DB_HOST = '10.8.54.165'
 DB_PORT = 3306
-DB_USER = ''
-DB_PWD = ''
-DB_NAME = ''
+DB_USER = 'fishing_w'
+DB_PWD = 'appL3!@#_w'
+DB_NAME = 'fishing'
 
 HTTP_REQUEST_TIMEOUT = 120
 HTTP_CONNECT_TIMEOUT = 60
 
-REDIS_HOST = '127.0.0.1'
+REDIS_HOST = '10.8.54.165'
 REDIS_PORT = 6379
+REDIS_DB = '1'
+REDIS_CACHE_PERIOD = 60 *5
 
 TASK_WAIT_TOO_MUCH_TIME = 90
 
@@ -36,6 +38,6 @@ RISK_RATE = 0.5
 PROFIT_RATE = 0.02
 
 INIT_AMOUNT = {
-    'iost': 100
+    'iost': {'amount':100,'price':0.001}
 }
 
