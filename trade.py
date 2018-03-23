@@ -76,10 +76,15 @@ class Trade:
         price1 = yield self.buyer.get_depth(self.symbol)
         price2 = yield self.seller.get_depth(self.symbol) 
 
-        bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
-        ask1, ask1_amount = price1['asks'][0], price1['asks'][1]
-        bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
-        ask2, ask2_amount = price2['asks'][0], price2['asks'][1]
+        if len(price1['bids']) > 0 and len(price1['asks']) > 0 and \
+            len(price2['bids']) > 0 and len(price2['asks']) > 0:
+            bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
+            ask1, ask1_amount = price1['asks'][0], price1['asks'][1]
+            bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
+            ask2, ask2_amount = price2['asks'][0], price2['asks'][1]
+        else:
+            raise gen.Return(False)
+            return
 
         if ask1 < bid2 and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
             self.buy_price = ask1
