@@ -166,6 +166,8 @@ def main():
     #r = yield hbex.get_asset_amount('iost')
     #print r 
 
+    r = yield hbex.get_depth('iost_eth')   
+    print r
     r = yield hbex.get_balance()
     print r
 

@@ -22,7 +22,7 @@ from exchange.okex import OkexEx
 EXCHANGES = {
     'binance': {'instance': BinanceEx.instance(), },
     'huobi':   {'instance': HuobiEx.instance(),   },
-    'okex':    {'instance': OkexEx.instance(),    },
+    #'okex':    {'instance': OkexEx.instance(),    },
 }
 
 class Application:
@@ -33,7 +33,6 @@ class Application:
         Spider.instance().start(EXCHANGES)
         Druid.instance().start(EXCHANGES)
         Account.instance().start(EXCHANGES)
-        tornado.ioloop.PeriodicCallback(self.statistics, SCAN_TIMEOUT_INTERVAL).start()
         ioloop.IOLoop.instance().start()
 
     def stop(self):
