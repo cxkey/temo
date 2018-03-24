@@ -127,26 +127,27 @@ class HuobiEx(Exchange):
         '''
         {
             'usdt': {
-                'free': Decimal(100),
-                'lock': Decimal(100),
+                'free': Decimal(100.00),
+                'lock': Decimal(100.00),
             },
             'iost': {
-                'free': Decimal(100),
-                'lock': Decimal(100),
+                'free': Decimal(100.00),
+                'lock': Decimal(0.00)
             },
         }
         '''
+        ZERO = Decimal(0.00)
         for b in r['data']['list']:
             if b['currency'] not in ret:
-                ret[b['currency']] = { 'free': None, 'lock': None, }
+                ret[b['currency']] = { 'free': ZERO, 'lock': ZERO, }
 
-            if b['type'] == 'trade' and Decimal(b['balance']) != Decimal(0.00):
+            if b['type'] == 'trade' and Decimal(b['balance']) != ZERO:
                 ret[b['currency']]['free'] = Decimal(b['balance'])
 
-            if b['type'] == 'frozen' and Decimal(b['balance']) != Decimal(0.00):
+            if b['type'] == 'frozen' and Decimal(b['balance']) != ZERO:
                 ret[b['currency']]['lock'] = Decimal(b['balance'])
 
-            if ret[b['currency']]['free'] is None and ret[b['currency']]['lock'] is None:
+            if ret[b['currency']]['free'] == ZERO and ret[b['currency']]['lock'] == ZERO:
                 del ret[b['currency']]
 
         raise gen.Return(ret)
