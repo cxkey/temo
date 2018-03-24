@@ -7,6 +7,10 @@ from dao import *
 
 redis = Redis.instance() 
 
+class Account:
+    
+    def __init__():
+
 # 计算单笔交易的收益
 def cal_single_profit(params):
     redis_key = params['quote'] + '_' + params['base'] + '_' + params['exchange']
