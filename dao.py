@@ -1,12 +1,12 @@
 from redisclient import Redis
 from tornado import gen
 from tornado.ioloop import IOLoop
-from conf import *
+import conf
 import pymysql
 import time
 import threading
 from singleton import singleton
-from logger import alogger
+from logger import alogger, elogger
 import tornado
 
 
@@ -51,7 +51,7 @@ class ConnectionPool:
         conn = None
         while True:
             try:
-                conn = pymysql.connect(host=DB_HOST, port=DB_PORT, user=DB_USER, passwd=DB_PWD, db=DB_NAME, charset='utf8', autocommit = True)
+                conn = pymysql.connect(**conf.DB_CONFIG)
                 conn.ping()
                 break
             except Exception as e:
@@ -78,31 +78,43 @@ class DBTrade:
     def __init__(self):
         self.tablename = 'trade'
 
-    def createStatement(self,params):
-        statement = "insert into %s (trade_id,quote,base,side,exchange,price,amount,deal_price,deal_amount,status,fee,create_time) values\
-            ('%s','%s','%s','%s','%s',%s,%s,%s,%s,%s,%s,'%s')" % (self.tablename, params['trade_id'],params['quote'],params['base'],params['side'],params['exchange'],params['price'],params['amount'],params['deal_price'],params['deal_amount'],params['status'],params['fee'],params['create_time'])
-        return statement            
-
-    def insert(self,params):        
+    def insert(self, params):
         conn = ConnectionPool.instance().connection()
-        cur = conn.cursor()
-        sql = self.createStatement(params)
-        cur.execute(sql)
-        conn.commit()
+        try:
+            cur = conn.cursor()
+            sql = "insert into %s (tid, quote, base, side, exchange, price, amount, deal_price, deal_amount, status, fee, create_time) values \
+                   ('%s', '%s', '%s', '%s', '%s', %s, %s, %s, %s, %s, %s, '%s')" % \
+                   (self.tablename, params['tid'], params['quote'], params['base'], params['side'], params['exchange'], params['price'], \
+                    params['amount'], params['deal_price'], params['deal_amount'], params['status'], params['fee'], params['create_time'])
+            cur.execute(sql)
+            conn.commit()
+        except Exception, e:
+            alogger.exception(e)
+        finally:
+            if cur:
+                cur.close()
         
 @singleton
 class DBProfit:
     def __init__(self):
         self.tablename = 'profit'
 
-    def createStatement(self,params):
-        statement = "insert into %s (trade_id,quote_before,base_before,value_before,quote_after,base_after,value_after,create_time) values\
-            ('%s',%s,%s,%s,%s,%s,%s,'%s')" % (self.tablename, params['trade_id'],params['quote_before'],params['base_before'],params['value_before'],params['quote_after'],params['base_after'],params['value_after'],params['create_time'])
-        return statement            
-
-    def insert(self,params):        
+    def insert(self, params):        
         conn = ConnectionPool.instance().connection()
-        cur = conn.cursor()
-        sql = self.createStatement(params)
-        cur.execute(sql)
-    
+        try:
+            cur = conn.cursor()
+            sql = "insert into %s (tid, quote_before, base_before, value_before, quote_after, base_after, value_after, create_time) values\
+                ('%s', %s, %s, %s, %s, %s, %s, '%s')" % (self.tablename, params['tid'], params['quote_before'], params['base_before'], params['value_before'], params['quote_after'], params['base_after'], params['value_after'], params['create_time'])
+            cur.execute(sql)
+            conn.commit()
+        except Exception, e:
+            alogger.exception(e)
+        finally:
+            if cur:
+                cur.close()
+   
+
+if __name__ == '__main__':
+    conn = ConnectionPool.instance().connection()
+    print conn.ping()
+
