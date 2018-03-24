@@ -128,7 +128,7 @@ class Spider:
         slogger.info('--------cache--------{}'.format(self.cache.stat()))
 
     def start(self, exs):
-        self.wisps = [Wisp(v['instance']) for k, v in ex.items()]
+        self.wisps = [Wisp(v['instance']) for k, v in exs.items()]
 
         tornado.ioloop.PeriodicCallback(self.refresh_symbols, SCAN_TIMEOUT_INTERVAL).start()
         tornado.ioloop.PeriodicCallback(self.show_cache, SHOW_CACHE_INTERVAL).start()

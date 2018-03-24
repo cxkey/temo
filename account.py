@@ -21,15 +21,13 @@ from trade import *
 from init import *
 import conf
 from conf import INIT_AMOUNT
-from spider import Spider
-from main import EXCHANGES
 
 redis = Redis.instance() 
 
 @singleton
 class Account:
 
-    def __init__():
+    def __init__(self):
         self.exchanges = {}
 
     def statistics(self):
@@ -43,7 +41,6 @@ class Account:
     def start(self, exs):
         self.exchanges = exs
         tornado.ioloop.PeriodicCallback(self.statistics, 30 * 1000).start()
-
 
 # 计算单笔交易的收益
 def cal_single_profit(params):
