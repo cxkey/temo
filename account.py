@@ -36,6 +36,27 @@ class Account:
         # 当前平台所持有的币种, 数量, 价格, 换算成ETH, USDT, BTC 为 base 的资产
         # 初始时平台所持有的币种, 数量, 价格, 换算成ETH, USDT, BTC 为 base 的资产
         try:
+            '''
+            data = {
+                'huobi': {
+                    'btc': {
+                        'iost': [amount, bid1_price],
+                        'usdt': [amount, bid1_price],
+                    },
+                    'eth': {
+                        'iost': [amount, bid1_price],
+                        'usdt': [amount, bid1_price],
+                    },
+                    'usdt': {
+                        'iost': [amount, bid1_price],
+                        'usdt': [amount, bid1_price],
+                    },
+                },
+                'binance': {
+                    ...
+                },
+            }
+            '''
             data = {}
             bases = ['btc', 'eth', 'usdt']
             for ex_name, v in self.exchanges.items():
