@@ -10,14 +10,17 @@ import threading
 
 import sys
 sys.path.append('../')
+sys.path.append('../../')
+
+import S
 
 from singleton import singleton
 from logger import alogger, elogger
 from decimal import Decimal
 from enum import *
 
-api_key = 'kUImpef08tTdWHqBUjgRzcl3DGkVAMfTCEGKFzev2qSVGx7AaJg2oXWO9WytkzMQ'
-api_secret = 'N1eKTmppDwVXHvRS5jbKcvkYMZDN9xCfYxFRm2vOc1VflPmL3O3xGrSDuIa3K6Mw'
+api_key = S.KEYS['binance']['access_key']
+api_secret = S.KEYS['binance']['secret_key']
 
 @singleton
 class BinanceEx(Exchange):

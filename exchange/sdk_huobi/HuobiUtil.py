@@ -22,7 +22,6 @@ from tornado.httpclient import AsyncHTTPClient, HTTPError
 import sys
 sys.path.append('../')
 sys.path.append('../../')
-
 import S
 
 # timeout in 5 seconds:

@@ -6,9 +6,14 @@
 from OkcoinSpotAPI import OKCoinSpot
 from OkcoinFutureAPI import OKCoinFuture
 
+import sys
+sys.path.append('../')
+sys.path.append('../../')
+import S
+
 #初始化apikey，secretkey,url
-apikey = '71af06fd-6dbb-442b-8f1c-0d62f978745c'
-secretkey = '73DDAE576B01A93985386CE50289154E'
+apikey = S.KEYS['okex']['access_key']
+secretkey = S.KEYS['okex']['secret_key']
 okcoinRESTURL = 'https://www.okex.com' 
 
 #现货API
