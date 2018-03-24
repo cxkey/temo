@@ -13,6 +13,7 @@ from tornado.options import define, options
 import tornado.httpserver
 from spider import Spider
 from druid import Druid
+from account import Account
 import time
 from exchange.binan import BinanceEx
 from exchange.huobi import HuobiEx
@@ -31,6 +32,8 @@ class Application:
     def start(self):
         Spider.instance().start(EXCHANGES)
         Druid.instance().start(EXCHANGES)
+        Account.instance().start(EXCHANGES)
+        tornado.ioloop.PeriodicCallback(self.statistics, SCAN_TIMEOUT_INTERVAL).start()
         ioloop.IOLoop.instance().start()
 
     def stop(self):
