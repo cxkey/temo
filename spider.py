@@ -68,11 +68,14 @@ class Spider:
     def __init__(self):
         self.terminate = False
         self.busy = False
-        self.wisps = [
-            Wisp(BinanceEx.instance()),
-            Wisp(HuobiEx.instance()),
-            Wisp(OkexEx.instance()),
-        ]
+
+        self.EXCHANGES = {
+            'binance': {'instance': BinanceEx.instance(), 'enabled': True},
+            'huobi':   {'instance': HuobiEx.instance(),   'enabled': True},
+            'okex':    {'instance': OkexEx.instance(),    'enabled': True},
+        }
+
+        self.wisps = [Wisp(v['instance']) for k, v in self.EXCHANGES.items() if v['enabled']]
         self.cache = Cache.instance()
 
     def runLoop(self):

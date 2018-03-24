@@ -16,12 +16,6 @@ from init import *
 import conf
 import util
 
-ex_dict = {
-    'binance':BinanceEx.instance(),
-    'huobi':HuobiEx.instance(),
-    'okex':OkexEx.instance()
-}
-
 @singleton
 class Druid:
     def __init__(self):
@@ -79,7 +73,7 @@ class Druid:
             for item in perm_list:
                 try:
                     # ex1, ex2 is exchange instance 
-                    ex1, ex2 = ex_dict[item[0]], ex_dict[item[1]]
+                    ex1, ex2 = conf.EXCHANGES[item[0]]['instance'], conf.EXCHANGES[item[1]]['instance']
                     price1 = self.cache.get(symbol, ex1.name)
                     if price1 is None:
                         continue

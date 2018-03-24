@@ -42,6 +42,14 @@ UPLOAD_DIR = '/tmp/'
 RISK_RATE = 0.5
 PROFIT_RATE = 0.02
 
+#from exchange.binan import BinanceEx
+#from exchange.huobi import HuobiEx
+#from exchange.okex import OkexEx
+#EXCHANGES = {
+#    'binance': {'instance': BinanceEx.instance(), 'enabled': True},
+#    'huobi': {'instance': HuobiEx.instance(), 'enabled': True},
+#}
+
 INIT_AMOUNT = {
     'iost' : { 'amount': 200 },
     'eth'  : { 'amount': 200 }
