@@ -115,19 +115,58 @@ class HuobiEx(Exchange):
         else:
             side = 'sell-limit'
         r = HuobiService.send_order(amount=amount, symbol=symbol, _type=side, price=price)
-        return r
+        raise gen.Return(ret)
+
+    @coroutine
+    def get_balance(self,):
+        r = yield HuobiService.get_balance()
+        if not (r and 'status' in r and r['status'] == 'ok'):
+            raise gen.Return(None)
+
+        ret = {}
+        '''
+        {
+            'usdt': {
+                'free': Decimal(100),
+                'lock': Decimal(100),
+            },
+            'iost': {
+                'free': Decimal(100),
+                'lock': Decimal(100),
+            },
+        }
+        '''
+        for b in r['data']['list']:
+            if b['currency'] not in ret:
+                ret[b['currency']] = { 'free': None, 'lock': None, }
+
+            if b['type'] == 'trade' and Decimal(b['balance']) != Decimal(0.00):
+                ret[b['currency']]['free'] = Decimal(b['balance'])
+
+            if b['type'] == 'frozen' and Decimal(b['balance']) != Decimal(0.00):
+                ret[b['currency']]['lock'] = Decimal(b['balance'])
+
+            if ret[b['currency']]['free'] is None and ret[b['currency']]['lock'] is None:
+                del ret[b['currency']]
+
+        raise gen.Return(ret)
 
 
 @gen.engine   
 def main():
     hbex = HuobiEx.instance()
-    r = yield hbex.get_symbols()
-    for key,value in r.iteritems(): 
-        r = yield hbex.get_depth(key)   
-        print r
-        #r = yield hbex.get_history(key)
+    # test symbols
+    #r = yield hbex.get_symbols()
+    #for key,value in r.iteritems(): 
+    #    r = yield hbex.get_depth(key)   
+    #    print r
+    #    #r = yield hbex.get_history(key)
+
     #r = yield hbex.get_asset_amount('iost')
     #print r 
+
+    r = yield hbex.get_balance()
+    print r
 
 if __name__ == '__main__':
     main()
