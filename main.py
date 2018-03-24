@@ -14,14 +14,23 @@ import tornado.httpserver
 from spider import Spider
 from druid import Druid
 import time
+from exchange.binan import BinanceEx
+from exchange.huobi import HuobiEx
+from exchange.okex import OkexEx
+
+EXCHANGES = {
+    'binance': {'instance': BinanceEx.instance(), },
+    'huobi':   {'instance': HuobiEx.instance(),   },
+    'okex':    {'instance': OkexEx.instance(),    },
+}
 
 class Application:
     def __init__(self):
         pass
         
     def start(self):
-        Spider.instance().start()
-        Druid.instance().start()
+        Spider.instance().start(EXCHANGES)
+        Druid.instance().start(EXCHANGES)
         ioloop.IOLoop.instance().start()
 
     def stop(self):

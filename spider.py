@@ -68,14 +68,7 @@ class Spider:
     def __init__(self):
         self.terminate = False
         self.busy = False
-
-        self.EXCHANGES = {
-            'binance': {'instance': BinanceEx.instance(), 'enabled': True},
-            'huobi':   {'instance': HuobiEx.instance(),   'enabled': True},
-            'okex':    {'instance': OkexEx.instance(),    'enabled': True},
-        }
-
-        self.wisps = [Wisp(v['instance']) for k, v in self.EXCHANGES.items() if v['enabled']]
+        self.wisps = []
         self.cache = Cache.instance()
 
     def runLoop(self):
@@ -134,7 +127,9 @@ class Spider:
         slogger.info('--------cache--------')
         slogger.info('--------cache--------{}'.format(self.cache.stat()))
 
-    def start(self):
+    def start(self, exs):
+        self.wisps = [Wisp(v['instance']) for k, v in ex.items()]
+
         tornado.ioloop.PeriodicCallback(self.refresh_symbols, SCAN_TIMEOUT_INTERVAL).start()
         tornado.ioloop.PeriodicCallback(self.show_cache, SHOW_CACHE_INTERVAL).start()
         IOLoop.instance().add_timeout(time.time() + 0.01, self.refresh_symbols)
@@ -142,6 +137,12 @@ class Spider:
 
 if __name__ == '__main__':
     init_logger('.')
-    Spider.instance().start()
+
+    EXCHANGES = {
+        'binance': {'instance': BinanceEx.instance(), 'enabled': True},
+        'huobi':   {'instance': HuobiEx.instance(),   'enabled': True},
+        'okex':    {'instance': OkexEx.instance(),    'enabled': True},
+    }
+    Spider.instance().start(EXCHANGES)
     IOLoop.instance().start() 
 

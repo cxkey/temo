@@ -25,7 +25,8 @@ class Druid:
         self.data_timeout = 60 * 10
         self.tset = TradeSet.instance()
 
-    def start(self):
+    def start(self, exs):
+        self.exchanges = exs
         IOLoop.instance().add_timeout(time.time() + 20, self.scanSymbol)
 
     @gen.coroutine
@@ -73,7 +74,7 @@ class Druid:
             for item in perm_list:
                 try:
                     # ex1, ex2 is exchange instance 
-                    ex1, ex2 = conf.EXCHANGES[item[0]]['instance'], conf.EXCHANGES[item[1]]['instance']
+                    ex1, ex2 = self.exchanges[item[0]]['instance'], self.exchanges[item[1]]['instance']
                     price1 = self.cache.get(symbol, ex1.name)
                     if price1 is None:
                         continue
