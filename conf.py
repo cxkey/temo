@@ -43,6 +43,14 @@ RISK_RATE = 0.5
 PROFIT_RATE = 0.02
 
 INIT_AMOUNT = {
-    'iost': {'amount':100,'price':0.001}
+    'iost' : { 'amount': 200 },
+    'eth'  : { 'amount': 200 }
+}
+
+# base is USDT
+INIT_COST = {
+    'btc' : { 'amount': 100, 'price': 8870.82 },
+    'eth' : { 'amount': 100, 'price': 538.92  },
+    'omg' : { 'amount': 100, 'price': 11.47 },
 }
 

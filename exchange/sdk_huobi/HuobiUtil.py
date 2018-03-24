@@ -19,6 +19,12 @@ from tornado.gen import coroutine
 from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
 
+import sys
+sys.path.append('../')
+sys.path.append('../../')
+
+import S
+
 # timeout in 5 seconds:
 TIMEOUT = 5
 
@@ -47,13 +53,11 @@ DEFAULT_POST_HEADERS = {
 }
 
 # 此处填写APIKEY
-
-ACCESS_KEY = "144e54a8-597d787e-65c487fc-9d977"
-SECRET_KEY = "629badff-c2f089f4-4374f7b2-10bb3"
+ACCESS_KEY = S.KEYS['huobi']['access_key']
+SECRET_KEY = S.KEYS['huobi']['secret_key']
 
 # 首次运行可通过get_accounts()获取acct_id,然后直接赋值,减少重复获取。
 ACCOUNT_ID = None
-
 
 #各种请求,获取数据方式
 def http_get_request(url, params, add_to_headers=None):

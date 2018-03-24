@@ -63,10 +63,8 @@ class Trade:
             params['amount'] = self.sell_amount
             params['deal_price'] = self.sell_price
 
-        print 1
         DBTrade.instance().insert(params)
-        print 2
-        cal_single_prodit(params)
+        #cal_single_prodit(params)
 
     def __str__(self):
         return '[%s] buyer:%s,%s,%s,%s, seller:%s,%s,%s,%s' % (self.symbol, self.buyer.name, \
@@ -220,7 +218,6 @@ class TradeSet:
                         # TODO 这里还要考虑下
                         alogger.info('!deal! {}'.format(str(trade)))
                         trade.make_deal(amount)
-                        alogger.info('!deal2! {}'.format(str(trade)))
                     else:
                         alogger.info('amount is invalid. {}. {}'.format(amount, str(trade)))
                 else:
@@ -229,11 +226,11 @@ class TradeSet:
                 alogger.exception(e)
 
 def test():
-    t2 = Trade('ost_eth', HuobiEx.instance(), Decimal('0.99'), 100, BinanceEx.instance(), Decimal('1.20'), 100)
+    t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.99'), 100, OkexEx.instance(), Decimal('1.20'), 100)
     TradeSet.instance().produce(t) 
 
-    t2 = Trade('ost_eth', BinanceEx.instance(), Decimal('1.10'), 100, HuobiEx.instance(), Decimal('1.30'), 100)
-    TradeSet.instance().produce(t) 
+    #t = Trade('ost_eth', OkexEx.instance(), Decimal('1.10'), 100, HuobiEx.instance(), Decimal('1.30'), 100)
+    #TradeSet.instance().produce(t) 
 
 if __name__ == '__main__':
     init_logger('.')
