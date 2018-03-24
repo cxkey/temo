@@ -229,14 +229,10 @@ class TradeSet:
                 alogger.exception(e)
 
 def test():
-    symbol = 'ost_eth'
-    ex1 = OkexEx.instance()  
-    ask1 = Decimal('0.00032757')
-    ask1_amount = 100
-    ex2 = HuobiEx.instance()
-    bid2 = Decimal('0.00035228')
-    bid2_amount = 100
-    t = Trade(symbol, ex1, ask1, ask1_amount, ex2, bid2, bid2_amount)
+    t2 = Trade('ost_eth', HuobiEx.instance(), Decimal('0.99'), 100, BinanceEx.instance(), Decimal('1.20'), 100)
+    TradeSet.instance().produce(t) 
+
+    t2 = Trade('ost_eth', BinanceEx.instance(), Decimal('1.10'), 100, HuobiEx.instance(), Decimal('1.30'), 100)
     TradeSet.instance().produce(t) 
 
 if __name__ == '__main__':
