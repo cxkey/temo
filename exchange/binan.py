@@ -124,6 +124,36 @@ class BinanceEx(Exchange):
             raise gen.Return(Decimal(0.00))
 
     @gen.coroutine
+    def get_balance(self,):
+        r = self.client.get_account()
+        if not (r and 'balances' in r ):
+            raise gen.Return(None)
+
+        ret = {}
+        '''
+        {
+            'usdt': {
+                'free': Decimal(100.00),
+                'lock': Decimal(100.00),
+            },
+            'iost': {
+                'free': Decimal(100.00),
+                'lock': Decimal(0.00)
+            },
+        }
+        '''
+        ZERO = Decimal(0.00)
+        for b in r['balances']:
+            if Decimal(b['free']) == ZERO and Decimal(b['locked']) == ZERO:
+                continue
+            else:
+                asset = b['asset'].lower()
+                if asset not in ret:
+                    ret[asset] = {'free': Decimal(b['free']), 'lock': Decimal(b['locked'])}
+
+        raise gen.Return(ret)
+
+    @gen.coroutine
     def create_trade(self, symbol,amount,price,side):
         if side == BUY:
             side = SIDE_BUY
@@ -153,16 +183,21 @@ class BinanceEx(Exchange):
 @gen.engine
 def main():
     baex = BinanceEx.instance()
-    r = yield baex.get_symbols()
-    if r:
-        for k in r.keys():
-            price1 = yield baex.get_depth(k)
-            print k, price1
+    #r = yield baex.get_symbols()
+    #if r:
+    #    for k in r.keys():
+    #        price1 = yield baex.get_depth(k)
+    #        print k, price1
+
     #baex.get_all_tickers()
     #r = yield baex.get_asset_amount('IOST')
     #print r
+
     #r = yield baex.create_test_trade()
     #print r
+
+    r = yield baex.get_balance()
+    print r
     IOLoop.instance().stop() 
    
 if __name__ == '__main__':
