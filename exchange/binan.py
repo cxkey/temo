@@ -147,7 +147,7 @@ class BinanceEx(Exchange):
             if Decimal(b['free']) == ZERO and Decimal(b['locked']) == ZERO:
                 continue
             else:
-                asset = b['asset'].lower()
+                asset = str(b['asset'].lower())
                 if asset not in ret:
                     ret[asset] = {'free': Decimal(b['free']), 'lock': Decimal(b['locked'])}
 
