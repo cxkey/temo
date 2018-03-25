@@ -29,18 +29,63 @@ class Account:
 
     def __init__(self):
         self.exchanges = {}
+        self.cache = Cache.instance()
 
+    @gen.coroutine
     def statistics(self):
         # 当前平台所持有的币种, 数量, 价格, 换算成ETH, USDT, BTC 为 base 的资产
         # 初始时平台所持有的币种, 数量, 价格, 换算成ETH, USDT, BTC 为 base 的资产
-        for k, v in self.exchanges.items():
-            ex = v['instance']
-            ex_balance = v['instance'].get_balance()
-            alogger.info('name:{}, value:{}'.format(k, ex_balance))
+        try:
+            '''
+            data = {
+                'huobi': {
+                    'btc': {
+                        'iost': [amount, bid1_price],
+                        'usdt': [amount, bid1_price],
+                    },
+                    'eth': {
+                        'iost': [amount, bid1_price],
+                        'usdt': [amount, bid1_price],
+                    },
+                    'usdt': {
+                        'iost': [amount, bid1_price],
+                        'usdt': [amount, bid1_price],
+                    },
+                },
+                'binance': {
+                    ...
+                },
+            }
+            '''
+            data = {}
+            bases = ['btc', 'eth', 'usdt']
+            for ex_name, v in self.exchanges.items():
+                if ex_name not in data:
+                    data[ex_name] = {}
+                    for b in bases:
+                        data[ex_name][b] = {}
+
+                ex_balance = yield v['instance'].get_balance()
+                if not ex_balance:
+                    continue
+                alogger.info('name:{}, value:{}'.format(ex_name, ex_balance))
+
+                for asset, vb in ex_balance.items():
+                    for b in bases:
+                        ret_price = self.cache.get('{}_{}'.format(asset, b), ex_name)
+                        if not (ret_price and 'bids' in ret_price):
+                            alogger.info('cache: no cache data {}_{} {}'.format(asset, b, ex_name))
+                            continue
+                        alogger.info('cache: cache data {}_{} {}'.format(asset, b, ex_name))
+                        data[ex_name][b][asset] = [vb['free'], vb['free'] * ret_price['bids'][0]]
+
+            alogger.info('data: {}'.format(data))
+        except Exception, e:
+            alogger.exception(e)
 
     def start(self, exs):
         self.exchanges = exs
-        tornado.ioloop.PeriodicCallback(self.statistics, 30 * 1000).start()
+        tornado.ioloop.PeriodicCallback(self.statistics, 10).start()
 
 # 计算单笔交易的收益
 def cal_single_profit(params):

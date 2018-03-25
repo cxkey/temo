@@ -9,19 +9,15 @@ class Cache:
     ask:卖价 bid:买价
     {
         symbol1: {
-            ex1: { price: [bid1, ask1], timestamp: '' }
-            ex2: { price: [bid1, ask1], timestamp: '' }
-            ex3: { price: [bid1, ask1], timestamp: '' }
+            ex1: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, timestamp: '' }
+            ex2: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, timestamp: '' }
+            ex3: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, timestamp: '' }
         },
         symbol2: {
-            ex1: { price: [bid1, ask1], timestamp: '' }
-            ex2: { price: [bid1, ask1], timestamp: '' }
-            ex3: { price: [bid1, ask1], timestamp: '' }
-            ex4: { price: [bid1, ask1], timestamp: '' }
+            ex1: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, timestamp: '' }
+            ex2: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, timestamp: '' }
         },
     }
-    bid1 -> [Decimal(), Decimal()]
-    ask1 -> [Decimal(), Decimal()]
     '''
 
     def __init__(self):

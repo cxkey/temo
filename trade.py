@@ -16,7 +16,6 @@ from exchange.huobi import HuobiEx
 from exchange.okex import OkexEx  
 import datetime
 from redisclient import *
-from profit import *
 
 class Trade:
 
