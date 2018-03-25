@@ -4,6 +4,7 @@ from tornado.ioloop import IOLoop
 import conf
 import pymysql
 import time
+import datetime
 import threading
 from singleton import singleton
 from logger import alogger, elogger
@@ -112,9 +113,38 @@ class DBProfit:
         finally:
             if cur:
                 cur.close()
+        
+@singleton
+class DBStatistics:
+    def __init__(self):
+        self.tablename = 'statistics'
+
+    def insert(self, params):        
+        conn = ConnectionPool.instance().connection()
+        try:
+            cur = conn.cursor()
+            sql = "insert into %s (date, exchange, asset, base, amount, price, value, create_time, update_time) values \
+                   ('%s', '%s', '%s', '%s', %s, %s, %s, '%s', '%s')" \
+                   % (self.tablename, params['date'], params['exchange'], params['asset'], params['base'], params['amount'], params['price'], params['value'], datetime.datetime.now(), datetime.datetime.now())
+            cur.execute(sql)
+            conn.commit()
+        except Exception, e:
+            alogger.exception(e)
+        finally:
+            if cur:
+                cur.close()
    
 
 if __name__ == '__main__':
     conn = ConnectionPool.instance().connection()
     print conn.ping()
+    params = {}
+    params['date'] = '2018.03.25 11:00:00'
+    params['exchange'] = 'huobi'
+    params['asset'] = 'iost'
+    params['base'] = 'btc'
+    params['amount'] = 100
+    params['price'] = 0.2
+    params['value'] = 20 
+    DBStatistics.instance().insert(params)
 

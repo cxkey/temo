@@ -19,6 +19,7 @@ from exchange.okex import OkexEx
 from Queue import Queue
 from trade import *
 from init import *
+from dao import DBStatistics
 import conf
 from conf import INIT_AMOUNT
 
@@ -103,24 +104,29 @@ class Account:
                                 #if 'iost' in asset or 'eth' in asset:
                                 #    alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
                                 alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
-                                continue
+                                if asset == 'usdt':
+                                    # TODO calc the usdt price
+                                    pass
+                                else:
+                                    continue
 
                             alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
                             data[ex_name][asset][b] = [vb['free'], ret_price['bids'][0], vb['free'] * ret_price['bids'][0]]
-
-                    #for b in bases:
-                    #    ret_price = self.cache.get('{}_{}'.format(asset, b), ex_name)
-                    #    if not (ret_price and 'bids' in ret_price):
-                    #        #if 'iost' in asset or 'eth' in asset:
-                    #        #    alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
-                    #        alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
-                    #        continue
-                    #    #if 'iost' in asset or 'eth' in asset:
-                    #    #    alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
-                    #    alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
-                    #    data[ex_name][b][asset] = [vb['free'], vb['free'] * ret_price['bids'][0]]
-
             alogger.info('data: {}'.format(data))
+
+            BASE = 'btc'
+            for ex, v1 in data.items():
+                for asset, v2 in v1.items():
+                    p = {
+                        'date': util.get_time_hour_align(),
+                        'exchange': ex,
+                        'asset': asset,
+                        'base': BASE,
+                        'amount': v2['btc'][0],
+                        'price': v2['btc'][1],
+                        'value': v2['btc'][2],
+                    }
+                    DBStatistics.instance().insert(p)
         except Exception, e:
             alogger.exception(e)
 

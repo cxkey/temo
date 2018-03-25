@@ -1,6 +1,7 @@
 import uuid, datetime, time, json
 from hashlib import md5
 import re
+import datetime
 from decimal import Decimal
 
 def gen_md5(fp):
@@ -22,7 +23,13 @@ def gen_id():
     s = str(uuid.uuid3(uuid.uuid1(), gen_md5(time.ctime()))).replace('-', '')
     return '%s_%s' % (datetime.datetime.now().strftime('%Y%m%d%H%M%S'), s)
 
+def get_time_hour_align(t=None):
+    if not t:
+        t = datetime.datetime.now()
+    return t.replace(minute=0, second=0, microsecond=0)
+
 if __name__ == '__main__':
      permutation([1,2,3,4])
      print gen_id()
+     print get_time_hour_align()
 
