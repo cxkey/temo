@@ -76,20 +76,6 @@ class HuobiEx(Exchange):
         raise gen.Return(None)
 
     @coroutine
-    def get_history(self,symbol):
-        ret = {}
-        symbol = symbol.replace('_', '')
-        r = yield HuobiService.get_history_trade(symbol,2000)
-        if r['status'] != 'ok':
-            raise gen.Return(None)
-
-        for item in r['data']:
-            t1 = time.strftime("%Y%m%d%H%M", time.localtime(item['data'][0]['ts']/1000))
-            price = item['data'][0]['price']
-            ret[t1] = price
-        raise gen.Return(ret)
-
-    @coroutine
     def get_asset_amount(self,asset):        
         ret = {}
         if not asset: 
@@ -107,15 +93,6 @@ class HuobiEx(Exchange):
                 return
 
         raise gen.Return(Decimal(0.00)) 
-
-    @coroutine
-    def create_trade(self,symbol,amount,price,side):
-        if side == BUY:
-            side = 'buy-limit'
-        else:
-            side = 'sell-limit'
-        r = HuobiService.send_order(amount=amount, symbol=symbol, _type=side, price=price)
-        raise gen.Return(ret)
 
     @coroutine
     def get_balance(self,):
@@ -138,18 +115,43 @@ class HuobiEx(Exchange):
         '''
         ZERO = Decimal(0.00)
         for b in r['data']['list']:
-            if b['currency'] not in ret:
-                ret[b['currency']] = { 'free': ZERO, 'lock': ZERO, }
+            asset = str(b['currency'])
+            if asset not in ret:
+                ret[asset] = { 'free': ZERO, 'lock': ZERO, }
 
             if b['type'] == 'trade' and Decimal(b['balance']) != ZERO:
-                ret[b['currency']]['free'] = Decimal(b['balance'])
+                ret[asset]['free'] = Decimal(b['balance'])
 
             if b['type'] == 'frozen' and Decimal(b['balance']) != ZERO:
-                ret[b['currency']]['lock'] = Decimal(b['balance'])
+                ret[asset]['lock'] = Decimal(b['balance'])
 
-            if ret[b['currency']]['free'] == ZERO and ret[b['currency']]['lock'] == ZERO:
-                del ret[b['currency']]
+            if ret[asset]['free'] == ZERO and ret[asset]['lock'] == ZERO:
+                del ret[asset]
 
+        raise gen.Return(ret)
+
+    @coroutine
+    def create_trade(self,symbol,amount,price,side):
+        if side == BUY:
+            side = 'buy-limit'
+        else:
+            side = 'sell-limit'
+        r = HuobiService.send_order(amount=amount, symbol=symbol, _type=side, price=price)
+        raise gen.Return(ret)
+
+
+    @coroutine
+    def get_history(self,symbol):
+        ret = {}
+        symbol = symbol.replace('_', '')
+        r = yield HuobiService.get_history_trade(symbol,2000)
+        if r['status'] != 'ok':
+            raise gen.Return(None)
+
+        for item in r['data']:
+            t1 = time.strftime("%Y%m%d%H%M", time.localtime(item['data'][0]['ts']/1000))
+            price = item['data'][0]['price']
+            ret[t1] = price
         raise gen.Return(ret)
 
 
@@ -157,19 +159,28 @@ class HuobiEx(Exchange):
 def main():
     hbex = HuobiEx.instance()
     # test symbols
-    #r = yield hbex.get_symbols()
+    r = yield hbex.get_symbols()
+    for symbol in r.keys():
+        if 'iost' in symbol:
+            print symbol
+            rr = yield hbex.get_depth(symbol)   
+            print symbol, rr
+        if 'eth_' in symbol:
+            print symbol
+            rr = yield hbex.get_depth(symbol)   
+            print symbol, rr
     #for key,value in r.iteritems(): 
     #    r = yield hbex.get_depth(key)   
-    #    print r
-    #    #r = yield hbex.get_history(key)
+    #    if 'iost' in r:
+    #        print key, r
 
     #r = yield hbex.get_asset_amount('iost')
     #print r 
 
-    r = yield hbex.get_depth('iost_eth')   
-    print r
-    r = yield hbex.get_balance()
-    print r
+    #r = yield hbex.get_depth('iost_eth')   
+    #print r
+    #r = yield hbex.get_balance()
+    #print r
 
 if __name__ == '__main__':
     main()

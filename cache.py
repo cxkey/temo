@@ -26,9 +26,12 @@ class Cache:
         self.clean_timeout = 3600 * 24 # one day
 
     def __str__(self):
-        s = ''
+        s = '\n'
         for k, v in self.data.items():
-            s += '{}:{}\n'.format(k, v.keys())
+            if 'iost' in k:
+                s += '{}:{}\n'.format(k, str(v))
+            if 'eth_' in k:
+                s += '{}:{}\n'.format(k, str(v))
 
         return s
 
