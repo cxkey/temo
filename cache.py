@@ -26,7 +26,7 @@ class Cache:
 
     def __init__(self):
         self.data = {}
-        self.update_timeout = 10 * 60 # sec
+        self.update_timeout = 60 * 60 # sec
         self.clean_timeout = 3600 * 24 # one day
 
     def __str__(self):

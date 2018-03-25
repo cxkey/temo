@@ -110,14 +110,14 @@ class Spider:
             slogger.info('wisp symbol [%s] start' % wisp.exchange.name)
             wisp.dig_symbols()
 
-        #for symbol, v1 in self.cache.data.iteritems():
-        #    for exchange,v2 in v1.iteritems():
-        #        now = time.time()
-        #        if now - v2['timestamp'] >= self.cache.clean_timeout:
-        #            del self.cache[symbol][exchange]
-        #            slogger.info('%s,%s,deleted in cache',symbol,exchange)
-        #        else:
-        #            continue
+        for symbol, v1 in self.cache.data.iteritems():
+            for exchange, v2 in v1.iteritems():
+                now = time.time()
+                if now - v2['timestamp'] >= self.cache.clean_timeout:
+                    del self.cache[symbol][exchange]
+                    slogger.info('%s, %s, deleted in cache', symbol, exchange)
+                else:
+                    continue
 
         slogger.info('refresh_symbols finished')
 
