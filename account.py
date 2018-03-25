@@ -56,14 +56,36 @@ class Account:
                     ...
                 },
             }
+            data = {
+                'huobi': {
+                    'iost': {
+                        'btc': [amount, bid1_price, amount*bid1_price],
+                        'eth': [amount, bid1_price, amount*bid1_price],
+                        'usdt': [amount, bid1_price, amount*bid1_price],
+                    },
+                    'eth': {
+                        'btc': [amount, bid1_price, amount*bid1_price],
+                        'eth': [amount, bid1_price, amount*bid1_price],
+                        'usdt': [amount, bid1_price, amount*bid1_price],
+                    },
+                    'usdt': {
+                        'btc': [amount, bid1_price, amount*bid1_price],
+                        'eth': [amount, bid1_price, amount*bid1_price],
+                        'usdt': [amount, bid1_price, amount*bid1_price],
+                    },
+                },
+                'binance': {
+                    ...
+                },
+            }
             '''
             data = {}
             bases = ['btc', 'eth', 'usdt']
             for ex_name, v in self.exchanges.items():
                 if ex_name not in data:
                     data[ex_name] = {}
-                    for b in bases:
-                        data[ex_name][b] = {}
+                    #for b in bases:
+                    #    data[ex_name][b] = {}
 
                 ex_balance = yield v['instance'].get_balance()
                 if not ex_balance:
@@ -71,17 +93,32 @@ class Account:
                 alogger.info('name:{}, value:{}'.format(ex_name, ex_balance))
 
                 for asset, vb in ex_balance.items():
-                    for b in bases:
-                        ret_price = self.cache.get('{}_{}'.format(asset, b), ex_name)
-                        if not (ret_price and 'bids' in ret_price):
-                            #if 'iost' in asset or 'eth' in asset:
-                            #    alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
-                            alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
-                            continue
-                        #if 'iost' in asset or 'eth' in asset:
-                        #    alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
-                        alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
-                        data[ex_name][b][asset] = [vb['free'], vb['free'] * ret_price['bids'][0]]
+                    if asset not in data[ex_name]:
+                        data[ex_name][asset] = {}
+                        for b in bases:
+                            data[ex_name][asset][b] = []
+                            ret_price = self.cache.get('{}_{}'.format(asset, b), ex_name)
+
+                            if not (ret_price and 'bids' in ret_price):
+                                #if 'iost' in asset or 'eth' in asset:
+                                #    alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
+                                alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
+                                continue
+
+                            alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
+                            data[ex_name][asset][b] = [vb['free'], ret_price['bids'][0], vb['free'] * ret_price['bids'][0]]
+
+                    #for b in bases:
+                    #    ret_price = self.cache.get('{}_{}'.format(asset, b), ex_name)
+                    #    if not (ret_price and 'bids' in ret_price):
+                    #        #if 'iost' in asset or 'eth' in asset:
+                    #        #    alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
+                    #        alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
+                    #        continue
+                    #    #if 'iost' in asset or 'eth' in asset:
+                    #    #    alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
+                    #    alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
+                    #    data[ex_name][b][asset] = [vb['free'], vb['free'] * ret_price['bids'][0]]
 
             alogger.info('data: {}'.format(data))
         except Exception, e:
