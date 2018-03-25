@@ -106,7 +106,7 @@ class Account:
                                 alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
                                 if asset == 'usdt':
                                     # TODO calc the usdt price
-                                    pass
+                                    continue
                                 else:
                                     continue
 
@@ -122,10 +122,15 @@ class Account:
                         'exchange': ex,
                         'asset': asset,
                         'base': BASE,
-                        'amount': v2['btc'][0],
-                        'price': v2['btc'][1],
-                        'value': v2['btc'][2],
                     }
+                    if len(v2[BASE]) == 3:
+                        p['amount'] = v2[BASE][0]
+                        p['price'] = v2[BASE][1]
+                        p['value'] = v2[BASE][2]
+                    else:
+                        p['amount'] = 0.00
+                        p['price'] = 0.00
+                        p['value'] = 0.00
                     DBStatistics.instance().insert(p)
         except Exception, e:
             alogger.exception(e)
