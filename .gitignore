@@ -2,4 +2,4 @@
 *.log
 *.log.*
 S.py
-
+*DS_Store

@@ -19,9 +19,13 @@ from exchange.binan import BinanceEx
 from exchange.huobi import HuobiEx
 from exchange.okex import OkexEx
 
+from tornado.options import define, options
+import tornado.httpserver
+from web import WebEntry
+
 EXCHANGES = {
-    'binance': {'instance': BinanceEx.instance(), },
-    'huobi':   {'instance': HuobiEx.instance(),   },
+    #'binance': {'instance': BinanceEx.instance(), },
+    #'huobi':   {'instance': HuobiEx.instance(),   },
     #'okex':    {'instance': OkexEx.instance(),    },
 }
 
@@ -30,13 +34,19 @@ class Application:
         pass
         
     def start(self):
-        Spider.instance().start(EXCHANGES)
-        Druid.instance().start(EXCHANGES)
-        Account.instance().start(EXCHANGES)
+        #Spider.instance().start(EXCHANGES)
+        #Druid.instance().start(EXCHANGES)
+        #Account.instance().start(EXCHANGES)
+
+        self.server = tornado.httpserver.HTTPServer(WebEntry())
+        alogger.info(1)
+        self.server.listen(conf.PORT)
+        alogger.info(2)
+
         ioloop.IOLoop.instance().start()
 
     def stop(self):
-        pass
+        self.server.stop()
 
 app = Application()
 

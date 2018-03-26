@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+      <title>Fishing 套利</title>
+
+      <!-- Bootstrap -->
+      <link rel="stylesheet" href="{{ static_url('css/bootstrap.min.css') }}">
+      <link rel="stylesheet" href="{{ static_url('css/bootstrap-select.min.css') }}">
+      <link rel="stylesheet" href="{{ static_url('css/bootstrap-datetimepicker.min.css') }}">
+      <link rel="stylesheet" href="{{ static_url('css/bootstrap-responsive.css') }}">
+      <link rel="stylesheet" href="{{ static_url('css/ku.css') }}">
+
+      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+      <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+
+      <!-- Bootstrapvalidator plugin
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.2/css/bootstrapValidator.min.css"/>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.2/js/bootstrapValidator.min.js"></script>
+      <Bootstrapvalidator plugin-->
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.0.4/echarts.common.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.0.4/echarts.simple.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.0.4/echarts.js"></script>
+
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+      <script src="{{ static_url('js/bootstrap.min.js') }}"></script>
+      <script src="{{ static_url('js/bootstrap-select.min.js') }}"></script>
+      <script src="{{ static_url('js/bootstrap-datetimepicker.min.js') }}"></script>
+      <script src="{{ static_url('js/locales/bootstrap-datetimepicker.zh-CN.js') }}"></script>
+      <script src="{{ static_url('js/common.js') }}"></script>
+      <script src="{{ static_url('js/b.js') }}"></script>
+    </head>
+
+    <body>
+        <div id='wrap'>
+            <div class="container">
+                <div id='body' class="container">
+                    <div class="row">
+                    {% block main_body %} {% end %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% block footer %} {% end %}
+    </body>
+    {% block js %} {% end %}
+</html>
+

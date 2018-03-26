@@ -1,0 +1,336 @@
+
+{% block common %}
+<div id='contact_user_modal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">编辑</h4>
+            </div>
+            <div class="modal-body">
+                <form id="contact_user_form" action="/" method="post">
+                    <div class="form-group hidden">
+                        <label for="id">ID</label>
+                        <input type="text" class="form-control" name="id" placeholder="">
+                    </div>
+                    <div class="form-group hidden">
+                        <label for="id">ContactID</label>
+                        <input type="text" class="form-control" name="contact_id" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">手机号</label>
+                        <input type="text" class="form-control" name="phone" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="text" class="form-control" name="email" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="vars">变量</label>
+                        <input type="text" class="form-control" name="vars" placeholder="">
+                    </div>
+                    <span name="contact_user_form_result"></span>
+                    <br/>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" id="create_contact_user_btn" class="btn btn-primary">删除</button>
+                        <button type="button" id="delete_contact_user_btn" class="btn btn-primary">删除</button>
+                        <button type="button" id="edit_contact_user_btn" class="btn btn-primary">编辑</button>
+                    </div>
+                </form>
+            </div>
+            <!--<div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">确认注册</button>
+            </div> -->
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<div id='sms_task_modal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">创建任务</h4>
+            </div>
+            <div class="modal-body">
+                <form id="sms_task_form" action="/" method="post">
+                    <div class="form-group hidden">
+                        <label for="id">任务ID</label>
+                        <input type="text" class="form-control" name="id" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="exec_time">执行时间</label>
+                        <input type="text" name='exec_time' value="" readonly class="form_datetime">
+                        <script type="text/javascript">
+                            $(".form_datetime").datetimepicker({
+                                format: 'yyyy-mm-dd hh:ii',
+                                minuteStep: 5,
+                                autoclose: true,
+                                startDate: new Date(),
+                            });
+                        </script> 
+                    </div>
+                    <div class="form-group">
+                        <label for="name">名称</label>
+                        <input type="text" class="form-control" name="name" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="sms_template_id">选择模板</label>
+                        <select class="form-control" name="sms_template_id">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_id">选择联系人</label>
+                        <select class="form-control" name="contact_id">
+                        </select>
+                    </div>
+                    <span name="sms_task_form_result"></span>
+                    <br/>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" id="create_sms_task_btn" class="btn btn-primary">创建</button>
+                        <button type="button" id="delete_sms_task_btn" class="btn btn-primary">删除</button>
+                        <button type="button" id="edit_sms_task_btn" class="btn btn-primary">编辑</button>
+                    </div>
+                </form>
+            </div>
+            <!--<div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">确认注册</button>
+            </div> -->
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<div id='contact_modal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">创建联系人</h4>
+            </div>
+            <div class="modal-body">
+                <form id="contact_form" action="/" method="post">
+                    <div class="form-group hidden">
+                        <label for="id">联系人ID</label>
+                        <input type="text" class="form-control" name="id" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="name">名称</label>
+                        <input type="text" class="form-control" name="name" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">备注</label>
+                        <input type="text" class="form-control" name="comment" placeholder="">
+                    </div>
+                    <span name="contact_form_result"></span>
+                    <div class="form-group" name="file_upload">
+                        <label for="file">联系人文件上传</label>
+                        <input type="file" class="file" name="file" data-show-preview="false">
+                    </div>
+                    <span name="contact_form_upload_result"></span>
+                    <br/>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" id="create_contact_btn" class="btn btn-primary">创建</button>
+                        <button type="button" id="delete_contact_btn" class="btn btn-primary">删除</button>
+                        <button type="button" id="edit_contact_btn" class="btn btn-primary">编辑</button>
+                        <button type="button" id="append_contact_btn" class="btn btn-primary">添加</button>
+                    </div>
+                </form>
+            </div>
+            <!--<div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">确认注册</button>
+            </div> -->
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<div id='sms_template_modal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">创建模板</h4>
+            </div>
+            <div class="modal-body">
+                <form id="sms_template_form" action="/" method="post">
+                    <div class="form-group hidden">
+                        <label for="id">模板ID</label>
+                        <input type="text" class="form-control" name="id" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="name">模板名称</label>
+                        <input type="text" class="form-control" name="name" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="content">模板内容</label>
+                        <textarea class="form-control" rows="5" name="content" placeholder=""></textarea>
+                    </div>
+                    <div class="form-group" name="content_info">
+                        <label for="file">模板变量说明</label>
+                        <table class="table table-bordered"><tbody>
+                            <tr>
+                            <th class="">示例一: 不带变量的短信模板</th>
+                            <th class="">示例二: 带变量的短信模板</th>
+                            </tr><tr>
+                            <td>
+                            尊敬的用户: 欢迎登陆网站领取红包.
+                            </td>
+                            <td>
+                            尊敬的用户%name%: 欢迎登陆网站领取红包%money%元.
+                            </td>
+                            </tr>
+                        </tbody></table>
+                    </div>
+                    <div class="form-group">
+                        <label for="sms_sign_id">选择签名</label>
+                            <select class="form-control" name="sms_sign_id">
+                            </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">备注</label>
+                        <input type="text" class="form-control" name="comment" placeholder="">
+                    </div>
+                    <span name="sms_template_form_result"></span>
+                    <br/>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" id="create_sms_template_btn" class="btn btn-primary">创建</button>
+                        <button type="button" id="delete_sms_template_btn" class="btn btn-primary">删除</button>
+                        <button type="button" id="edit_sms_template_btn" class="btn btn-primary">编辑</button>
+                    </div>
+                </form>
+            </div>
+            <!--<div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">确认注册</button>
+            </div> -->
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<div id='sms_sign_modal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">创建签名</h4>
+            </div>
+            <div class="modal-body">
+                <form id="sms_sign_form" action="/" method="post">
+                    <div class="form-group hidden">
+                        <label for="id">签名ID</label>
+                        <input type="text" class="form-control" name="id" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="name">签名名称</label>
+                        <input type="text" class="form-control" name="name" placeholder="">
+                    </div>
+                    <label class="control-label">签名类型</label>
+                    <div class="radio">
+                        <label><input type="radio" name="sign_type" value="0" checked>国内短信</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">备注</label>
+                        <input type="text" class="form-control" name="comment" placeholder="">
+                    </div>
+                    <span name="sms_sign_form_result"></span>
+                    <br/>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" id="create_sms_sign_btn" class="btn btn-primary">创建</button>
+                        <button type="button" id="delete_sms_sign_btn" class="btn btn-primary">删除</button>
+                        <button type="button" id="edit_sms_sign_btn" class="btn btn-primary">编辑</button>
+                    </div>
+                </form>
+            </div>
+            <!--<div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">确认注册</button>
+            </div> -->
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<div id='login_modal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">登录</h4>
+            </div>
+            <div class="modal-body">
+                <form id="login_form" action="/" method="post">
+                    <div class="form-group">
+                        <label for="phone">手机号</label>
+                        <input type="phone" class="form-control" name="phone" aria-describedby="phoneHelp" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="passwd">密码</label>
+                        <input type="password" class="form-control" name="passwd" placeholder="">
+                    </div>
+                    <br/>
+                    <span name="login_form_result"></span>
+                    <br/>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button name='login' type="button" class="btn btn-primary">确认登录</button>
+                    </div>
+                </form>
+            </div>
+            <!--<div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">确认注册</button>
+            </div> -->
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<div id='register_modal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">注册</h4>
+            </div>
+            <div class="modal-body">
+                <form id="register_form" action="/" method="post">
+                    <div class="form-group">
+                        <label for="phone">手机号</label>
+                        <input type="phone" class="form-control" name="phone" aria-describedby="phoneHelp" placeholder="">
+                        <!--<div class="invalid-feedback">请输入手机号</div>-->
+                    </div>
+                    <div class="form-group">
+                        <label for="passwd1">密码</label>
+                        <input type="password" class="form-control" name="passwd1" placeholder="">
+                        <!--<div class="invalid-feedback">请输入密码</div>-->
+                    </div>
+                    <div class="form-group">
+                        <label for="passwd2">密码确认</label>
+                        <input type="password" class="form-control" name="passwd2" placeholder="">
+                        <!--<div class="invalid-feedback">请再次输入密码</div>-->
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" name="agreement">
+                            同意协议
+                        </label>
+                    </div>
+                    <span name="register_form_result"></span>
+                    <br/>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" name='register' class="btn btn-primary">确认注册</button>
+                    </div>
+                </form>
+            </div>
+            <!--<div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">确认注册</button>
+            </div> -->
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+{% end %}

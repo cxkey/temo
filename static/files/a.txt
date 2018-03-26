@@ -1,0 +1,4 @@
+13811112221,name=xiaoming,money=100
+13811112222,name=xiaohong,money=90
+13811112223,name=xiaohua,money=80
+13811112224,name=xiaobai,money=70
