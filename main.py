@@ -34,14 +34,14 @@ class Application:
         pass
         
     def start(self):
-        #Spider.instance().start(EXCHANGES)
-        #Druid.instance().start(EXCHANGES)
-        #Account.instance().start(EXCHANGES)
+        if len(EXCHANGES.keys()) > 0:
+            Spider.instance().start(EXCHANGES)
+            Druid.instance().start(EXCHANGES)
+            Account.instance().start(EXCHANGES)
 
         self.server = tornado.httpserver.HTTPServer(WebEntry())
-        alogger.info(1)
         self.server.listen(conf.PORT)
-        alogger.info(2)
+        alogger.info('server start listening...')
 
         ioloop.IOLoop.instance().start()
 
