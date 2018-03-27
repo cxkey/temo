@@ -69,9 +69,16 @@ class HuobiEx(Exchange):
                 asks = tick.get('asks', [])
                 if asks:
                     ret['asks'] = [Decimal(i) for i in asks[0]]
-                raise gen.Return(ret)
+
+                if (not ret['asks']) and (not ret['bids']):
+                    raise gen.Return(None)
+                    return
+                else:
+                    raise gen.Return(ret)
+                    return
             else:
                 raise gen.Return(None)
+                return
         
         raise gen.Return(None)
 
