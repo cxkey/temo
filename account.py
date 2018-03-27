@@ -40,25 +40,6 @@ class Account:
             '''
             data = {
                 'huobi': {
-                    'btc': {
-                        'iost': [amount, bid1_price],
-                        'usdt': [amount, bid1_price],
-                    },
-                    'eth': {
-                        'iost': [amount, bid1_price],
-                        'usdt': [amount, bid1_price],
-                    },
-                    'usdt': {
-                        'iost': [amount, bid1_price],
-                        'usdt': [amount, bid1_price],
-                    },
-                },
-                'binance': {
-                    ...
-                },
-            }
-            data = {
-                'huobi': {
                     'iost': {
                         'btc': [amount, bid1_price, amount*bid1_price],
                         'eth': [amount, bid1_price, amount*bid1_price],

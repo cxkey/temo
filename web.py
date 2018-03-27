@@ -14,7 +14,6 @@ import util
 import hashlib
 import bcrypt
 import concurrent.futures
-#from ui_module import TableSMSSignModule, TableSMSTemplateModule, TableContactModule, TableContactUserModule, PagerModule, TableSMSTaskModule
 
 class WebEntry(tornado.web.Application):
     def __init__(self):
@@ -29,14 +28,6 @@ class WebEntry(tornado.web.Application):
                 #xsrf_cookies = True,
                 cookie_secret = "123456",
                 login_url = "/login",
-                #ui_modules  =  {
-                #    'Pager': PagerModule,
-                #        'table_sms_sign': TableSMSSignModule,
-                #        'table_sms_template': TableSMSTemplateModule,
-                #        'table_sms_task': TableSMSTaskModule,
-                #        'table_contact': TableContactModule,
-                #        'table_contact_user': TableContactUserModule,
-                #},
                 debug = True)
 
         tornado.web.Application.__init__(self, self.route, **settings)
