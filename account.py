@@ -98,7 +98,7 @@ class Account:
             for ex, v1 in data.items():
                 for asset, v2 in v1.items():
                     p = {
-                        'date': util.get_time_hour_align(),
+                        'date': util.get_time_ten_min_align(),
                         'exchange': ex,
                         'asset': asset,
                         'base': BASE,

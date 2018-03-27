@@ -64,7 +64,6 @@ class Trade:
             params['deal_price'] = self.sell_price
 
         DBTrade.instance().insert(params)
-        #cal_single_prodit(params)
 
     def __str__(self):
         return '[%s|%s] [buyer:%s|%s|%s|%s] [seller:%s|%s|%s|%s]' % (self.tid, self.symbol, self.buyer.name, \
@@ -81,14 +80,18 @@ class Trade:
         # TODO 如果一方失败, 另一方要尝试回滚 
         
         # 先卖, 后买
-        #yield self.seller.create_trade(symbol=self.symbol, amount=amount, side=SELL)
-        #yield self.buyer.create_trade(symbol=self.symbol, amount=amount, side=BUY)
-
-        alogger.info('make_deal1')
+        r_sell = yield self.seller.create_trade(symbol=self.symbol, amount=amount, price=self.sell_price, side=SELL)
+        alogger.info('make deal:SELL res:{}, trade:{} amount:{}'.format(str(r_sell), self.__str__(), amount))
+        # TODO 1. Decimal(1); 2. Trade.TRADE_SUCCESS 
         self.db_action(Trade.SELL, amount, Decimal(1), Trade.TRADE_SUCCESS)
-        alogger.info('make_deal2')
+
+        r_buy = yield self.buyer.create_trade(symbol=self.symbol, amount=amount, price=self.buy_price, side=BUY)
+        alogger.info('make deal:BUY res:{}, trade:{} amount:{}'.format(str(r_buy), self.__str__(), amount))
         self.db_action(Trade.BUY, amount, Decimal(1), Trade.TRADE_SUCCESS)
-        alogger.info('make_deal3')
+
+        # TODO the exchange.create_trade should return the same format. it is defined in the class Exchange 
+        if True or (r_sell.status and r_buy.status):
+            elogger.info('&DEAL1, {}, amount:{}'.format(str(trade), amount))
 
     @gen.coroutine
     def calc_final_amount(self):
@@ -100,13 +103,19 @@ class Trade:
             init_amount = 1000
         else:
             buyer_base_balance = yield self.buyer.get_asset_amount(base)
-            init_amount = conf.INIT_AMOUNT[asset]['amount']
+            buyer_init_amount = Decimal(conf.INIT_AMOUNT[asset][self.buyer.name]['amount'])
+            seller_init_amount = Decimal(conf.INIT_AMOUNT[asset][self.seller.name]['amount'])
 
-        buy_amount = min(init_amount * (1 + conf.RISK_RATE) - self.buyer_asset_amount, \
+        #print 'debug 1', buyer_base_balance,buyer_init_amount,seller_init_amount
+        #print 'debug 2', buyer_init_amount * Decimal(1 + conf.RISK_RATE)
+        #print 'debug 3', self.buyer_asset_amount
+        #print 'debug 4', buyer_base_balance / self.buy_price, self.buy_price
+        #print 'debug 5', self.buy_amount
+        buy_amount = min(buyer_init_amount * Decimal(1 + conf.RISK_RATE) - self.buyer_asset_amount, \
                          buyer_base_balance / self.buy_price, \
                          self.buy_amount)
 
-        sell_amount = min(self.seller_asset_amount - init_amount * (1 - conf.RISK_RATE), \
+        sell_amount = min(self.seller_asset_amount - seller_init_amount * Decimal(1 - conf.RISK_RATE), \
                           self.seller_asset_amount,
                           self.sell_amount)
         alogger.info('[{}] buy:{}, sell:{}'.format(self.tid, buy_amount, sell_amount))
@@ -163,12 +172,12 @@ class Trade:
             return
 
         self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)
-        if abs(self.buyer_asset_amount - conf.INIT_AMOUNT[asset]['amount']) / conf.INIT_AMOUNT[asset]['amount'] > conf.RISK_RATE:
+        if abs(self.buyer_asset_amount - conf.INIT_AMOUNT[asset][self.buyer.name]['amount']) / conf.INIT_AMOUNT[asset][self.seller.name]['amount'] > conf.RISK_RATE:
             raise gen.Return(True)
             return
 
-        trade.seller_asset_amount = yield trade.seller.get_asset_amount(asset)
-        if abs(trade.seller_asset_amount - conf.INIT_AMOUNT[asset]['amount']) / conf.INIT_AMOUNT[asset]['amount'] > conf.RISK_RATE:
+        self.seller_asset_amount = yield self.seller.get_asset_amount(asset)
+        if abs(self.seller_asset_amount - conf.INIT_AMOUNT[asset][self.seller.name]['amount']) / conf.INIT_AMOUNT[asset][self.seller.name]['amount'] > conf.RISK_RATE:
             raise gen.Return(True)
             return
 
@@ -206,17 +215,18 @@ class TradeSet:
                 alogger.info('trade_set is empty')
                 continue
             try:
+                ret_risk = yield trade.has_risk()
                 real_check_result = yield trade.check()
                 if real_check_result:
                     alogger.info('real_check success. tid:{}'.format(str(trade.tid)))
                     amount = yield trade.calc_final_amount()
                     if amount > 0 :
                         # TODO 这里还要考虑下
-                        alogger.info('deal success. tid:{} amount:{}'.format(str(trade.tid), amount))
+                        alogger.info('calc success. tid:{} amount:{}'.format(str(trade.tid), amount))
                         elogger.info('&CONFIRM, {}, amount:{}'.format(str(trade), amount))
                         trade.make_deal(amount)
                     else:
-                        alogger.info('deal fail: amount is invalid. tid:{} amount:{}'.format(str(trade.tid), amount))
+                        alogger.info('calc fail: amount is invalid. tid:{} amount:{}'.format(str(trade.tid), amount))
                 else:
                     alogger.info('real_check fail. tid:{}'.format(str(trade.tid)))
             except Exception as e :
@@ -224,13 +234,8 @@ class TradeSet:
                 alogger.exception(e)
 
 def test():
-    t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.99'), 100, OkexEx.instance(), Decimal('1.20'), 100)
-    print str(t)
-    #TradeSet.instance().produce(t) 
-    #IOLoop.instance().stop()
-
-    #t = Trade('ost_eth', OkexEx.instance(), Decimal('1.10'), 100, HuobiEx.instance(), Decimal('1.30'), 100)
-    #TradeSet.instance().produce(t) 
+    t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.0003472'), 100, OkexEx.instance(), Decimal('0.0003488'), 100)
+    TradeSet.instance().produce(t) 
 
 if __name__ == '__main__':
     init_logger('.')

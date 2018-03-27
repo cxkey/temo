@@ -54,6 +54,12 @@ class Exchange:
         '''
         raise NotImplementedError('function: get_balance() must be defined')
 
+    @coroutine
+    def create_trade(self, symbol, amount, price, side):
+        '''
+        '''
+        raise NotImplementedError('function: get_balance() must be defined')
+
 if __name__ == '__main__':
     pass
 

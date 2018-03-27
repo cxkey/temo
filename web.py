@@ -68,7 +68,7 @@ class StatHandler(tornado.web.RequestHandler):
 
             tmp = []
             for r in ret:
-                d = r[0].strftime('%Y%m%d%H%M%S')
+                d = r[0].strftime('%Y.%m.%d %H:%M:%S')
                 asset, value = str(r[1]), str(r[2])
                 flag = False
                 for t in tmp:

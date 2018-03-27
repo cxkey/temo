@@ -136,7 +136,6 @@ class DBStatistics:
             cur.close()
         return ret                
 
-
     def sum_group_by_date_asset(self):
         ret = []
         conn = ConnectionPool.instance().connection()

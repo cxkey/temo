@@ -23,13 +23,15 @@ def gen_id():
     s = str(uuid.uuid3(uuid.uuid1(), gen_md5(time.ctime()))).replace('-', '')
     return '%s_%s' % (datetime.datetime.now().strftime('%Y%m%d%H%M%S'), s)
 
-def get_time_hour_align(t=None):
+def get_time_ten_min_align(t=None):
     if not t:
         t = datetime.datetime.now()
-    return t.replace(second=0, microsecond=0)
+    for i in range(10, 70, 10):
+        if t.minute1 < i:
+            return t.replace(minute=i-10, second=0, microsecond=0)
 
 if __name__ == '__main__':
      permutation([1,2,3,4])
      print gen_id()
-     print get_time_hour_align()
+     print get_time_ten_min_align()
 

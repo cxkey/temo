@@ -82,7 +82,7 @@ class Druid:
                     flag, trade = yield self.check_trade(symbol, ex1, price1, ex2, price2)
                     if flag and trade is not None:
                         alogger.info('check_trade bingo. {}'.format(str(trade)))
-                        elogger.info('&IN, {}'.format(str(trade)))
+                        elogger.info('&CHECK, {}'.format(str(trade)))
                         self.tset.produce(trade)
                 except Exception as e:
                     alogger.exception(e)
