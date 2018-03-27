@@ -82,8 +82,11 @@ class Trade:
         # TODO 如果一方失败, 另一方要尝试回滚 
         
         # 先卖, 后买
-        r = yield self.seller.create_trade(symbol=self.symbol, amount=amount, side=SELL)
-        r = yield self.buyer.create_trade(symbol=self.symbol, amount=amount, side=BUY)
+        #r = yield self.seller.create_trade(symbol=self.symbol, amount=amount, price=self.sell_price, side=SELL)
+
+        #print 'debug sell',r
+        r = yield self.buyer.create_trade(symbol=self.symbol, amount=amount, price=self.buy_price, side=BUY)
+        print 'debug buy',r
 
         alogger.info('make_deal1')
         self.db_action(Trade.SELL, amount, Decimal(1), Trade.TRADE_SUCCESS)
@@ -223,7 +226,7 @@ class TradeSet:
                 if real_check_result:
                     amount = yield trade.calc_final_amount()
                     print 'debug',amount
-                    #amount = 100
+                    amount = 50
                     if amount > 0 :
                         # TODO 这里还要考虑下
                         alogger.info('!deal! {}'.format(str(trade)))

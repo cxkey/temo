@@ -139,13 +139,18 @@ class HuobiEx(Exchange):
 
     @coroutine
     def create_trade(self,symbol,amount,price,side):
-        if side == BUY:
-            side = 'buy-limit'
-        else:
-            side = 'sell-limit'
-        symbol = symbol.replace('_', '')            
-        price = str(Decimal(price))
-        r = HuobiService.send_order(amount=amount, source=None, symbol=symbol, _type=side, price=price)
+        r = None
+        try:
+            if side == BUY:
+                side = 'buy-limit'
+            else:
+                side = 'sell-limit'
+            symbol = symbol.replace('_', '')            
+            price = str(Decimal(price))
+            r = HuobiService.send_order(amount=str(amount), source=None, symbol=symbol, _type=side, price=price)
+        except Exception as e:
+            alogger.exception(e)
+            print str(e)
         raise gen.Return(r)
 
 
