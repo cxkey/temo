@@ -73,20 +73,22 @@ class Wisp:
     def dig_depth(self):
         begin = time.time()
         self.running = True
-        try:
-            for symbol in self.cache.data.keys():
+        print 'xxxxx',self.cache.data.keys()
+        for symbol in self.cache.data.keys():
+            try:
                 if self.exchange.name not in self.cache.data[symbol].keys():
                     continue
 
                 info = yield self.exchange.get_depth(symbol)
+                print 'yyyyy',symbol,info
                 if info:
                     self.cache.setvalue(symbol, self.exchange.name, info)
-            slogger.info('wisp depth [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
-        except Exception, e:
-            slogger.info('wisp depth [%s] exception' % self.exchange.name)
-            slogger.exception(e)
-        finally:
-            self.running = False
+                print 'zzzzz', str(self.cache)
+            except Exception, e:
+                slogger.info('wisp [%s] depth [%s] exception' % self.exchange.name,symbol)
+                slogger.exception(e)
+        slogger.info('wisp depth [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
+        self.running = False
     
 @singleton
 class Spider:
@@ -157,7 +159,7 @@ class Spider:
 
         tornado.ioloop.PeriodicCallback(self.refresh_symbols, SCAN_TIMEOUT_INTERVAL).start()
         tornado.ioloop.PeriodicCallback(self.show_cache, SHOW_CACHE_INTERVAL).start()
-        IOLoop.instance().add_timeout(time.time() + 1, self.refresh_symbols)
+        #IOLoop.instance().add_timeout(time.time() + 1, self.refresh_symbols)
         IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
 
 if __name__ == '__main__':

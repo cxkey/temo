@@ -191,13 +191,15 @@ def main():
     #        if 'iost' in k:
     #            print k, price1
     #        break
+    price1 = yield baex.get_depth('iost_btc')
+    print price1
 
     #baex.get_all_tickers()
     #r = yield baex.get_asset_amount('IOST')
     #print r
 
-    r = yield baex.create_test_trade()
-    print r
+    #r = yield baex.create_test_trade()
+    #print r
 
     #r = yield baex.create_trade('iost_btc',400,Decimal('0.00000298'),BUY)
     #print r
