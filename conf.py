@@ -26,7 +26,7 @@ REDIS_CACHE_PERIOD = 60 * 5
 
 TASK_WAIT_TOO_MUCH_TIME = 90
 
-DEBUG_MODE = True
+DEBUG_MODE = False
 if os.getcwd() == '/opt/production/fishing':
     ENV = 'pro'
 else:

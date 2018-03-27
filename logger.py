@@ -46,25 +46,4 @@ def init_logger(path):
             handler.setFormatter(formatter)
             l.addHandler(handler)
 
-    #if not alogger.handlers:
-    #    handler = logging.handlers.TimedRotatingFileHandler(path + os.sep + 'action.log', when='midnight', interval=1, backupCount=BACKCOUNT)
-    #    handler.setLevel(LOGLEVEL)
-    #    formatter = logging.Formatter(LOGFORMAT)
-    #    handler.setFormatter(formatter)
-    #    alogger.addHandler(handler)
-
-    #if not slogger.handlers:
-    #    handler = logging.handlers.TimedRotatingFileHandler(path + os.sep + 'spider.log', when='midnight', interval=1, backupCount=BACKCOUNT)
-    #    handler.setLevel(LOGLEVEL)
-    #    formatter = logging.Formatter(LOGFORMAT)
-    #    handler.setFormatter(formatter)
-    #    slogger.addHandler(handler)
-
-    #if not elogger.handlers:
-    #    handler = logging.handlers.TimedRotatingFileHandler(path + os.sep + 'event.log', when='midnight', interval=1, backupCount=BACKCOUNT)
-    #    handler.setLevel(LOGLEVEL)
-    #    formatter = logging.Formatter(LOGFORMAT)
-    #    handler.setFormatter(formatter)
-    #    elogger.addHandler(handler)
-
 

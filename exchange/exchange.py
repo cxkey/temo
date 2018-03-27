@@ -54,7 +54,7 @@ class Exchange:
         '''
         raise NotImplementedError('function: get_balance() must be defined')
 
-    @coroutine
+    @abstractmethod
     def create_trade(self, symbol, amount, price, side):
         '''
         '''

@@ -117,7 +117,7 @@ class Account:
 
     def start(self, exs):
         self.exchanges = exs
-        tornado.ioloop.PeriodicCallback(self.statistics, 60 * 1000).start()
+        tornado.ioloop.PeriodicCallback(self.statistics, 10 * 60 * 1000).start()
 
 # 计算单笔交易的收益
 def cal_single_profit(params):

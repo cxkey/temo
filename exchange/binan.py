@@ -66,7 +66,10 @@ class BinanceEx(Exchange):
             r = self.client.get_order_book(symbol=symbol, limit=10)
             IOLoop.instance().add_callback(callback, r)
         except Exception, e:
-            alogger.exception(e)
+            if 'Invalid symbol' in str(e):
+                pass
+            else:
+                alogger.exception(e)
             IOLoop.instance().add_callback(callback, None)
 
     def _get_depth(self, symbol, callback):
