@@ -59,7 +59,6 @@ class HuobiEx(Exchange):
 
         print '6666',symbol
         r = yield HuobiService.get_depth(symbol, 'step0')
-        print r
         if r.get('status', None) is not None:
             tick = r.get('tick', None)
             if tick is not None:
@@ -70,7 +69,6 @@ class HuobiEx(Exchange):
                 asks = tick.get('asks', [])
                 if asks:
                     ret['asks'] = [Decimal(i) for i in asks[0]]
-                print '7777',ret
                 raise gen.Return(ret)
             else:
                 raise gen.Return(None)

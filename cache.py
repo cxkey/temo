@@ -28,10 +28,7 @@ class Cache:
     def __str__(self):
         s = '\n'
         for k, v in self.data.items():
-            if 'iost' in k:
-                s += '{}:{}\n'.format(k, str(v))
-            if 'eth_' in k:
-                s += '{}:{}\n'.format(k, str(v))
+            s += '{}:{}\n'.format(k, str(v))
 
         return s
 
@@ -67,6 +64,8 @@ class Cache:
             self.data[symbol][exchange] = {}
 
     def setvalue(self, symbol, exchange, value):
+        if value is None:
+            return
         if symbol not in self.data:
             self.data[symbol] = {}
         if exchange not in self.data[symbol]:

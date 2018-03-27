@@ -119,6 +119,7 @@ class Trade:
         # 再检查一遍实时数据，是否能继续交易
         print '55555',self.symbol,self.buyer
         price1 = yield self.buyer.get_depth(self.symbol)
+        print '510'
         price2 = yield self.seller.get_depth(self.symbol) 
 
         print price1
@@ -235,7 +236,7 @@ class TradeSet:
 def test():
     t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.99'), 100, OkexEx.instance(), Decimal('1.20'), 100)
     TradeSet.instance().produce(t) 
-    IOLoop.instance().stop()
+    #IOLoop.instance().stop()
 
     #t = Trade('ost_eth', OkexEx.instance(), Decimal('1.10'), 100, HuobiEx.instance(), Decimal('1.30'), 100)
     #TradeSet.instance().produce(t) 

@@ -62,8 +62,12 @@ class BinanceEx(Exchange):
         raise gen.Return(ret)
 
     def _do_get_depth(self, symbol, callback):
-        r = self.client.get_order_book(symbol=symbol, limit=10)
-        IOLoop.instance().add_callback(callback, r)
+        try:
+            r = self.client.get_order_book(symbol=symbol, limit=10)
+            IOLoop.instance().add_callback(callback, r)
+        except Exception, e:
+            alogger.exception(e)
+            IOLoop.instance().add_callback(callback, None)
 
     def _get_depth(self, symbol, callback):
         threading.Thread(target=self._do_get_depth, args=(symbol, callback)).start()
@@ -78,8 +82,10 @@ class BinanceEx(Exchange):
             raise gen.Return(None)
 
         symbol = symbol.replace('_', '').upper()
-        #r = self.client.get_order_book(symbol=symbol, limit=10)
         r = yield gen.Task(self._get_depth, symbol)
+        if r is None:
+            raise gen.Return(None)
+            return
 
         bids = r.get('bids', [])
         if bids:
@@ -88,6 +94,10 @@ class BinanceEx(Exchange):
         asks = r.get('asks', [])
         if asks:
             ret['asks'] = [Decimal(i) for i in asks[0][0:-1]]
+
+        if (not ret['asks']) and (not ret['bids']):
+            raise gen.Return(None)
+            return
 
         raise gen.Return(ret)
 

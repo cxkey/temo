@@ -56,11 +56,8 @@ def get_depth(symbol, type):
               'type': type}
 
     url = MARKET_URL + '/market/depth'
-    print '8888'
     res = yield asyc_http_get_request(url, params)
-    print res
     raise gen.Return(res)
-
 
 # 获取tradedetail
 def get_trade(symbol):
