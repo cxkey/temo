@@ -38,8 +38,6 @@ class Druid:
         bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
         ask2, ask2_amount = price2['asks'][0], price2['asks'][1]
 
-        #alogger.info('check_trade info1. {}, {}'.format(ask1<bid2, util.profit_rate(ask1, bid2)))
-        #alogger.info('check_trade info2. {}, {}'.format(ask2<bid1, util.profit_rate(ask2, bid1)))
         if ask1 < bid2 and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
             trade = Trade(symbol, ex1, ask1, ask1_amount, ex2, bid2, bid2_amount)
         elif ask2 < bid1 and util.profit_rate(ask2, bid1) > conf.PROFIT_RATE:
@@ -84,6 +82,7 @@ class Druid:
                     flag, trade = yield self.check_trade(symbol, ex1, price1, ex2, price2)
                     if flag and trade is not None:
                         alogger.info('check_trade bingo. {}'.format(str(trade)))
+                        elogger.info('&IN, {}'.format(str(trade)))
                         self.tset.produce(trade)
                 except Exception as e:
                     alogger.exception(e)

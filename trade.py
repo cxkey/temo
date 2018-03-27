@@ -67,15 +67,14 @@ class Trade:
         #cal_single_prodit(params)
 
     def __str__(self):
-        return '[%s] buyer:%s,%s,%s,%s, seller:%s,%s,%s,%s' % (self.symbol, self.buyer.name, \
-                str(self.buy_price.quantize(Decimal('0.00000001'), rounding=ROUND_HALF_EVEN)), \
+        return '[%s|%s] [buyer:%s|%s|%s|%s] [seller:%s|%s|%s|%s]' % (self.tid, self.symbol, self.buyer.name, \
+                str(self.buy_price.quantize(Decimal('0.0000000001'), rounding=ROUND_HALF_EVEN)), \
                 str(self.buy_amount), \
                 str(self.buyer_asset_amount), \
                 self.seller.name, \
-                str(self.sell_price.quantize(Decimal('0.00000001'), rounding=ROUND_HALF_EVEN)), \
+                str(self.sell_price.quantize(Decimal('0.0000000001'), rounding=ROUND_HALF_EVEN)), \
                 str(self.sell_amount), \
                 str(self.seller_asset_amount)) 
-
 
     @gen.coroutine
     def make_deal(self, amount):
@@ -110,20 +109,16 @@ class Trade:
         sell_amount = min(self.seller_asset_amount - init_amount * (1 - conf.RISK_RATE), \
                           self.seller_asset_amount,
                           self.sell_amount)
-        alogger.info('buy:{}, sell:{}'.format(buy_amount, sell_amount))
+        alogger.info('[{}] buy:{}, sell:{}'.format(self.tid, buy_amount, sell_amount))
         trade_amount = min(buy_amount, sell_amount)
         raise gen.Return(trade_amount)
 
     @gen.coroutine
     def check(self):
         # 再检查一遍实时数据，是否能继续交易
-        print '55555',self.symbol,self.buyer
         price1 = yield self.buyer.get_depth(self.symbol)
-        print '510'
         price2 = yield self.seller.get_depth(self.symbol) 
 
-        print price1
-        print price2
         if len(price1['bids']) > 0 and len(price1['asks']) > 0 and \
             len(price2['bids']) > 0 and len(price2['asks']) > 0:
             bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
@@ -198,9 +193,7 @@ class TradeSet:
             return trade  
     
     def produce(self, trade):
-        print '11111'
         self.queue.put(trade)
-        print '22222'
         if self._thread == None or self._thread.is_alive() == False:
             self._thread = threading.Thread(target=self._process)
             self._thread.start()
@@ -208,34 +201,32 @@ class TradeSet:
     @gen.coroutine
     def _process(self):
         while True:
-            print '3333'
             trade = self.pop()
             if trade is None:
                 alogger.info('trade_set is empty')
                 continue
-            print '444'
             try:
                 real_check_result = yield trade.check()
-                #real_check_result = True
-                print 'debug',real_check_result
                 if real_check_result:
+                    alogger.info('real_check success. tid:{}'.format(str(trade.tid)))
                     amount = yield trade.calc_final_amount()
-                    #amount = 100
                     if amount > 0 :
                         # TODO 这里还要考虑下
-                        alogger.info('!deal! {}'.format(str(trade)))
+                        alogger.info('deal success. tid:{} amount:{}'.format(str(trade.tid), amount))
+                        elogger.info('&CONFIRM, {}, amount:{}'.format(str(trade), amount))
                         trade.make_deal(amount)
                     else:
-                        alogger.info('amount is invalid. {}. {}'.format(amount, str(trade)))
+                        alogger.info('deal fail: amount is invalid. tid:{} amount:{}'.format(str(trade.tid), amount))
                 else:
-                    alogger.info('trade real_check fail: %s' % str(trade))
+                    alogger.info('real_check fail. tid:{}'.format(str(trade.tid)))
             except Exception as e :
-                print e
+                alogger.info('trade process exception. tid:{}'.format(str(trade.tid)))
                 alogger.exception(e)
 
 def test():
     t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.99'), 100, OkexEx.instance(), Decimal('1.20'), 100)
-    TradeSet.instance().produce(t) 
+    print str(t)
+    #TradeSet.instance().produce(t) 
     #IOLoop.instance().stop()
 
     #t = Trade('ost_eth', OkexEx.instance(), Decimal('1.10'), 100, HuobiEx.instance(), Decimal('1.30'), 100)
