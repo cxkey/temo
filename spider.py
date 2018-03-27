@@ -69,7 +69,6 @@ class Wisp:
         finally:
             self.running = False
 
-
     @gen.coroutine
     def dig_depth(self):
         begin = time.time()
