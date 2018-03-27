@@ -27,7 +27,7 @@ def get_time_ten_min_align(t=None):
     if not t:
         t = datetime.datetime.now()
     for i in range(10, 70, 10):
-        if t.minute1 < i:
+        if t.minute < i:
             return t.replace(minute=i-10, second=0, microsecond=0)
 
 if __name__ == '__main__':

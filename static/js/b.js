@@ -3,30 +3,11 @@ $(document).ready(function(e) {
     // 基于准备好的dom，初始化echarts实例
     var myChart = echarts.init(document.getElementById('main'));
 
-    //// 指定图表的配置项和数据
-    //var option = {
-    //    title: {
-    //        text: 'ECharts 入门示例'
-    //    },
-    //    tooltip: {},
-    //    legend: {
-    //        data:['销量']
-    //    },
-    //    xAxis: {
-    //        data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
-    //    },
-    //    yAxis: {},
-    //    series: [{
-    //        name: '销量',
-    //        type: 'bar',
-    //        data: [5, 20, 36, 10, 10, 20]
-    //    }]
-    //};
-
     var option = {
         title: {
             text: '总资产变化明细',
         },
+        color: ['#C0392B','#9B59B6', '#2980B9', '#1ABC9C', '#F1C40F', '#E67E22', '#7F8C8D', '#34495E'],
         legend: {},
         tooltip : {
             trigger: 'axis',
@@ -38,7 +19,10 @@ $(document).ready(function(e) {
             }
         },
         toolbox: {
-            feature: { saveAsImage: {} }
+            feature: { 
+                //magicType: {type: ['stack', 'tiled']},
+                saveAsImage: {} 
+            }
         },
         grid: {
             left: '3%',
@@ -73,8 +57,7 @@ $(document).ready(function(e) {
                 return true;
             },
             success: function(d) { 
-                //alert(JSON.stringify(d));
-                //$(stat_result).html("<span style='color:red'>返回数据:" + JSON.stringify(d) + "</span>");
+                $(stat_result).html("<span></span>");
                 if (d.result) {
                     myChart.hideLoading();
                     var dataset = d.info.dataset;
@@ -104,7 +87,7 @@ $(document).ready(function(e) {
     setInterval(function () {
         myChart.showLoading();
         get_stat();
-    }, 5000);
+    }, 20000);
 });
 
 
