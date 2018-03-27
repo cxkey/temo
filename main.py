@@ -24,9 +24,9 @@ import tornado.httpserver
 from web import WebEntry
 
 EXCHANGES = {
-    #'binance': {'instance': BinanceEx.instance(), },
-    #'huobi':   {'instance': HuobiEx.instance(),   },
-    #'okex':    {'instance': OkexEx.instance(),    },
+    'binance': {'instance': BinanceEx.instance(), },
+    'huobi':   {'instance': HuobiEx.instance(),   },
+    'okex':    {'instance': OkexEx.instance(),    },
 }
 
 class Application:

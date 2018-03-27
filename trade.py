@@ -16,6 +16,7 @@ from exchange.huobi import HuobiEx
 from exchange.okex import OkexEx  
 import datetime
 from redisclient import *
+from tornado.ioloop import IOLoop
 
 class Trade:
 
@@ -227,6 +228,7 @@ class TradeSet:
 def test():
     t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.99'), 100, OkexEx.instance(), Decimal('1.20'), 100)
     TradeSet.instance().produce(t) 
+    IOLoop.instance().stop()
 
     #t = Trade('ost_eth', OkexEx.instance(), Decimal('1.10'), 100, HuobiEx.instance(), Decimal('1.30'), 100)
     #TradeSet.instance().produce(t) 

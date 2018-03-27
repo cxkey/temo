@@ -45,7 +45,7 @@ def httpGet(url,resource,params=''):
     headers = {
         "Content-type" : "application/x-www-form-urlencoded",
     }
-    response = requests.get(url + resource + '?' + params,headers=headers)
+    response = requests.get(url + resource + '?' + params,headers=headers,verify=False)
     data = response.text
     return json.loads(data)
 
@@ -57,7 +57,7 @@ def httpPost(url,resource,params):
     print resource
     print params
     temp_params = urllib.urlencode(params)
-    response = requests.post(url + resource, data= temp_params, headers=headers)
+    response = requests.post(url + resource, data= temp_params, headers=headers,verify=False)
     data = response.text
     return json.loads(data)
 

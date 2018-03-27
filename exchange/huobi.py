@@ -136,8 +136,10 @@ class HuobiEx(Exchange):
             side = 'buy-limit'
         else:
             side = 'sell-limit'
-        r = HuobiService.send_order(amount=amount, symbol=symbol, _type=side, price=price)
-        raise gen.Return(ret)
+        symbol = symbol.replace('_', '')            
+        price = str(Decimal(price))
+        r = HuobiService.send_order(amount=amount, source=None, symbol=symbol, _type=side, price=price)
+        raise gen.Return(r)
 
 
     @coroutine
@@ -158,17 +160,19 @@ class HuobiEx(Exchange):
 @gen.engine   
 def main():
     hbex = HuobiEx.instance()
+    #r = yield hbex.create_trade('iost_btc',390,Decimal('0.00000299'),BUY)
+    #print r
     # test symbols
-    r = yield hbex.get_symbols()
-    for symbol in r.keys():
-        if 'iost' in symbol:
-            print symbol
-            rr = yield hbex.get_depth(symbol)   
-            print symbol, rr
-        if 'eth_' in symbol:
-            print symbol
-            rr = yield hbex.get_depth(symbol)   
-            print symbol, rr
+    #r = yield hbex.get_symbols()
+    #for symbol in r.keys():
+    #    if 'iost' in symbol:
+    #        print symbol
+    #        rr = yield hbex.get_depth(symbol)   
+    #        print symbol, rr
+    #    if 'eth_' in symbol:
+    #        print symbol
+    #        rr = yield hbex.get_depth(symbol)   
+    #        print symbol, rr
     #for key,value in r.iteritems(): 
     #    r = yield hbex.get_depth(key)   
     #    if 'iost' in r:
@@ -179,8 +183,8 @@ def main():
 
     #r = yield hbex.get_depth('iost_eth')   
     #print r
-    #r = yield hbex.get_balance()
-    #print r
+    r = yield hbex.get_balance()
+    print r
 
 if __name__ == '__main__':
     main()

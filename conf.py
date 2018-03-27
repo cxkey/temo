@@ -5,8 +5,8 @@ HOST = '0.0.0.0'
 PORT = 9998
 
 DB_CONFIG = {
-#    'host': '10.8.54.165',
-    'host': '128.1.131.178',
+    'host': '10.8.54.165',
+#    'host': '128.1.131.178',
     'port': 3306,
     'user': 'fishing_w',
     'passwd': 'appL3!@#_w',

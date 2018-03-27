@@ -12,6 +12,7 @@ from datetime import datetime
 from cache import Cache
 import tornado
 from druid import *
+from dao import *
 
 SCAN_TIMEOUT_INTERVAL = 3600 * 6 * 1000
 SHOW_CACHE_INTERVAL = 10 * 1000
@@ -24,25 +25,50 @@ class Wisp:
         self.running = False
         self.cache = Cache.instance()
 
+    #@gen.coroutine
+    #def dig_symbols(self):
+    #    begin = time.time()
+    #    self.running = True
+    #    try:
+    #        r = yield self.exchange.get_symbols()
+    #        if r:
+    #            for s in r.keys():
+    #                if s in self.cache.data.keys() and \
+    #                    self.exchange.name in self.cache.data[s].keys():
+    #                    continue
+
+    #                self.cache.setkey(s, self.exchange.name)
+    #            slogger.info('wisp symbol [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
+    #    except Exception, e:
+    #        slogger.info('wisp symbol [%s] exception' % self.exchange.name)
+    #        slogger.exception(e)
+    #    finally:
+    #        self.running = False
+
     @gen.coroutine
     def dig_symbols(self):
         begin = time.time()
         self.running = True
+        bases = ['btc', 'eth', 'usdt']
         try:
-            r = yield self.exchange.get_symbols()
-            if r:
-                for s in r.keys():
+            assets = DBStatistics.instance().select_asset()  
+            for asset in assets:
+                for base in bases:
+                    if asset == base:
+                        continue
+                    s = asset + '_' + base
                     if s in self.cache.data.keys() and \
                         self.exchange.name in self.cache.data[s].keys():
                         continue
-
                     self.cache.setkey(s, self.exchange.name)
-                slogger.info('wisp symbol [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
+                    print self.cache
+                    slogger.info('wisp symbol [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
         except Exception, e:
             slogger.info('wisp symbol [%s] exception' % self.exchange.name)
             slogger.exception(e)
         finally:
             self.running = False
+
 
     @gen.coroutine
     def dig_depth(self):
@@ -113,7 +139,7 @@ class Spider:
         for symbol, v1 in self.cache.data.iteritems():
             for exchange, v2 in v1.iteritems():
                 now = time.time()
-                if now - v2['timestamp'] >= self.cache.clean_timeout:
+                if 'timestamp' in v2 and now - v2['timestamp'] >= self.cache.clean_timeout:
                     del self.cache[symbol][exchange]
                     slogger.info('%s, %s, deleted in cache', symbol, exchange)
                 else:
@@ -132,7 +158,7 @@ class Spider:
 
         tornado.ioloop.PeriodicCallback(self.refresh_symbols, SCAN_TIMEOUT_INTERVAL).start()
         tornado.ioloop.PeriodicCallback(self.show_cache, SHOW_CACHE_INTERVAL).start()
-        IOLoop.instance().add_timeout(time.time() + 0.01, self.refresh_symbols)
+        IOLoop.instance().add_timeout(time.time() + 1, self.refresh_symbols)
         IOLoop.instance().add_timeout(time.time() + 1, self.runLoop)
 
 if __name__ == '__main__':

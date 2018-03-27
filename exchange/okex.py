@@ -74,6 +74,27 @@ class OkexEx(Exchange):
             raise gen.Return(Decimal(ret[asset]))
         else:
             raise gen.Return(Decimal(0.00))
+
+    @coroutine
+    def get_balance(self,):
+        ret = {}
+        r = okcoinSpot.userinfo()
+        ZERO = Decimal(0.00)
+        for item in r['info']['funds']['free'].keys():
+            amount = Decimal(r['info']['funds']['free'][item])
+            if amount > ZERO:
+                if item not in ret:
+                    ret[item] = { 'free': ZERO, 'lock': ZERO, }
+                ret[item]['free'] = amount
+        for item in r['info']['funds']['freezed'].keys():
+            amount = Decimal(r['info']['funds']['freezed'][item])
+            if amount > ZERO:
+                if item not in ret:
+                    ret[item] = { 'free': ZERO, 'lock': ZERO, }
+                ret[item]['lock'] = amount
+
+        raise gen.Return(ret)                
+
     
     @coroutine        
     def create_trade(self,symbol,amount,price,side):
@@ -88,15 +109,19 @@ class OkexEx(Exchange):
 @gen.engine 
 def main():
     okex = OkexEx.instance()
-    r = yield okex.get_symbols()
-    for key,value in r.iteritems():
-        r = yield okex.get_depth(key)
+    #r = yield okex.get_balance()
+    #print r
+    #r = yield okex.get_symbols()
+    #for key,value in r.iteritems():
+    #    r = yield okex.get_depth(key)
         #print key
         #r = yield okex.get_history(key)
-        print r
+        #print r
         #break
     #r = yield okex.get_asset_amount('iost')
     #print r
+    r = yield okex.create_trade('ost_btc',100,Decimal('0.00002114'),SELL)
+    print r
 
 if __name__ == '__main__':
     main()

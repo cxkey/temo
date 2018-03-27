@@ -160,6 +160,7 @@ class BinanceEx(Exchange):
         else:
             side = SIDE_SELL
 
+        symbol = symbol.replace('_','').upper()
         order = self.client.create_order(
             symbol = symbol,
             side = side,
@@ -183,20 +184,23 @@ class BinanceEx(Exchange):
 @gen.engine
 def main():
     baex = BinanceEx.instance()
-    r = yield baex.get_symbols()
-    if r:
-        for k in r.keys():
-            price1 = yield baex.get_depth(k)
-            if 'iost' in k:
-                print k, price1
+    #r = yield baex.get_symbols()
+    #if r:
+    #    for k in r.keys():
+    #        price1 = yield baex.get_depth(k)
+    #        if 'iost' in k:
+    #            print k, price1
+    #        break
 
     #baex.get_all_tickers()
     #r = yield baex.get_asset_amount('IOST')
     #print r
 
-    #r = yield baex.create_test_trade()
-    #print r
+    r = yield baex.create_test_trade()
+    print r
 
+    #r = yield baex.create_trade('iost_btc',400,Decimal('0.00000298'),BUY)
+    #print r
     #r = yield baex.get_balance()
     #print r
     #IOLoop.instance().stop() 

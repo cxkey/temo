@@ -26,7 +26,7 @@ def gen_id():
 def get_time_hour_align(t=None):
     if not t:
         t = datetime.datetime.now()
-    return t.replace(minute=0, second=0, microsecond=0)
+    return t.replace(second=0, microsecond=0)
 
 if __name__ == '__main__':
      permutation([1,2,3,4])

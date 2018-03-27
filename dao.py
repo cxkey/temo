@@ -119,6 +119,24 @@ class DBStatistics:
     def __init__(self):
         self.tablename = 'statistics'
 
+    
+    def select_asset(self):
+        ret = []
+        conn = ConnectionPool.instance().connection()
+        try:
+            cur = conn.cursor()
+            sql = "select distinct asset from %s" % self.tablename
+            cur.execute(sql)
+            r = cur.fetchall()
+            for item in r:
+                ret.append(item[0])
+        except Exception as e:
+            alogger.exception(e)
+        finally:
+            cur.close()
+        return ret                
+
+
     def sum_group_by_date_asset(self):
         ret = []
         conn = ConnectionPool.instance().connection()

@@ -100,14 +100,14 @@ class Account:
                             data[ex_name][asset][b] = []
                             ret_price = self.cache.get('{}_{}'.format(asset, b), ex_name)
 
-                            if not (ret_price and 'bids' in ret_price):
-                                #if 'iost' in asset or 'eth' in asset:
-                                #    alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
-                                alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
-                                if asset == 'usdt':
-                                    # TODO calc the usdt price
-                                    continue
+                            if not (ret_price and 'bids' in ret_price):                               
+                                if (asset == b):
+                                    ret_price = {'bids':[Decimal(1),Decimal(1)]}
+                                elif (asset == 'usdt' and b == 'btc'):
+                                    ret_price = yield v['instance'].get_depth('btc_usdt')
+                                    ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
                                 else:
+                                    alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
                                     continue
 
                             alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
@@ -137,7 +137,7 @@ class Account:
 
     def start(self, exs):
         self.exchanges = exs
-        tornado.ioloop.PeriodicCallback(self.statistics, 10 * 1000).start()
+        tornado.ioloop.PeriodicCallback(self.statistics, 60 * 1000).start()
 
 # 计算单笔交易的收益
 def cal_single_profit(params):
@@ -169,3 +169,10 @@ def cal_single_profit(params):
 def cal_all_profit():
     pass
 
+
+if __name__ == '__main__':
+    EXCHANGES = { 
+        'binance': {'instance': BinanceEx.instance(), },    
+    }
+    Account.instance().start(EXCHANGES)
+    IOLoop.instance().start()
