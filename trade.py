@@ -117,10 +117,12 @@ class Trade:
     @gen.coroutine
     def check(self):
         # 再检查一遍实时数据，是否能继续交易
-
+        print '55555',self.symbol,self.buyer
         price1 = yield self.buyer.get_depth(self.symbol)
         price2 = yield self.seller.get_depth(self.symbol) 
 
+        print price1
+        print price2
         if len(price1['bids']) > 0 and len(price1['asks']) > 0 and \
             len(price2['bids']) > 0 and len(price2['asks']) > 0:
             bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
@@ -195,7 +197,9 @@ class TradeSet:
             return trade  
     
     def produce(self, trade):
+        print '11111'
         self.queue.put(trade)
+        print '22222'
         if self._thread == None or self._thread.is_alive() == False:
             self._thread = threading.Thread(target=self._process)
             self._thread.start()
@@ -203,17 +207,19 @@ class TradeSet:
     @gen.coroutine
     def _process(self):
         while True:
+            print '3333'
             trade = self.pop()
             if trade is None:
                 alogger.info('trade_set is empty')
                 continue
-
+            print '444'
             try:
-                # liubida real_check_result = yield trade.check()
-                real_check_result = True
+                real_check_result = yield trade.check()
+                #real_check_result = True
+                print 'debug',real_check_result
                 if real_check_result:
-                    # liubida amount = yield trade.calc_final_amount()
-                    amount = 100
+                    amount = yield trade.calc_final_amount()
+                    #amount = 100
                     if amount > 0 :
                         # TODO 这里还要考虑下
                         alogger.info('!deal! {}'.format(str(trade)))
@@ -223,6 +229,7 @@ class TradeSet:
                 else:
                     alogger.info('trade real_check fail: %s' % str(trade))
             except Exception as e :
+                print e
                 alogger.exception(e)
 
 def test():

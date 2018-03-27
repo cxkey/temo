@@ -57,7 +57,9 @@ class HuobiEx(Exchange):
 
         symbol = symbol.replace('_', '')
 
+        print '6666',symbol
         r = yield HuobiService.get_depth(symbol, 'step0')
+        print r
         if r.get('status', None) is not None:
             tick = r.get('tick', None)
             if tick is not None:
@@ -68,7 +70,7 @@ class HuobiEx(Exchange):
                 asks = tick.get('asks', [])
                 if asks:
                     ret['asks'] = [Decimal(i) for i in asks[0]]
-
+                print '7777',ret
                 raise gen.Return(ret)
             else:
                 raise gen.Return(None)
@@ -181,10 +183,10 @@ def main():
     #r = yield hbex.get_asset_amount('iost')
     #print r 
 
-    #r = yield hbex.get_depth('iost_eth')   
-    #print r
-    r = yield hbex.get_balance()
+    r = yield hbex.get_depth('osteth')   
     print r
+    #r = yield hbex.get_balance()
+    #print r
 
 if __name__ == '__main__':
     main()

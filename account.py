@@ -79,8 +79,7 @@ class Account:
                         data[ex_name][asset] = {}
                         for b in bases:
                             data[ex_name][asset][b] = []
-                            ret_price = self.cache.get('{}_{}'.format(asset, b), ex_name)
-
+                            ret_price = self.cache.get('{}_{}'.format(asset, b), ex_name)                            
                             if not (ret_price and 'bids' in ret_price):                               
                                 if (asset == b):
                                     ret_price = {'bids':[Decimal(1),Decimal(1)]}
