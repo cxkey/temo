@@ -82,8 +82,8 @@ class Trade:
         # TODO 如果一方失败, 另一方要尝试回滚 
         
         # 先卖, 后买
-        #yield self.seller.create_trade(symbol=self.symbol, amount=amount, side=SELL)
-        #yield self.buyer.create_trade(symbol=self.symbol, amount=amount, side=BUY)
+        r = yield self.seller.create_trade(symbol=self.symbol, amount=amount, side=SELL)
+        r = yield self.buyer.create_trade(symbol=self.symbol, amount=amount, side=BUY)
 
         alogger.info('make_deal1')
         self.db_action(Trade.SELL, amount, Decimal(1), Trade.TRADE_SUCCESS)
@@ -101,13 +101,19 @@ class Trade:
             init_amount = 1000
         else:
             buyer_base_balance = yield self.buyer.get_asset_amount(base)
-            init_amount = conf.INIT_AMOUNT[asset]['amount']
+            buyer_init_amount = Decimal(conf.INIT_AMOUNT[asset][self.buyer.name]['amount'])
+            seller_init_amount = Decimal(conf.INIT_AMOUNT[asset][self.seller.name]['amount'])
 
-        buy_amount = min(init_amount * (1 + conf.RISK_RATE) - self.buyer_asset_amount, \
+        print 'debug 1',buyer_base_balance,buyer_init_amount,seller_init_amount
+        print 'debug 2',buyer_init_amount * Decimal(1 + conf.RISK_RATE)
+        print 'debug 3',self.buyer_asset_amount
+        print 'debug 4',buyer_base_balance / self.buy_price, self.buy_price
+        print 'debug 5',self.buy_amount
+        buy_amount = min(buyer_init_amount * Decimal(1 + conf.RISK_RATE) - self.buyer_asset_amount, \
                          buyer_base_balance / self.buy_price, \
                          self.buy_amount)
 
-        sell_amount = min(self.seller_asset_amount - init_amount * (1 - conf.RISK_RATE), \
+        sell_amount = min(self.seller_asset_amount - seller_init_amount * Decimal(1 - conf.RISK_RATE), \
                           self.seller_asset_amount,
                           self.sell_amount)
         alogger.info('buy:{}, sell:{}'.format(buy_amount, sell_amount))
@@ -117,13 +123,9 @@ class Trade:
     @gen.coroutine
     def check(self):
         # 再检查一遍实时数据，是否能继续交易
-        print '55555',self.symbol,self.buyer
         price1 = yield self.buyer.get_depth(self.symbol)
-        print '510'
         price2 = yield self.seller.get_depth(self.symbol) 
 
-        print price1
-        print price2
         if len(price1['bids']) > 0 and len(price1['asks']) > 0 and \
             len(price2['bids']) > 0 and len(price2['asks']) > 0:
             bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
@@ -168,12 +170,12 @@ class Trade:
             return
 
         self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)
-        if abs(self.buyer_asset_amount - conf.INIT_AMOUNT[asset]['amount']) / conf.INIT_AMOUNT[asset]['amount'] > conf.RISK_RATE:
+        if abs(self.buyer_asset_amount - conf.INIT_AMOUNT[asset][self.buyer.name]['amount']) / conf.INIT_AMOUNT[asset][self.seller.name]['amount'] > conf.RISK_RATE:
             raise gen.Return(True)
             return
 
-        trade.seller_asset_amount = yield trade.seller.get_asset_amount(asset)
-        if abs(trade.seller_asset_amount - conf.INIT_AMOUNT[asset]['amount']) / conf.INIT_AMOUNT[asset]['amount'] > conf.RISK_RATE:
+        self.seller_asset_amount = yield self.seller.get_asset_amount(asset)
+        if abs(self.seller_asset_amount - conf.INIT_AMOUNT[asset][self.seller.name]['amount']) / conf.INIT_AMOUNT[asset][self.seller.name]['amount'] > conf.RISK_RATE:
             raise gen.Return(True)
             return
 
@@ -215,11 +217,12 @@ class TradeSet:
                 continue
             print '444'
             try:
+                ret_risk = yield trade.has_risk()
                 real_check_result = yield trade.check()
-                #real_check_result = True
-                print 'debug',real_check_result
+                real_check_result = True
                 if real_check_result:
                     amount = yield trade.calc_final_amount()
+                    print 'debug',amount
                     #amount = 100
                     if amount > 0 :
                         # TODO 这里还要考虑下
@@ -234,7 +237,7 @@ class TradeSet:
                 alogger.exception(e)
 
 def test():
-    t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.99'), 100, OkexEx.instance(), Decimal('1.20'), 100)
+    t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.0003472'), 100, OkexEx.instance(), Decimal('0.0003488'), 100)
     TradeSet.instance().produce(t) 
     #IOLoop.instance().stop()
 

@@ -26,7 +26,7 @@ REDIS_CACHE_PERIOD = 60 * 5
 TASK_WAIT_TOO_MUCH_TIME = 90
 
 DEBUG_MODE = True
-ENV = 'test'
+ENV = 'PRO'
 
 PROJECT_NAME = 'fishing'
 INSTANCE_NAME = 'server'
@@ -51,8 +51,11 @@ PROFIT_RATE = 0.02
 #}
 
 INIT_AMOUNT = {
-    'iost' : { 'amount': 200 },
-    'eth'  : { 'amount': 200 }
+    'iost' : { 'binance':{'amount': 399}, 'huobi':{'amount': 487}, 'okex':{'amount': 0} },
+    'eth'  : { 'binance':{'amount': 0}, 'huobi':{'amount': '0.1157315498'}, 'okex':{'amount': 0} },
+    'ost'  : { 'binance':{'amount': 100}, 'huobi':{'amount': 100}, 'okex':{'amount': 100} },
+    'chat' : { 'binance':{'amount': 198}, 'huobi':{'amount': 198}, 'okex':{'amount': 198} },
+    'usdt' : { 'binance':{'amount': 0}, 'huobi':{'amount': 155}, 'okex':{'amount': 0} }
 }
 
 # base is USDT
