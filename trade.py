@@ -172,11 +172,33 @@ class Trade:
     @gen.coroutine
     def has_risk(self):
         asset = self.symbol.split('_')[0]
+        base = self.symbol.split('_')[1]
 
         if conf.ENV == 'test':
             self.buyer_asset_amount = 800
             self.seller_asset_amount = 600
             raise gen.Return(False)
+            return
+
+        binance_strict = {
+            'eth': Decimal(0.01),
+            'btc': Decimal(0.001),
+        }
+        if self.buyer.name == 'binance' and base in binance_strict.keys():
+            if self.buy_price * self.buy_amount <= binance_strict[base]:
+                raise gen.Return(True)
+                return
+        if self.seller.name == 'binance' and base in binance_strict.keys():
+            if self.sell_price * self.sell_amount <= binance_strict[base]:
+                raise gen.Return(True)
+                return
+
+        if self.buyer.name == 'okex' and self.buy_amount < 10:
+            raise gen.Return(True)
+            return
+
+        if self.seller.name == 'okex' and self.sell_amount < 10:
+            raise gen.Return(True)
             return
 
         self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)

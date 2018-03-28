@@ -28,7 +28,7 @@ class BinanceEx(Exchange):
     def __init__(self):
         Exchange.__init__(self, 'binance')
         self.client = Client(api_key, api_secret)
-
+    
     def _do_get_symbols(self, callback):
         r = self.client.get_exchange_info()
         IOLoop.instance().add_callback(callback, r)
