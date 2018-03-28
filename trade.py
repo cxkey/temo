@@ -186,18 +186,22 @@ class Trade:
         }
         if self.buyer.name == 'binance' and base in binance_strict.keys():
             if self.buy_price * self.buy_amount <= binance_strict[base]:
+                alogger.info('has_risk strict {}'.format(self.__str__()))
                 raise gen.Return(True)
                 return
         if self.seller.name == 'binance' and base in binance_strict.keys():
             if self.sell_price * self.sell_amount <= binance_strict[base]:
+                alogger.info('has_risk strict {}'.format(self.__str__()))
                 raise gen.Return(True)
                 return
 
         if self.buyer.name == 'okex' and self.buy_amount < 10:
+            alogger.info('has_risk strict {}'.format(self.__str__()))
             raise gen.Return(True)
             return
 
         if self.seller.name == 'okex' and self.sell_amount < 10:
+            alogger.info('has_risk strict {}'.format(self.__str__()))
             raise gen.Return(True)
             return
 
