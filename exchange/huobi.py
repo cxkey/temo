@@ -57,7 +57,6 @@ class HuobiEx(Exchange):
 
         symbol = symbol.replace('_', '')
 
-        print '6666',symbol
         r = yield HuobiService.get_depth(symbol, 'step0')
         if r.get('status', None) is not None:
             tick = r.get('tick', None)
@@ -146,8 +145,9 @@ class HuobiEx(Exchange):
             else:
                 side = 'sell-limit'
             symbol = symbol.replace('_', '')            
-            price = str(Decimal(price))
-            r = HuobiService.send_order(amount=str(amount), source=None, symbol=symbol, _type=side, price=price)
+            amount=str(Decimal(amount).quantize(Decimal('0.00')))
+            price=str(Decimal(price).quantize(Decimal('0.00000000')))
+            r = HuobiService.send_order(amount=amount, source=None, symbol=symbol, _type=side, price=price)
         except Exception as e:
             alogger.exception(e)
             print str(e)
@@ -193,7 +193,7 @@ def main():
     #r = yield hbex.get_asset_amount('iost')
     #print r 
 
-    r = yield hbex.get_depth('osteth')   
+    r = yield hbex.get_depth('chatbtc')   
     print r
     #r = yield hbex.get_balance()
     #print r

@@ -91,7 +91,7 @@ class Trade:
 
         # TODO the exchange.create_trade should return the same format. it is defined in the class Exchange 
         if True or (r_sell.status and r_buy.status):
-            elogger.info('&DEAL1, {}, amount:{}'.format(str(trade), amount))
+            elogger.info('&DEAL1, {}, amount:{}'.format(self.__str__(), amount))
 
     @gen.coroutine
     def calc_final_amount(self):
@@ -106,11 +106,19 @@ class Trade:
             buyer_init_amount = Decimal(conf.INIT_AMOUNT[asset][self.buyer.name]['amount'])
             seller_init_amount = Decimal(conf.INIT_AMOUNT[asset][self.seller.name]['amount'])
 
-        #print 'debug 1', buyer_base_balance,buyer_init_amount,seller_init_amount
-        #print 'debug 2', buyer_init_amount * Decimal(1 + conf.RISK_RATE)
-        #print 'debug 3', self.buyer_asset_amount
-        #print 'debug 4', buyer_base_balance / self.buy_price, self.buy_price
-        #print 'debug 5', self.buy_amount
+        alogger.info('---------------{}------------------'.format(self.tid))
+        alogger.info('{}, 买家主币的数量:{}, 买家小币初始量:{}, 卖家小币初始量:{}'.format(self.tid, buyer_base_balance, buyer_init_amount, seller_init_amount))
+        alogger.info('{}, 买家小币最大持有量:{}'.format(self.tid, buyer_init_amount * Decimal(1 + conf.RISK_RATE)))
+        alogger.info('{}, 买家小币当前已有数量:{}'.format(self.tid, self.buyer_asset_amount))
+        alogger.info('{}, 买家小币最大能买量:{}, 买家小币价格{}'.format(self.tid, buyer_base_balance / self.buy_price, self.buy_price))
+        alogger.info('{}, 深度小币量:{}'.format(self.tid, self.buy_amount))
+
+        alogger.info('{}, 卖家小币初始量:{}, 卖家小币初始量:{}'.format(self.tid, seller_init_amount, buyer_init_amount))
+        alogger.info('{}, 卖家小币最少持有量:{}'.format(self.tid, seller_init_amount * Decimal(1 - conf.RISK_RATE)))
+        alogger.info('{}, 卖家小币当前已有数量:{}'.format(self.tid, self.seller_asset_amount))
+        alogger.info('{}, 深度小币量:{}'.format(self.tid, self.sell_amount))
+        alogger.info('---------------{}------------------'.format(self.tid))
+
         buy_amount = min(buyer_init_amount * Decimal(1 + conf.RISK_RATE) - self.buyer_asset_amount, \
                          buyer_base_balance / self.buy_price, \
                          self.buy_amount)
@@ -217,10 +225,12 @@ class TradeSet:
                 break
             try:
                 #ret_risk = yield trade.has_risk()
-                real_check_result = yield trade.check()
+                #real_check_result = yield trade.check()
+                real_check_result = True
                 if real_check_result:
                     alogger.info('real_check success. tid:{}'.format(str(trade.tid)))
                     amount = yield trade.calc_final_amount()
+                    #elogger.info('&REALCHECK, {}, amount:{}'.format(str(trade), amount))
                     if amount > 0 :
                         # TODO 这里还要考虑下
                         alogger.info('calc success. tid:{} amount:{}'.format(str(trade.tid), amount))
