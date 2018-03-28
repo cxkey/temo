@@ -14,6 +14,7 @@ import tornado.httpserver
 from spider import Spider
 from druid import Druid
 from account import Account
+from trade import TradeSet
 import time
 from exchange.binan import BinanceEx
 from exchange.huobi import HuobiEx
@@ -38,6 +39,7 @@ class Application:
             Spider.instance().start(EXCHANGES)
             Druid.instance().start(EXCHANGES)
             Account.instance().start(EXCHANGES)
+            TradeSet.instance().start()
 
         self.server = tornado.httpserver.HTTPServer(WebEntry())
         self.server.listen(conf.PORT)

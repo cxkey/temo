@@ -195,7 +195,7 @@ class TradeSet:
     def pop(self):
         trade = None
         try:
-            trade = self.queue.get(True, 5)
+            trade = self.queue.get(False)
         except Exception as e:
             pass
         finally:
@@ -203,9 +203,9 @@ class TradeSet:
     
     def produce(self, trade):
         self.queue.put(trade)
-        if self._thread == None or self._thread.is_alive() == False:
-            self._thread = threading.Thread(target=self._process)
-            self._thread.start()
+        #if self._thread == None or self._thread.is_alive() == False:
+        #    self._thread = threading.Thread(target=self._process)
+        #    self._thread.start()
 
     @gen.coroutine
     def _process(self):
@@ -213,9 +213,10 @@ class TradeSet:
             trade = self.pop()
             if trade is None:
                 alogger.info('trade_set is empty')
-                continue
+                IOLoop.instance().add_timeout(time.time() + 5, self._process)
+                break
             try:
-                ret_risk = yield trade.has_risk()
+                #ret_risk = yield trade.has_risk()
                 real_check_result = yield trade.check()
                 if real_check_result:
                     alogger.info('real_check success. tid:{}'.format(str(trade.tid)))
@@ -224,7 +225,7 @@ class TradeSet:
                         # TODO 这里还要考虑下
                         alogger.info('calc success. tid:{} amount:{}'.format(str(trade.tid), amount))
                         elogger.info('&CONFIRM, {}, amount:{}'.format(str(trade), amount))
-                        trade.make_deal(amount)
+                        yield trade.make_deal(amount)
                     else:
                         alogger.info('calc fail: amount is invalid. tid:{} amount:{}'.format(str(trade.tid), amount))
                 else:
@@ -232,6 +233,10 @@ class TradeSet:
             except Exception as e :
                 alogger.info('trade process exception. tid:{}'.format(str(trade.tid)))
                 alogger.exception(e)
+                IOLoop.instance().add_timeout(time.time() + 5, self._process)
+
+    def start(self):
+        IOLoop.instance().add_timeout(time.time() + 1, self._process)
 
 def test():
     t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.0003472'), 100, OkexEx.instance(), Decimal('0.0003488'), 100)

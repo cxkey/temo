@@ -179,8 +179,8 @@ class BinanceEx(Exchange):
             side = side,
             type = ORDER_TYPE_LIMIT,
             timeInForce=TIME_IN_FORCE_GTC,
-            quantity=amount,
-            price=price)
+            quantity=Decimal(amount).quantize(Decimal('0.00000000')),
+            price=Decimal(price).quantize(Decimal('0.00000000')))
         return order
 
     @gen.coroutine
