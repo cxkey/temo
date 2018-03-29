@@ -44,7 +44,7 @@ GAOXIAOVIDEO_INDEX_DISPLAY_NUM = 8
 UPLOAD_DIR = '/tmp/'
 
 RISK_RATE = 0.5
-PROFIT_RATE = 0.02
+PROFIT_RATE = 0.0001
 
 #from exchange.binan import BinanceEx
 #from exchange.huobi import HuobiEx

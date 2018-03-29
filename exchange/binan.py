@@ -190,7 +190,7 @@ class BinanceEx(Exchange):
                 t_id = order['orderId']
         except Exception as e:       
             alogger.exception(e)
-        raise gen.Return(success,t_id)
+        raise gen.Return((success,t_id))
 
     @gen.coroutine
     def cancel_trade(self, symbol, trade_id):
