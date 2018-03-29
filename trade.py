@@ -286,8 +286,8 @@ class TradeSet:
                 IOLoop.instance().add_timeout(time.time() + 5, self._process)
                 break
             try:
-                real_check_result = yield trade.check()
-                #real_check_result = True
+                #real_check_result = yield trade.check()
+                real_check_result = True
                 if real_check_result:
                     alogger.info('real_check success. tid:{}'.format(str(trade.tid)))
                     amount = yield trade.calc_final_amount()

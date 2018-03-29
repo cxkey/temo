@@ -100,7 +100,7 @@ class DBTrade:
         conn = ConnectionPool.instance().connection()
         try:
             cur = conn.cursor()
-            sql = "update trade set status=%s where exchange=%s and ex_tid=%s" % (params['status'],params['ex'],params['ex_tid'])
+            sql = "update trade set status=%s where exchange='%s' and ex_tid='%s'" % (params['status'],params['ex'],params['ex_tid'])
             cur.execute(sql)
             conn.commit()
         except Exception, e:
