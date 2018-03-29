@@ -55,11 +55,12 @@ PROFIT_RATE = 0.02
 #}
 
 INIT_AMOUNT = {
-    'iost' : { 'binance':{'amount': 399}, 'huobi':{'amount': 487}, 'okex':{'amount': 0} },
-    'eth'  : { 'binance':{'amount': 0}, 'huobi':{'amount': '0.1157315498'}, 'okex':{'amount': 0} },
-    'ost'  : { 'binance':{'amount': 100}, 'huobi':{'amount': 100}, 'okex':{'amount': 100} },
-    'chat' : { 'binance':{'amount': 198}, 'huobi':{'amount': 198}, 'okex':{'amount': 198} },
-    'usdt' : { 'binance':{'amount': 0}, 'huobi':{'amount': 155}, 'okex':{'amount': 0} }
+    'usdt' : { 'binance':{'amount': 0},          'huobi':{'amount': 155.52099500}, 'okex':{'amount': 0} },
+    'btc'  : { 'binance':{'amount': 0.02167182}, 'huobi':{'amount': 0.02843271},   'okex':{'amount': 0.02420212} },
+    'eth'  : { 'binance':{'amount': 0.02497500}, 'huobi':{'amount': 0.45345454},   'okex':{'amount': 0.02688146} },
+    'chat' : { 'binance':{'amount': 198},        'huobi':{'amount': 198},          'okex':{'amount': 198} },
+    'ost'  : { 'binance':{'amount': 100},        'huobi':{'amount': 100},          'okex':{'amount': 100} },
+    'iost' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
 }
 
 # base is USDT

@@ -168,20 +168,53 @@ class BinanceEx(Exchange):
 
     @gen.coroutine
     def create_trade(self, symbol,amount,price,side):
-        if side == BUY:
-            side = SIDE_BUY
-        else:
-            side = SIDE_SELL
+        success = False
+        t_id = None
+        try:
+            if side == BUY:
+                side = SIDE_BUY
+            else:
+                side = SIDE_SELL
+            symbol = symbol.replace('_','').upper()
+            order = self.client.create_order(
+                symbol = symbol,
+                side = side,
+                type = ORDER_TYPE_LIMIT,
+                timeInForce=TIME_IN_FORCE_GTC,
+                quantity=Decimal(amount).quantize(Decimal('0.00000000')),
+                price=Decimal(price).quantize(Decimal('0.00000000'))
+                )
+            # {u'orderId': 6916333, u'clientOrderId': u'XOmgWMHBImw1aKfCvUeKGd', u'origQty': u'400.00000000', u'symbol': u'IOSTBTC', u'side': u'BUY', u'timeInForce': u'GTC', u'status': u'NEW', u'transactTime': 1522120616990, u'type': u'LIMIT', u'price': u'0.00000298', u'executedQty': u'0.00000000'}
+            if 'status' in order and 'orderId' in order:
+                success = True
+                t_id = order['orderId']
+        except Exception as e:       
+            alogger.exception(e)
+        raise gen.Return(success,t_id)
 
-        symbol = symbol.replace('_','').upper()
-        order = self.client.create_order(
-            symbol = symbol,
-            side = side,
-            type = ORDER_TYPE_LIMIT,
-            timeInForce=TIME_IN_FORCE_GTC,
-            quantity=Decimal(amount).quantize(Decimal('0.00000000')),
-            price=Decimal(price).quantize(Decimal('0.00000000')))
-        return order
+    @gen.coroutine
+    def cancel_trade(self, symbol, trade_id):
+        success = False
+        try:
+            symbol = symbol.replace('_','').upper()
+            result = self.client.cancel_order(symbol=symbol, orderId=trade_id)
+            success = True
+        except Exception as e:
+            alogger.exception(e)
+        raise gen.Return( success)
+
+    @gen.coroutine
+    def trade_info(self, symbol, trade_id):
+        status = TRADE_INIT
+        try:
+            symbol = symbol.replace('_','').upper()
+            result = self.client.get_order(symbol=symbol, orderId=trade_id)
+            print result
+            if 'status' in result and result['status']:
+                status = TRADE_STATUS[self.name][result['status']]
+        except Exception as e:
+            alogger.exception(e)
+        raise gen.Return(status)            
 
     @gen.coroutine
     def create_test_trade(self):
@@ -197,6 +230,8 @@ class BinanceEx(Exchange):
 @gen.engine
 def main():
     baex = BinanceEx.instance()
+    r = yield baex.trade_info('CHATBTC','2726795')
+    print r
     #r = yield baex.get_symbols()
     #if r:
     #    for k in r.keys():
@@ -204,9 +239,9 @@ def main():
     #        if 'iost' in k:
     #            print k, price1
     #        break
-    price1 = yield baex.get_depth('iost_btc')
-    print price1
-
+    #price1 = yield baex.get_depth('iost_btc')
+    #print price1
+    
     #baex.get_all_tickers()
     #r = yield baex.get_asset_amount('IOST')
     #print r

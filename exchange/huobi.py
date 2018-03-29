@@ -138,7 +138,8 @@ class HuobiEx(Exchange):
 
     @coroutine
     def create_trade(self,symbol,amount,price,side):
-        r = None
+        success = False
+        t_id = None
         try:
             if side == BUY:
                 side = 'buy-limit'
@@ -148,10 +149,36 @@ class HuobiEx(Exchange):
             amount=str(Decimal(amount).quantize(Decimal('0.00')))
             price=str(Decimal(price).quantize(Decimal('0.00000000')))
             r = HuobiService.send_order(amount=amount, source=None, symbol=symbol, _type=side, price=price)
+            if 'status' in r and r['status'] == 'ok':
+                success = True
+                t_id = r['data']
         except Exception as e:
             alogger.exception(e)
             print str(e)
-        raise gen.Return(r)
+        raise gen.Return(success,t_id)
+
+    @coroutine  
+    def trade_info(self, symbol, trade_id):
+        status = TRADE_INIT 
+        try: 
+            symbol = symbol.replace('_', '')  
+            r = HuobiService.order_info(trade_id)
+            if 'state' in r and r['state']:
+                status = TRADE_STATUS[self.name][r['state']]
+        except Exception as e: 
+            alogger.exception(e)  
+        raise gen.Return(status)            
+
+    @coroutine
+    def cancel_trade(self,order_id):
+        success = False
+        try:
+            r = HuobiService.cancel_order(order_id)
+            if 'status' in r and r['status'] == 'ok':
+                success = True
+        except Exception as e:
+            alogger.exception(e)
+        raise gen.Return(success)
 
 
     @coroutine

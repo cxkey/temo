@@ -72,7 +72,6 @@ class Account:
                 ex_balance = yield v['instance'].get_balance()
                 if not ex_balance:
                     continue
-                alogger.info('name:{}, value:{}'.format(ex_name, ex_balance))
 
                 for asset, vb in ex_balance.items():
                     if asset not in data[ex_name]:
@@ -87,10 +86,10 @@ class Account:
                                     ret_price = yield v['instance'].get_depth('btc_usdt')
                                     ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
                                 else:
-                                    alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
+                                    #alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
                                     continue
 
-                            alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
+                            #alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
                             data[ex_name][asset][b] = [vb['free'], ret_price['bids'][0], vb['free'] * ret_price['bids'][0]]
             alogger.info('data: {}'.format(data))
 

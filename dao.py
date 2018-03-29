@@ -83,9 +83,9 @@ class DBTrade:
         conn = ConnectionPool.instance().connection()
         try:
             cur = conn.cursor()
-            sql = "insert into %s (tid, quote, base, side, exchange, price, amount, deal_price, deal_amount, status, fee, create_time) values \
+            sql = "insert into %s (tid, ex_tid, quote, base, side, exchange, price, amount, deal_price, deal_amount, status, fee, create_time) values \
                    ('%s', '%s', '%s', '%s', '%s', %s, %s, %s, %s, %s, %s, '%s')" % \
-                   (self.tablename, params['tid'], params['quote'], params['base'], params['side'], params['exchange'], params['price'], \
+                   (self.tablename, params['tid'], params['ex_tid'], params['quote'], params['base'], params['side'], params['exchange'], params['price'], \
                     params['amount'], params['deal_price'], params['deal_amount'], params['status'], params['fee'], params['create_time'])
             cur.execute(sql)
             conn.commit()
@@ -94,7 +94,21 @@ class DBTrade:
         finally:
             if cur:
                 cur.close()
-        
+
+
+    def update(self,params):
+        conn = ConnectionPool.instance().connection()
+        try:
+            cur = conn.cursor()
+            sql = "update trade set status=%s where exchange=%s and ex_tid=%s" % (params['status'],params['ex'],params['ex_tid'])
+            cur.execute(sql)
+            conn.commit()
+        except Exception, e:
+            alogger.exception(e)
+        finally:
+            if cur:
+                cur.close()
+
 @singleton
 class DBProfit:
     def __init__(self):

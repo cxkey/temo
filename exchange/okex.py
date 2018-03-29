@@ -98,21 +98,55 @@ class OkexEx(Exchange):
     
     @coroutine        
     def create_trade(self,symbol,amount,price,side):
-        if side == BUY:
-            side = 'buy'
-        else:
-            side = 'sell'
-        amount = Decimal(amount).quantize(Decimal('0.00000000'))
-        price = Decimal(price).quantize(Decimal('0.00000000'))
-        r = okcoinSpot.trade(symbol=symbol,tradeType=side,price=price,amount=amount)
-        return r
+        success = False
+        t_id = None
+        try:
+            if side == BUY:
+                side = 'buy'
+            else:
+                side = 'sell'
+            amount = Decimal(amount).quantize(Decimal('0.00000000'))
+            price = Decimal(price).quantize(Decimal('0.00000000'))
+            r = okcoinSpot.trade(symbol=symbol,tradeType=side,price=price,amount=amount)
+            if 'result' in r and str(r['result']) in  ('True','true'):
+                success = True
+                t_id = r['order_id']
+        except Exception as e:
+            alogger.exception(e) 
+        raise gen.Return(success,t_id)
+    
+    @coroutine  
+    def trade_info(self, symbol, trade_id):
+        status = TRADE_INIT 
+        try: 
+            r = okcoinSpot.orderinfo(symbol,trade_id)
+            if 'result' in r and str(r['result']) in ('true','True'):
+                res = r['orders'][0]
+                if 'status' in res and res['status']:
+                    status = TRADE_STATUS[self.name][str(res['status'])]
+        except Exception as e: 
+            alogger.exception(e)  
+        raise gen.Return(status)            
+
+    @coroutine 
+    def cancel_trade(self,symbol,trade_id):
+        success = False
+        try:            
+            r = okcoinSpot.cancelOrder(symbol,trade_id)
+            if 'result' in r and str(r['result']) in  ('True','true'):
+                success = True
+        except Exception as e:
+            alogger.exception(e)
+        raise gen.Return(success)
 
 @gen.engine 
 def main():
     okex = OkexEx.instance()
     #r = yield okex.get_balance()
     #print r
-    r = yield okex.get_symbols()
+    #r = yield okex.get_symbols()
+    r = yield okex.trade_info('ost_btc','5234048')
+    print r
     #for key,value in r.iteritems():
     #    r = yield okex.get_depth(key)
         #print key
