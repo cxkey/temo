@@ -38,10 +38,6 @@ class Druid:
         bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
         ask2, ask2_amount = price2['asks'][0], price2['asks'][1]
 
-        #if ex1.name == 'huobi' or ex2.name == 'huobi':
-        #    if bid1_amount < 1 or ask1_amount <1 or bid2_amount <1 or ask2_amount < 1:
-        #        if 'chat' in symbol:
-        #            alogger.info('check_trade1 {} {} {} {} {}'.format(symbol, ex1.name, str(price1), ex2.name, str(price2)))
         if ask1 < bid2 and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
             trade = Trade(symbol, ex1, ask1, ask1_amount, ex2, bid2, bid2_amount)
         elif ask2 < bid1 and util.profit_rate(ask2, bid1) > conf.PROFIT_RATE:
