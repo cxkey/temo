@@ -155,7 +155,7 @@ class HuobiEx(Exchange):
         except Exception as e:
             alogger.exception(e)
             print str(e)
-        raise gen.Return(success,t_id)
+        raise gen.Return((success, t_id))
 
     @coroutine  
     def trade_info(self, symbol, trade_id):
