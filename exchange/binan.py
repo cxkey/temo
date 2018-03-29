@@ -29,6 +29,9 @@ class BinanceEx(Exchange):
         Exchange.__init__(self, 'binance')
         self.client = Client(api_key, api_secret)
     
+    def a(self):
+        return self.client.get_exchange_info()
+        
     def _do_get_symbols(self, callback):
         r = self.client.get_exchange_info()
         IOLoop.instance().add_callback(callback, r)
@@ -230,7 +233,9 @@ class BinanceEx(Exchange):
 @gen.engine
 def main():
     baex = BinanceEx.instance()
-    r = yield baex.trade_info('CHATBTC','2726795')
+    #r = yield baex.trade_info('CHATBTC','2726795')
+    #print r
+    r = yield baex.a()
     print r
     #r = yield baex.get_symbols()
     #if r:
