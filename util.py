@@ -29,9 +29,16 @@ def get_time_ten_min_align(t=None):
     for i in range(10, 70, 10):
         if t.minute < i:
             return t.replace(minute=i-10, second=0, microsecond=0)
-
+ 
 if __name__ == '__main__':
      permutation([1,2,3,4])
      print gen_id()
      print get_time_ten_min_align()
+     print '{0:g}'.format(float('0.00110000'))
+     print Decimal('{0:g}'.format(float('0.00110000')))
+
+     amount = '98.73329392323'
+     amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float('0.00010000'))))
+     print amount
+
 
