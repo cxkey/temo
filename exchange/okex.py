@@ -4,12 +4,15 @@ sys.path.append('../')
 from singleton import singleton
 from exchange import Exchange
 from sdk_okex.Client import *
+from logger import alogger, elogger
 from tornado.gen import coroutine
 from tornado.ioloop import IOLoop 
 from tornado import gen
 from decimal import Decimal
 import time
 from enum import *
+from redisclient import redis
+import json
 
 @singleton
 class OkexEx(Exchange):
@@ -105,9 +108,18 @@ class OkexEx(Exchange):
                 side = 'buy'
             else:
                 side = 'sell'
-            amount = Decimal(amount).quantize(Decimal('0.00000000'))
-            price = Decimal(price).quantize(Decimal('0.00000000'))
-            r = okcoinSpot.trade(symbol=symbol,tradeType=side,price=price,amount=amount)
+            
+            key = 'precision' + ':' + symbol + ':' + self.name
+            info = redis.get(key)
+            if info:
+                info = json.loads(info)
+                price = Decimal(price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
+                amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
+           
+            print 'liu',price,amount
+            r = okcoinSpot.trade(symbol=symbol,tradeType=side,price=float(price),amount=float(amount))
+            #alogger.info('debug okex trade result:{}'.format(str(r)))
+            print 'debug okex trade result:{}'.format(str(r))
             if 'result' in r and str(r['result']) in  ('True','true'):
                 success = True
                 t_id = r['order_id']
@@ -145,8 +157,8 @@ def main():
     #r = yield okex.get_balance()
     #print r
     #r = yield okex.get_symbols()
-    r = yield okex.trade_info('ost_btc','5234048')
-    print r
+    #r = yield okex.trade_info('ost_btc','5234048')
+    #print r
     #for key,value in r.iteritems():
     #    r = yield okex.get_depth(key)
         #print key
@@ -155,7 +167,7 @@ def main():
         #break
     #r = yield okex.get_asset_amount('iost')
     #print r
-    #r = yield okex.create_trade('ost_btc',100,Decimal('0.00002114'),SELL)
+    r = yield okex.create_trade('chat_btc',Decimal(0.007),Decimal('0.00002114'),SELL)
     print r
 
 if __name__ == '__main__':

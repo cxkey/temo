@@ -71,6 +71,7 @@ class OKCoinSpot:
             params['amount'] = amount
             
         params['sign'] = buildMySign(params,self.__secretkey)
+        print params
         return httpPost(self.__url,TRADE_RESOURCE,params)
 
     #现货批量下单

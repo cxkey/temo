@@ -93,6 +93,15 @@ def get_symbols():
     res = yield asyc_http_get_request(url, params)
     raise gen.Return(res)
 
+def get_symbols_sync():
+    """
+    :return:
+    """
+    url = MARKET_URL + '/v1/common/symbols'
+    params = {}
+    res = http_get_request(url, params)
+    return res
+
 '''
 Trade/Account API
 '''

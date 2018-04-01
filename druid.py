@@ -66,8 +66,8 @@ class Druid:
         #              }
         # }
         # '''
+        count = 5
         alogger.info('heart: scan symbol start')
-        count = 1
         for symbol, value in self.cache.data.iteritems():
             exs = self.cache.data[symbol].keys()
             perm_list = util.permutation(exs)

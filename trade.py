@@ -17,6 +17,7 @@ from exchange.okex import OkexEx
 import datetime
 from redisclient import *
 from tornado.ioloop import IOLoop
+import json
 
 class Trade:
 
@@ -108,7 +109,7 @@ class Trade:
             elogger.info('&DEAL1, {}, amount:{}'.format(self.__str__(), amount))
         else:
             #买失败，尝试回滚卖方交易
-            yield self.seller.cancel_trade()
+            yield self.seller.cancel_trade(self.symbol,sell_id)
             self.seller_order_id = sell_id
             self.db_action(Trade.SELL, amount, Decimal(1), Trade.TRADE_INIT)
 
@@ -152,28 +153,36 @@ class Trade:
                           self.seller_asset_amount,
                           self.sell_amount)
         alogger.info('[{}] buy:{}, sell:{}'.format(self.tid, buy_amount, sell_amount))
-        trade_amount = min(buy_amount, sell_amount)
+        trade_amount = min(buy_amount, sell_amount) * Decimal('0.99')
+ 
+        buy_key = 'precision' + ':' + self.symbol + ':' + self.buyer.name
+        info = redis.get(buy_key)
+        if info:
+            info = json.loads(info)
+            if info['amount-min'] and trade_amount <= Decimal(info['amount-min']):
+                alogger.info('strict buy amount-min {}'.format(self.__str__()))
+                raise gen.Return(Decimal('0'))
+            if info['amount-max'] and trade_amount >= Decimal(info['amount-max']):
+                alogger.info('strict buy price-max {}'.format(self.__str__()))
+                raise gen.Return(Decimal('0'))
+            if info['value-min'] and self.buy_price * trade_amount <= Decimal(info['value-min']):
+                alogger.info('strict buy value-min {}'.format(self.__str__()))
+                raise gen.Return(Decimal('0'))
 
-        binance_strict = {
-            'eth': Decimal(0.01),
-            'btc': Decimal(0.001),
-        }
-        asset = self.symbol.split('_')[0]
-        base = self.symbol.split('_')[1]
-        if self.buyer.name == 'binance' and base in binance_strict.keys():
-            if self.buy_price * trade_amount <= binance_strict[base]:
-                alogger.info('strict {}'.format(self.__str__()))
+        sell_key = 'precision' + ':' + self.symbol + ':' + self.seller.name
+        info = redis.get(sell_key)
+        if info:
+            info = json.loads(info)
+            if info['amount-min'] and trade_amount <= Decimal(info['amount-min']):
+                alogger.info('strict sell amount-min {}'.format(self.__str__()))
                 raise gen.Return(Decimal('0'))
-        if self.seller.name == 'binance' and base in binance_strict.keys():
-            if self.sell_price * trade_amount <= binance_strict[base]:
-                alogger.info('strict {}'.format(self.__str__()))
+            if info['amount-max'] and trade_amount >= Decimal(info['amount-max']):
+                alogger.info('strict sell price-max {}'.format(self.__str__()))
                 raise gen.Return(Decimal('0'))
-        if self.buyer.name == 'okex' and  trade_amount < 10:
-            alogger.info('strict {}'.format(self.__str__()))
-            raise gen.Return(Decimal('0'))
-        if self.seller.name == 'okex' and trade_amount < 10:
-            alogger.info('strict {}'.format(self.__str__()))
-            raise gen.Return(Decimal('0'))
+            if info['value-min'] and self.sell_price * trade_amount <= Decimal(info['value-min']):
+                alogger.info('strict sell value-min {}'.format(self.__str__()))
+                raise gen.Return(Decimal('0'))
+
 
         raise gen.Return(trade_amount)
 

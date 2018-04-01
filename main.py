@@ -23,6 +23,7 @@ from exchange.okex import OkexEx
 from tornado.options import define, options
 import tornado.httpserver
 from web import WebEntry
+from init import *
 
 EXCHANGES = {
     'binance': {'instance': BinanceEx.instance(), },
@@ -35,6 +36,10 @@ class Application:
         pass
         
     def start(self):
+        print 'start init precision'
+        init_precision()
+        print 'end init precision'
+
         if len(EXCHANGES.keys()) > 0:
             Spider.instance().start(EXCHANGES)
             Druid.instance().start(EXCHANGES)

@@ -27,3 +27,8 @@ class Redis:
     def set(self, key, value, seconds=REDIS_CACHE_PERIOD):
         self.redis.set(key, value, seconds)
 
+    def set_no_expire(self, key, value):
+        self.redis.set(key, value)
+
+
+redis = Redis.instance() 
