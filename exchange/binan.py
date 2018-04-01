@@ -16,8 +16,10 @@ import S
 
 from singleton import singleton
 from logger import alogger, elogger
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 from enum import *
+from redisclient import redis
+import json
 
 api_key = S.KEYS['binance']['access_key']
 api_secret = S.KEYS['binance']['secret_key']
@@ -30,7 +32,15 @@ class BinanceEx(Exchange):
         self.client = Client(api_key, api_secret)
     
     def a(self):
-        return self.client.get_exchange_info()
+        amount = Decimal(98.3432434324324432432)
+        print amount
+        amount = Decimal(amount).quantize(Decimal('0.00000100'))
+        print amount
+        amount = Decimal(amount).quantize(Decimal('1.00000000'), rounding=ROUND_DOWN)
+        print amount
+        amount = (Decimal(amount) / Decimal('1.00000000')).quantize(Decimal('1'), rounding=ROUND_DOWN)
+        print amount
+        return self.client.get_symbol_info('CHATETH')
         
     def _do_get_symbols(self, callback):
         r = self.client.get_exchange_info()
@@ -178,14 +188,22 @@ class BinanceEx(Exchange):
                 side = SIDE_BUY
             else:
                 side = SIDE_SELL
+
+            key = 'precision' + ':' + symbol + ':' + self.name
+            info = redis.get(key)
+            if info:
+                info = json.loads(info)
+                price = Decimal(price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
+                amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
+           
             symbol = symbol.replace('_','').upper()
             order = self.client.create_order(
                 symbol = symbol,
-                side = side,
-                type = ORDER_TYPE_LIMIT,
+                side = str(side),
+                type = str(ORDER_TYPE_LIMIT),
                 timeInForce=TIME_IN_FORCE_GTC,
-                quantity=Decimal(amount).quantize(Decimal('0.00000000')),
-                price=Decimal(price).quantize(Decimal('0.00000000'))
+                quantity=amount,
+                price=str(price)
                 )
             # {u'orderId': 6916333, u'clientOrderId': u'XOmgWMHBImw1aKfCvUeKGd', u'origQty': u'400.00000000', u'symbol': u'IOSTBTC', u'side': u'BUY', u'timeInForce': u'GTC', u'status': u'NEW', u'transactTime': 1522120616990, u'type': u'LIMIT', u'price': u'0.00000298', u'executedQty': u'0.00000000'}
             if 'status' in order and 'orderId' in order:
@@ -193,7 +211,7 @@ class BinanceEx(Exchange):
                 t_id = order['orderId']
         except Exception as e:       
             alogger.exception(e)
-        raise gen.Return(success,t_id)
+        raise gen.Return((success,t_id))
 
     @gen.coroutine
     def cancel_trade(self, symbol, trade_id):
@@ -235,8 +253,8 @@ def main():
     baex = BinanceEx.instance()
     #r = yield baex.trade_info('CHATBTC','2726795')
     #print r
-    r = yield baex.a()
-    print r
+    #r = baex.a()
+    #print r
     #r = yield baex.get_symbols()
     #if r:
     #    for k in r.keys():
@@ -254,7 +272,7 @@ def main():
     #r = yield baex.create_test_trade()
     #print r
 
-    #r = yield baex.create_trade('iost_btc',400,Decimal('0.00000298'),BUY)
+    r = yield baex.create_trade('iost_btc',400,Decimal('0.001'),BUY)
     #print r
     #r = yield baex.get_balance()
     #print r

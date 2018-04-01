@@ -53,9 +53,9 @@ class Wisp:
         try:
             assets = DBStatistics.instance().select_asset()  
             for asset in assets:
+                if asset in bases:
+                    continue
                 for base in bases:
-                    if asset == base:
-                        continue
                     s = asset + '_' + base
                     if s in self.cache.data.keys() and \
                         self.exchange.name in self.cache.data[s].keys():

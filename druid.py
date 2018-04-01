@@ -66,6 +66,7 @@ class Druid:
         #              }
         # }
         # '''
+        count = 5
         alogger.info('heart: scan symbol start')
         for symbol, value in self.cache.data.iteritems():
             exs = self.cache.data[symbol].keys()
@@ -82,13 +83,15 @@ class Druid:
                         continue
                     flag, trade = yield self.check_trade(symbol, ex1, price1, ex2, price2)
                     if flag and trade is not None:
-                        alogger.info('check_trade bingo. {}'.format(str(trade)))
-                        elogger.info('&CHECK, {}'.format(str(trade)))
-                        self.tset.produce(trade)
+                        if count > 0:
+                            count -= 1
+                            alogger.info('check_trade bingo. {}'.format(str(trade)))
+                            elogger.info('&CHECK, {}'.format(str(trade)))
+                            self.tset.produce(trade)
                 except Exception as e:
                     alogger.exception(e)
         alogger.info('heart: scan symbol end')
-        IOLoop.instance().add_timeout(time.time() + 1, self.scanSymbol)                    
+        IOLoop.instance().add_timeout(time.time() + 10, self.scanSymbol)
 
 if __name__ == '__main__':
     Druid.instance().start()

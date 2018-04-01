@@ -15,6 +15,8 @@ from singleton import singleton
 from logger import alogger, elogger
 from decimal import Decimal
 from enum import *
+from redisclient import redis
+import json
 
 @singleton
 class HuobiEx(Exchange):
@@ -24,6 +26,8 @@ class HuobiEx(Exchange):
     @coroutine
     def get_symbols(self):
         r = yield HuobiService.get_symbols()
+        raise gen.Return(r)
+        return 
         if 'data' not in r:
             raise gen.Return( None)
 
@@ -34,17 +38,19 @@ class HuobiEx(Exchange):
                    str(s['base-currency'].lower()) == 'ht':
                    continue
 
+                #{'price-precision': 4, 'base-currency': 'elf', 'symbol-partition': 'innovation', 'quote-currency': 'usdt', 'amount-precision': 4}
                 item = {
                     'base': str(s['base-currency'].lower()),
                     'quote': str(s['quote-currency'].lower()),
-                    'base_precision': s['price-precision'],
-                    'quote_precision': s['price-precision'],
+                     #TODO
+                    'price_precision': s['price-precision'],
+                    'amount_precision': s['amount-precision'],
                 }
                 ret['%s_%s' % (item['base'], item['quote'])] = item
             except Exception, e:
                 alogger.exception(e)
 
-        raise gen.Return( ret)
+        raise gen.Return(ret)
 
     @coroutine
     def get_depth(self, symbol):
@@ -145,10 +151,18 @@ class HuobiEx(Exchange):
                 side = 'buy-limit'
             else:
                 side = 'sell-limit'
+
+
+            key = 'precision' + ':' + symbol + ':' + self.name
+            info = redis.get(key)
+            if info:
+                info = json.loads(info)
+                price = Decimal(price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
+                amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
+            
             symbol = symbol.replace('_', '')            
-            amount=str(Decimal(amount).quantize(Decimal('0.00')))
-            price=str(Decimal(price).quantize(Decimal('0.00000000')))
-            r = HuobiService.send_order(amount=amount, source=None, symbol=symbol, _type=side, price=price)
+            r = HuobiService.send_order(amount=str(amount), source=None, symbol=symbol, _type=side, price=str(price))
+            alogger.info('debug huobi trade result:{}'.format(str(r)))
             if 'status' in r and r['status'] == 'ok':
                 success = True
                 t_id = r['data']
@@ -170,7 +184,7 @@ class HuobiEx(Exchange):
         raise gen.Return(status)            
 
     @coroutine
-    def cancel_trade(self,order_id):
+    def cancel_trade(self,symbol,order_id):
         success = False
         try:
             r = HuobiService.cancel_order(order_id)
@@ -203,9 +217,6 @@ def main():
     #print r
     # test symbols
     #r = yield hbex.get_symbols()
-    #for symbol in r.keys():
-    #    if 'iost' in symbol:
-    #        print symbol
     #        rr = yield hbex.get_depth(symbol)   
     #        print symbol, rr
     #    if 'eth_' in symbol:
@@ -220,7 +231,7 @@ def main():
     #r = yield hbex.get_asset_amount('iost')
     #print r 
 
-    r = yield hbex.get_depth('chatbtc')   
+    r = yield hbex.get_depth('ethusdt')   
     print r
     #r = yield hbex.get_balance()
     #print r

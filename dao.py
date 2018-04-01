@@ -84,7 +84,7 @@ class DBTrade:
         try:
             cur = conn.cursor()
             sql = "insert into %s (tid, ex_tid, quote, base, side, exchange, price, amount, deal_price, deal_amount, status, fee, create_time) values \
-                   ('%s', '%s', '%s', '%s', '%s', %s, %s, %s, %s, %s, %s, '%s')" % \
+                   ('%s', '%s', '%s', '%s', '%s', '%s', %s, %s, %s, %s, %s, %s, '%s')" % \
                    (self.tablename, params['tid'], params['ex_tid'], params['quote'], params['base'], params['side'], params['exchange'], params['price'], \
                     params['amount'], params['deal_price'], params['deal_amount'], params['status'], params['fee'], params['create_time'])
             cur.execute(sql)
@@ -100,7 +100,7 @@ class DBTrade:
         conn = ConnectionPool.instance().connection()
         try:
             cur = conn.cursor()
-            sql = "update trade set status=%s where exchange=%s and ex_tid=%s" % (params['status'],params['ex'],params['ex_tid'])
+            sql = "update trade set status=%s where exchange='%s' and ex_tid='%s'" % (params['status'],params['ex'],params['ex_tid'])
             cur.execute(sql)
             conn.commit()
         except Exception, e:
