@@ -153,7 +153,7 @@ class Trade:
                           self.seller_asset_amount,
                           self.sell_amount)
         alogger.info('[{}] buy:{}, sell:{}'.format(self.tid, buy_amount, sell_amount))
-        trade_amount = min(buy_amount, sell_amount) * Decimal('0.99')
+        trade_amount = min(buy_amount, sell_amount) * Decimal('0.997')
  
         buy_key = 'precision' + ':' + self.symbol + ':' + self.buyer.name
         info = redis.get(buy_key)
@@ -169,6 +169,9 @@ class Trade:
                 alogger.info('strict buy value-min {}'.format(self.__str__()))
                 raise gen.Return(Decimal('0'))
 
+            #self.buy_price = Decimal(self.buy_price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
+            buy_trade_amount = Decimal(trade_amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
+
         sell_key = 'precision' + ':' + self.symbol + ':' + self.seller.name
         info = redis.get(sell_key)
         if info:
@@ -182,8 +185,10 @@ class Trade:
             if info['value-min'] and self.sell_price * trade_amount <= Decimal(info['value-min']):
                 alogger.info('strict sell value-min {}'.format(self.__str__()))
                 raise gen.Return(Decimal('0'))
+            #self.sell_price = Decimal(self.buy_price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
+            sell_trade_amount = Decimal(trade_amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
 
-
+        trade_amount = min(buy_trade_amount, sell_trade_amount)
         raise gen.Return(trade_amount)
 
     @gen.coroutine
