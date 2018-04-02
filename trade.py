@@ -248,8 +248,8 @@ class TradeSet:
         while True:
             trade = self.pop()
             if trade is None:
-                alogger.info('heart: trade_set is empty')
-                IOLoop.instance().add_timeout(time.time() + 5, self._process)
+                #alogger.info('heart: trade_set is empty')
+                IOLoop.instance().add_timeout(time.time() + 0.1, self._process)
                 break
             try:
                 #real_check_result = yield trade.check()

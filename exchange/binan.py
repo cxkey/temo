@@ -41,6 +41,9 @@ class BinanceEx(Exchange):
         amount = (Decimal(amount) / Decimal('1.00000000')).quantize(Decimal('1'), rounding=ROUND_DOWN)
         print amount
         return self.client.get_symbol_info('CHATETH')
+
+    def ping(self):
+        return self.client.ping()
         
     def _do_get_symbols(self, callback):
         r = self.client.get_exchange_info()
@@ -251,6 +254,9 @@ class BinanceEx(Exchange):
 @gen.engine
 def main():
     baex = BinanceEx.instance()
+    t1 = time.time()
+    baex.ping()
+    print time.time() - t1
     #r = yield baex.trade_info('CHATBTC','2726795')
     #print r
     #r = baex.a()
@@ -272,7 +278,7 @@ def main():
     #r = yield baex.create_test_trade()
     #print r
 
-    r = yield baex.create_trade('iost_btc',400,Decimal('0.001'),BUY)
+    #r = yield baex.create_trade('iost_btc',400,Decimal('0.001'),BUY)
     #print r
     #r = yield baex.get_balance()
     #print r

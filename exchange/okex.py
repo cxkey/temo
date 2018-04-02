@@ -113,13 +113,12 @@ class OkexEx(Exchange):
             info = redis.get(key)
             if info:
                 info = json.loads(info)
-                price = Decimal(price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
+                #price = Decimal(price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
+                price = Decimal(price).quantize(Decimal('{0:g}'.format(float('0.00000001'))))
                 amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
            
-            print 'liu',price,amount
             r = okcoinSpot.trade(symbol=symbol,tradeType=side,price=float(price),amount=float(amount))
-            #alogger.info('debug okex trade result:{}'.format(str(r)))
-            print 'debug okex trade result:{}'.format(str(r))
+            alogger.info('debug okex trade price:{} amount:{} result:{}'.format(str(price), str(amount), str(r)))
             if 'result' in r and str(r['result']) in  ('True','true'):
                 success = True
                 t_id = r['order_id']
@@ -167,12 +166,10 @@ def main():
         #break
     #r = yield okex.get_asset_amount('iost')
     #print r
-    r = yield okex.create_trade('chat_btc',Decimal(0.007),Decimal('0.00002114'),SELL)
+    r = yield okex.create_trade('chat_btc',Decimal(1),Decimal('0.00001100'),BUY)
     print r
 
 if __name__ == '__main__':
     main()
     IOLoop.instance().start() 
-
-        
 
