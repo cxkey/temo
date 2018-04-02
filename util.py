@@ -38,7 +38,7 @@ if __name__ == '__main__':
      print Decimal('{0:g}'.format(float('0.00110000')))
 
      amount = '98.73329392323'
-     amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float('0.00010000'))))
+     amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float('0.01'))))
      print amount
 
 

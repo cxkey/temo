@@ -86,13 +86,13 @@ class Trade:
         
         # 先卖, 后买
         sell_success, sell_id = yield self.seller.create_trade(symbol=self.symbol, amount=amount, price=self.sell_price, side=SELL)
-        alogger.info('make deal:SELL res:{}, trade:{} amount:{}'.format(str(sell_success), self.__str__(), amount))
+        alogger.info('make deal:[sell] res:{}, trade:{} amount:{}'.format(str(sell_success), self.__str__(), amount))
         if not sell_success:
-            alogger.info('&SELL_FAIL,DEAL_STOP,{}'.format(self.tid))
+            alogger.info('&SELL_FAIL,STOP,{}'.format(self.tid))
             return
 
         buy_success, buy_id = yield self.buyer.create_trade(symbol=self.symbol, amount=amount, price=self.buy_price, side=BUY)
-        alogger.info('make deal:BUY res:{}, trade:{} amount:{}'.format(str(buy_success), self.__str__(), amount))
+        alogger.info('make deal:[buy] res:{}, trade:{} amount:{}'.format(str(buy_success), self.__str__(), amount))
         if buy_success:
             # 卖和买都提交成功了
             self.seller_order_id = sell_id
@@ -106,7 +106,7 @@ class Trade:
             buy_item = {'ex':self.buyer, 'ex_tid':self.buyer_order_id, 'symbol':self.symbol}
             TradeSet.instance().add_check(buy_item)
 
-            elogger.info('&DEAL1, {}, amount:{}'.format(self.__str__(), amount))
+            elogger.info('&DEAL, {}, amount:{}'.format(self.__str__(), amount))
         else:
             #买失败，尝试回滚卖方交易
             yield self.seller.cancel_trade(self.symbol,sell_id)

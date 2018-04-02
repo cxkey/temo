@@ -31,7 +31,6 @@ def dig_symbols():
             symbols.append(s)
     return symbols        
 
-
 def init_precision():
     symbols = dig_symbols()
     #get binance precision
@@ -81,7 +80,6 @@ def init_precision():
         key = 'precision:' + s + ':' + 'okex'
         redis.set_no_expire(key,json.dumps(info)) 
 
-
-
 if __name__ == '__main__':
     init_precision()
+
