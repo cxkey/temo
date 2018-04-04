@@ -229,11 +229,12 @@ def main():
     #    if 'iost' in r:
     #        print key, r
 
-    #r = yield hbex.get_asset_amount('iost')
-    #print r 
+    t = time.time()
+    r = yield hbex.get_asset_amount('iost')
+    print r, time.time() - t 
 
-    r = yield hbex.get_depth('ethusdt')   
-    print r
+    #r = yield hbex.get_depth('ethusdt')   
+    #print r
     #r = yield hbex.get_balance()
     #print r
 

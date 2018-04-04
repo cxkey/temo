@@ -74,14 +74,15 @@ class Wisp:
         begin = time.time()
         self.running = True
         try:
-            print 'xxxxx',self.cache.data.keys()
             for symbol in self.cache.data.keys():
                 try:
                     if self.exchange.name not in self.cache.data[symbol].keys():
                         continue
 
-                    print symbol, 'liubida2'
                     info = yield self.exchange.get_depth(symbol)
+                    quote, base = self.symbol.split('_')[0], self.symbol.split('_')[1]
+                    amount = yield self.exchange.get_asset_amount(quote)
+                    amount = yield self.exchange.get_asset_amount(quote)
                     print 'yyyyy',symbol,info
                     if info:
                         self.cache.setvalue(symbol, self.exchange.name, info)

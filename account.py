@@ -90,7 +90,7 @@ class Account:
                                     continue
 
                             #alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
-                            data[ex_name][asset][b] = [vb['free'], ret_price['bids'][0], vb['free'] * ret_price['bids'][0]]
+                            data[ex_name][asset][b] = [vb['free'] + vb['lock'], ret_price['bids'][0], (vb['free'] + vb['lock']) * ret_price['bids'][0]]
             alogger.info('data: {}'.format(data))
 
             BASE = 'btc'
