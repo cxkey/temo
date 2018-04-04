@@ -26,9 +26,9 @@ from web import WebEntry
 from init import *
 
 EXCHANGES = {
-    'binance': {'instance': BinanceEx.instance(), },
-    'huobi':   {'instance': HuobiEx.instance(),   },
-    'okex':    {'instance': OkexEx.instance(),    },
+    #'binance': {'instance': BinanceEx.instance(), },
+    #'huobi':   {'instance': HuobiEx.instance(),   },
+    #'okex':    {'instance': OkexEx.instance(),    },
 }
 
 class Application:

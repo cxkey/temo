@@ -14,8 +14,8 @@ class Cache:
             ex3: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, amount:{'quote':0, 'base':0}, timestamp: '' }
         },
         symbol2: {
-            ex1: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, amount:0, timestamp: '' }
-            ex2: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, amount:0, timestamp: '' }
+            ex1: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, amount:{'quote':0, 'base':0}, timestamp: '' }
+            ex2: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, amount:{'quote':0, 'base':0}, timestamp: '' }
         },
     }
     '''
@@ -63,14 +63,17 @@ class Cache:
         if exchange not in self.data[symbol]:
             self.data[symbol][exchange] = {}
 
-    def setvalue(self, symbol, exchange, value):
+    def setvalue(self, symbol, exchange, value, amount=None):
         if value is None:
             return
         if symbol not in self.data:
             self.data[symbol] = {}
         if exchange not in self.data[symbol]:
             self.data[symbol][exchange] = {}
-        self.data[symbol][exchange] = {'price': value, 'timestamp': time.time() }
+        if not amount:
+            self.data[symbol][exchange] = {'price': value, 'timestamp': time.time() }
+        else:
+            self.data[symbol][exchange] = {'price': value, 'amount': amount , 'timestamp': time.time() }
 
 if __name__ == '__main__':
     pass
