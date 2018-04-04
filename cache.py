@@ -9,13 +9,13 @@ class Cache:
     ask:卖价 bid:买价
     {
         symbol1: {
-            ex1: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, timestamp: '' }
-            ex2: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, timestamp: '' }
-            ex3: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, timestamp: '' }
+            ex1: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, amount:{'quote':0, 'base':0}, timestamp: '' }
+            ex2: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, amount:{'quote':0, 'base':0}, timestamp: '' }
+            ex3: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, amount:{'quote':0, 'base':0}, timestamp: '' }
         },
         symbol2: {
-            ex1: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, timestamp: '' }
-            ex2: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, timestamp: '' }
+            ex1: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, amount:0, timestamp: '' }
+            ex2: { price: {bids:[bid1_price, bid1_amount], asks:[ask1_price, ask1_amount]}, amount:0, timestamp: '' }
         },
     }
     '''

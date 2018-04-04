@@ -202,6 +202,7 @@ class Trade:
             raise gen.Return(False)
             return
 
+        #TODO get_asset_amount 
         self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)
         self.seller_asset_amount = yield self.seller.get_asset_amount(asset)
         raise gen.Return(False)
@@ -246,6 +247,7 @@ class TradeSet:
     @gen.coroutine
     def _process(self):
         while True:
+            #TODO signal 
             trade = self.pop()
             if trade is None:
                 #alogger.info('heart: trade_set is empty')
