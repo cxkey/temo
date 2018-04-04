@@ -155,6 +155,7 @@ class HuobiEx(Exchange):
 
             key = 'precision' + ':' + symbol + ':' + self.name
             info = redis.get(key)
+            alogger.info('debug huobi redis get info')
             if info:
                 info = json.loads(info)
                 price = Decimal(price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
