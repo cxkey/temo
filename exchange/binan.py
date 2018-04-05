@@ -16,6 +16,7 @@ import S
 
 from singleton import singleton
 from logger import alogger, elogger
+import decimal
 from decimal import Decimal, ROUND_DOWN
 from enum import *
 from redisclient import redis
@@ -197,7 +198,7 @@ class BinanceEx(Exchange):
             if info:
                 info = json.loads(info)
                 price = Decimal(price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
-                amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
+                amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))), decimal.ROUND_DOWN)
            
             symbol = symbol.replace('_','').upper()
             order = self.client.create_order(

@@ -8,6 +8,7 @@ from logger import alogger, elogger
 from tornado.gen import coroutine
 from tornado.ioloop import IOLoop 
 from tornado import gen
+import decimal
 from decimal import Decimal
 import time
 from enum import *
@@ -119,8 +120,8 @@ class OkexEx(Exchange):
                 info = json.loads(info)
                 #price = Decimal(price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
                 price = Decimal(price).quantize(Decimal('{0:g}'.format(float('0.00000001'))))
-                amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
-           
+                amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))), decimal.ROUND_DOWN)
+
             r = okcoinSpot.trade(symbol=symbol,tradeType=side,price=float(price),amount=float(amount))
             alogger.info('debug okex trade price:{} amount:{} result:{}'.format(str(price), str(amount), str(r)))
             if 'result' in r and str(r['result']) in  ('True','true'):
@@ -157,8 +158,8 @@ class OkexEx(Exchange):
 @gen.engine 
 def main():
     okex = OkexEx.instance()
-    r = yield okex.get_balance()
-    print r
+    #r = yield okex.get_balance()
+    #print r
     #r = yield okex.get_symbols()
     #r = yield okex.trade_info('ost_btc','5234048')
     #print r
@@ -170,8 +171,9 @@ def main():
         #break
     #r = yield okex.get_asset_amount('chat')
     #print r
-    #r = yield okex.create_trade('chat_btc',Decimal(1),Decimal('0.00001100'),BUY)
-    #print r
+    r = yield okex.create_trade('ost_eth', Decimal(4.81), Decimal('0.0003444300'), BUY)
+#    r = yield okex.create_trade('ost_eth', Decimal(4.21), Decimal('0.0003444300'), BUY)
+    print r
 
 if __name__ == '__main__':
     main()

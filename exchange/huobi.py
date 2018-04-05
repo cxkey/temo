@@ -159,7 +159,7 @@ class HuobiEx(Exchange):
             if info:
                 info = json.loads(info)
                 price = Decimal(price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
-                amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
+                amount = Decimal(amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))), decimal.ROUND_DOWN)
             
             symbol = symbol.replace('_', '')            
             r = HuobiService.send_order(amount=str(amount), source=None, symbol=symbol, _type=side, price=str(price))
