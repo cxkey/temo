@@ -121,68 +121,43 @@ class Trade:
 
             elogger.info('&BUY_FAIL, TRY_ROLLBACK_SELL, {}, ex_tid:{}'.format(str(self.tid), str(self.seller_order_id)))
 
-    @gen.coroutine
-    def check(self, symbol, ex1, item1, ex2, item2):
-        trade = None
-
-        price1, price2 = item1['price'], item2['price']
-        bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
-        ask1, ask1_amount = price1['asks'][0], price1['asks'][1]
-        bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
-        ask2, ask2_amount = price2['asks'][0], price2['asks'][1]
-
-        if ask1 < bid2 and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
-            trade = Trade(symbol, ex1, ask1, ask1_amount, ex2, bid2, bid2_amount)
-            # TODO put it in __init__
-            trade.buyer_asset_amount = item1['amount']['quote']
-            #trade.buyer_base_amount = item1['amount']['base']
-            trade.seller_asset_amount = item2['amount']['quote']
-        elif ask2 < bid1 and util.profit_rate(ask2, bid1) > conf.PROFIT_RATE:
-            trade = Trade(symbol, ex2, ask2, ask2_amount, ex1, bid1, bid1_amount)
-            trade.buyer_asset_amount = item2['amount']['quote']
-            #trade.buyer_base_amount = item2['amount']['base']
-            trade.seller_asset_amount = item1['amount']['quote']
-        else:
-            raise gen.Return((False, None))
-            return
-
-        raise gen.Return((True, trade))
-        return
-
     @coroutine
     def check_again(self):
         # 其实超时的trade, 应该丢掉. 着力点还是要提高trade 挂单效率, 
         # 这里就简单实现下罢了
         # 再检查一遍实时数据，是否能继续交易
 
-        price1 = yield self.buyer.get_depth(self.symbol)
-        price2 = yield self.seller.get_depth(self.symbol) 
+        ret = False
+        try:
+            price1 = yield self.buyer.get_depth(self.symbol)
+            price2 = yield self.seller.get_depth(self.symbol) 
 
-        bid1, bid1_amount = Decimal(price1['bids'][0]), Decimal(price1['bids'][1]) 
-        ask1, ask1_amount = Decimal(price1['asks'][0]), Decimal(price1['asks'][1])
-        bid2, bid2_amount = Decimal(price2['bids'][0]), Decimal(price2['bids'][1])
-        ask2, ask2_amount = Decimal(price2['asks'][0]), Decimal(price2['asks'][1])
+            bid1, bid1_amount = Decimal(price1['bids'][0]), Decimal(price1['bids'][1]) 
+            ask1, ask1_amount = Decimal(price1['asks'][0]), Decimal(price1['asks'][1])
+            bid2, bid2_amount = Decimal(price2['bids'][0]), Decimal(price2['bids'][1])
+            ask2, ask2_amount = Decimal(price2['asks'][0]), Decimal(price2['asks'][1])
 
-        if ask1 < bid2 and util.profit_rate(ask1, bid2) >= conf.PROFIT_RATE:
-            self.buy_price = ask1
-            self.buy_amount = ask1_amount
-            self.sell_price = bid2
-            self.sell_amount = bid2_amount 
-			#TODO buyer_asset_amount, seller_asset_amount ?
-        elif ask2 < bid1 and util.profit_rate(ask2, bid1) >= conf.PROFIT_RATE: 
-            # 情况逆转，交换买卖双方
-            tmp = self.buyer
-            self.buyer = self.seller
-            self.buy_price = ask2
-            self.buy_amount = ask2_amount
-            self.seller = tmp
-            self.sell_price = bid1
-            self.sell_amount = bid1_amount
-        else:
-            raise gen.Return(False)
-			return
-
-		raise gen.Return(True)
+            if ask1 < bid2 and util.profit_rate(ask1, bid2) >= conf.PROFIT_RATE:
+                self.buy_price = ask1
+                self.buy_amount = ask1_amount
+                self.sell_price = bid2
+                self.sell_amount = bid2_amount 
+                ret = True
+                #TODO buyer_asset_amount, seller_asset_amount ?
+            elif ask2 < bid1 and util.profit_rate(ask2, bid1) >= conf.PROFIT_RATE: 
+                # 情况逆转，交换买卖双方
+                tmp = self.buyer
+                self.buyer = self.seller
+                self.buy_price = ask2
+                self.buy_amount = ask2_amount
+                self.seller = tmp
+                self.sell_price = bid1
+                self.sell_amount = bid1_amount
+                ret = True
+        except Exception,e:
+            alogger.exception(e)
+        finally:
+            raise gen.Return(ret)
 
     @gen.coroutine
     def calc_final_amount(self):
