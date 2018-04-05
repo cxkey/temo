@@ -180,9 +180,8 @@ class Trade:
             self.sell_amount = bid1_amount
         else:
             raise gen.Return(False)
-			return
-
-		raise gen.Return(True)
+            return
+        raise gen.Return(True)
 
     @gen.coroutine
     def calc_final_amount(self):
