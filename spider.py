@@ -25,26 +25,6 @@ class Wisp:
         self.running = False
         self.cache = Cache.instance()
 
-    #@gen.coroutine
-    #def dig_symbols(self):
-    #    begin = time.time()
-    #    self.running = True
-    #    try:
-    #        r = yield self.exchange.get_symbols()
-    #        if r:
-    #            for s in r.keys():
-    #                if s in self.cache.data.keys() and \
-    #                    self.exchange.name in self.cache.data[s].keys():
-    #                    continue
-
-    #                self.cache.setkey(s, self.exchange.name)
-    #            slogger.info('wisp symbol [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
-    #    except Exception, e:
-    #        slogger.info('wisp symbol [%s] exception' % self.exchange.name)
-    #        slogger.exception(e)
-    #    finally:
-    #        self.running = False
-
     @gen.coroutine
     def dig_symbols(self):
         begin = time.time()
@@ -61,6 +41,7 @@ class Wisp:
                         self.exchange.name in self.cache.data[s].keys():
                         continue
                     self.cache.setkey(s, self.exchange.name)
+            self.cache.setkey('eth_btc', self.exchange.name)
             print 'liubida1', self.cache
             slogger.info('wisp symbol [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
         except Exception, e:

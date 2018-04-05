@@ -62,12 +62,11 @@ class Account:
             }
             '''
             data = {}
-            bases = ['btc', 'eth', 'usdt']
+            #bases = ['btc', 'eth', 'usdt']
+            bases = ['btc', 'usdt']
             for ex_name, v in self.exchanges.items():
                 if ex_name not in data:
                     data[ex_name] = {}
-                    #for b in bases:
-                    #    data[ex_name][b] = {}
 
                 ex_balance = yield v['instance'].get_balance()
                 if not ex_balance:
@@ -84,6 +83,9 @@ class Account:
                                     ret_price = {'bids':[Decimal(1), Decimal(0)]} # [price, amount]
                                 elif (asset == 'usdt' and b == 'btc'):
                                     ret_price = yield v['instance'].get_depth('btc_usdt')
+                                    ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
+                                elif (asset == 'eth' and b == 'btc'):
+                                    ret_price = yield v['instance'].get_depth('eth_btc')
                                     ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
                                 else:
                                     #alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
