@@ -84,9 +84,9 @@ class Account:
                                 elif (asset == 'usdt' and b == 'btc'):
                                     ret_price = yield v['instance'].get_depth('btc_usdt')
                                     ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
-                                elif (asset == 'eth' and b == 'btc'):
-                                    ret_price = yield v['instance'].get_depth('eth_btc')
-                                    ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
+                                #elif (asset == 'eth' and b == 'btc'):
+                                #    ret_price = yield v['instance'].get_depth('eth_btc')
+                                #    ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
                                 else:
                                     #alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
                                     continue
