@@ -34,6 +34,7 @@ class Trade:
         self.buy_price = buy_price
         self.buy_amount = buy_amount
         self.buyer_asset_amount = None
+        self.buyer_base_amount = None
         self.buyer_order_id = None
 
         self.seller = seller # exchange instance
@@ -41,6 +42,8 @@ class Trade:
         self.sell_amount = sell_amount
         self.seller_asset_amount = None
         self.seller_order_id = None
+
+        self.create_time = time.time()
 
         self.status = Trade.TRADE_INIT
 
@@ -125,7 +128,6 @@ class Trade:
         asset, base = self.symbol.split('_')[0], self.symbol.split('_')[1]
 
         if conf.ENV == 'test':
-            buyer_base_balance = 500
             init_amount = 1000
         else:
             buyer_base_balance = yield self.buyer.get_asset_amount(base)
@@ -136,7 +138,7 @@ class Trade:
         alogger.info('{}, 买家主币的数量:{}, 买家小币初始量:{}, 卖家小币初始量:{}'.format(self.tid, buyer_base_balance, buyer_init_amount, seller_init_amount))
         alogger.info('{}, 买家小币最大持有量:{}'.format(self.tid, buyer_init_amount * Decimal(1 + conf.RISK_RATE)))
         alogger.info('{}, 买家小币当前已有数量:{}'.format(self.tid, self.buyer_asset_amount))
-        alogger.info('{}, 买家小币最大能买量:{}, 买家小币价格{}'.format(self.tid, buyer_base_balance / self.buy_price, self.buy_price))
+        alogger.info('{}, 买家小币最大能买量:{}, 买家小币价格{}'.format(self.tid, buyer_base_balance/ self.buy_price, self.buy_price))
         alogger.info('{}, 深度小币量:{}'.format(self.tid, self.buy_amount))
 
         alogger.info('{}, 卖家小币初始量:{}, 卖家小币初始量:{}'.format(self.tid, seller_init_amount, buyer_init_amount))
@@ -146,7 +148,7 @@ class Trade:
         alogger.info('---------------{}------------------'.format(self.tid))
 
         buy_amount = min(buyer_init_amount * Decimal(1 + conf.RISK_RATE) - self.buyer_asset_amount, \
-                         buyer_base_balance / self.buy_price, \
+                         buyer_base_balance/ self.buy_price, \
                          self.buy_amount)
 
         sell_amount = min(self.seller_asset_amount - seller_init_amount * Decimal(1 - conf.RISK_RATE), \
@@ -203,8 +205,8 @@ class Trade:
             return
 
         #TODO get_asset_amount 
-        self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)
-        self.seller_asset_amount = yield self.seller.get_asset_amount(asset)
+        #self.buyer_asset_amount = yield self.buyer.get_asset_amount(asset)
+        #self.seller_asset_amount = yield self.seller.get_asset_amount(asset)
         raise gen.Return(False)
 
 @singleton
@@ -232,7 +234,8 @@ class TradeSet:
     def pop(self):
         trade = None
         try:
-            trade = self.queue.get(False)
+            #trade = self.queue.get(block=True, timeout=1800)
+            trade = self.queue.get(block=False)
         except Exception as e:
             pass
         finally:
@@ -254,8 +257,11 @@ class TradeSet:
                 IOLoop.instance().add_timeout(time.time() + 0.1, self._process)
                 break
             try:
-                #real_check_result = yield trade.check()
                 real_check_result = True
+                if time.time() - trade.create_time > 3:
+                    real_check_result = False
+                    # TODO real_check again
+
                 if real_check_result:
                     amount = yield trade.calc_final_amount()
                     if amount > Decimal('0') :

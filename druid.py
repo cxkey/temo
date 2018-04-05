@@ -30,9 +30,10 @@ class Druid:
         IOLoop.instance().add_timeout(time.time() + 20, self.scanSymbol)
 
     @gen.coroutine
-    def check_trade(self, symbol, ex1, price1, ex2, price2):
+    def check_trade(self, symbol, ex1, item1, ex2, item2):
         trade = None
 
+        price1, price2 = item1['price'], item2['price']
         bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
         ask1, ask1_amount = price1['asks'][0], price1['asks'][1]
         bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
@@ -40,19 +41,20 @@ class Druid:
 
         if ask1 < bid2 and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
             trade = Trade(symbol, ex1, ask1, ask1_amount, ex2, bid2, bid2_amount)
+            # TODO put it in __init__
+            trade.buyer_asset_amount = item1['amount']['quote']
+            trade.buyer_base_amount = item1['amount']['base']
+            trade.seller_asset_amount = item2['amount']['quote']
         elif ask2 < bid1 and util.profit_rate(ask2, bid1) > conf.PROFIT_RATE:
             trade = Trade(symbol, ex2, ask2, ask2_amount, ex1, bid1, bid1_amount)
+            trade.buyer_asset_amount = item2['amount']['quote']
+            trade.buyer_base_amount = item2['amount']['base']
+            trade.seller_asset_amount = item1['amount']['quote']
         else:
             raise gen.Return((False, None))
             return
 
-        alogger.info('check_trade2 {}'.format(str(trade)))
-        ret_risk = yield trade.has_risk()
-        if not ret_risk:
-            raise gen.Return((True, trade))
-            return
-
-        raise gen.Return((False, None))
+        raise gen.Return((True, trade))
         return
 
     @gen.coroutine
@@ -74,13 +76,13 @@ class Druid:
                 try:
                     # ex1, ex2 is exchange instance 
                     ex1, ex2 = self.exchanges[item[0]]['instance'], self.exchanges[item[1]]['instance']
-                    price1 = self.cache.get(symbol, ex1.name)
-                    if price1 is None:
+                    item1 = self.cache.get(symbol, ex1.name)
+                    if item1 is None:
                         continue
-                    price2 = self.cache.get(symbol, ex2.name)
-                    if price2 is None:
+                    item2 = self.cache.get(symbol, ex2.name)
+                    if item2 is None:
                         continue
-                    flag, trade = yield self.check_trade(symbol, ex1, price1, ex2, price2)
+                    flag, trade = yield self.check_trade(symbol, ex1, item1, ex2, item2)
                     if flag and trade is not None:
                         alogger.info('check_trade bingo. {}'.format(str(trade)))
                         elogger.info('&CHECK, {}'.format(str(trade)))

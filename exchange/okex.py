@@ -70,34 +70,38 @@ class OkexEx(Exchange):
 
     @coroutine
     def get_asset_amount(self,asset):
-        ret = {}
-        r = okcoinSpot.userinfo()
-        ret  =  r['info']['funds']['free']
-        if asset in ret.keys():
-            raise gen.Return(Decimal(ret[asset]))
-        else:
-            raise gen.Return(Decimal(0.00))
+        ret = Decimal(0.00)
+        try:
+            r = okcoinSpot.userinfo()
+            if asset in r['info']['funds']['free'].keys():
+                ret = Decimal(r['info']['funds']['free'][asset])
+        except Exception,e:
+            alogger.exception(e) 
+        finally:
+            raise gen.Return(ret)
 
     @coroutine
     def get_balance(self,):
         ret = {}
-        r = okcoinSpot.userinfo()
         ZERO = Decimal(0.00)
-        for item in r['info']['funds']['free'].keys():
-            amount = Decimal(r['info']['funds']['free'][item])
-            if amount > ZERO:
-                if item not in ret:
-                    ret[item] = { 'free': ZERO, 'lock': ZERO, }
-                ret[item]['free'] = amount
-        for item in r['info']['funds']['freezed'].keys():
-            amount = Decimal(r['info']['funds']['freezed'][item])
-            if amount > ZERO:
-                if item not in ret:
-                    ret[item] = { 'free': ZERO, 'lock': ZERO, }
-                ret[item]['lock'] = amount
-
-        raise gen.Return(ret)                
-
+        try:
+            r = okcoinSpot.userinfo()
+            for item in r['info']['funds']['free'].keys():
+                amount = Decimal(r['info']['funds']['free'][item])
+                if amount > ZERO:
+                    if item not in ret:
+                        ret[item] = { 'free': ZERO, 'lock': ZERO, }
+                    ret[item]['free'] = amount
+            for item in r['info']['funds']['freezed'].keys():
+                amount = Decimal(r['info']['funds']['freezed'][item])
+                if amount > ZERO:
+                    if item not in ret:
+                        ret[item] = { 'free': ZERO, 'lock': ZERO, }
+                    ret[item]['lock'] = amount
+        except Exception as e:
+            alogger.exception(e) 
+        finally:
+            raise gen.Return(ret)
     
     @coroutine        
     def create_trade(self,symbol,amount,price,side):
@@ -153,8 +157,8 @@ class OkexEx(Exchange):
 @gen.engine 
 def main():
     okex = OkexEx.instance()
-    #r = yield okex.get_balance()
-    #print r
+    r = yield okex.get_balance()
+    print r
     #r = yield okex.get_symbols()
     #r = yield okex.trade_info('ost_btc','5234048')
     #print r
@@ -164,10 +168,10 @@ def main():
         #r = yield okex.get_history(key)
         #print r
         #break
-    #r = yield okex.get_asset_amount('iost')
+    #r = yield okex.get_asset_amount('chat')
     #print r
-    r = yield okex.create_trade('chat_btc',Decimal(1),Decimal('0.00001100'),BUY)
-    print r
+    #r = yield okex.create_trade('chat_btc',Decimal(1),Decimal('0.00001100'),BUY)
+    #print r
 
 if __name__ == '__main__':
     main()

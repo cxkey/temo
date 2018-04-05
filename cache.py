@@ -44,6 +44,7 @@ class Cache:
             return False
         if not self.data[symbol][exchange] or \
             'price' not in self.data[symbol][exchange].keys() or \
+            'amount' not in self.data[symbol][exchange].keys() or \
             'timestamp' not in self.data[symbol][exchange].keys() :
             return False
             
@@ -54,7 +55,7 @@ class Cache:
     
     def get(self, symbol, exchange):
         if self.find(symbol,exchange):
-            return self.data[symbol][exchange]['price']
+            return self.data[symbol][exchange]
         return None         
 
     def setkey(self, symbol, exchange):
@@ -63,17 +64,15 @@ class Cache:
         if exchange not in self.data[symbol]:
             self.data[symbol][exchange] = {}
 
-    def setvalue(self, symbol, exchange, value, amount=None):
+    def setvalue(self, symbol, exchange, value, amount):
         if value is None:
             return
         if symbol not in self.data:
             self.data[symbol] = {}
         if exchange not in self.data[symbol]:
             self.data[symbol][exchange] = {}
-        if not amount:
-            self.data[symbol][exchange] = {'price': value, 'timestamp': time.time() }
-        else:
-            self.data[symbol][exchange] = {'price': value, 'amount': amount , 'timestamp': time.time() }
+
+        self.data[symbol][exchange] = {'price': value, 'amount': amount , 'timestamp': time.time() }
 
 if __name__ == '__main__':
     pass

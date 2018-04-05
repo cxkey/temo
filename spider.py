@@ -81,14 +81,14 @@ class Wisp:
 
                     info = yield self.exchange.get_depth(symbol)
                     if info:
-                        quote, base = self.symbol.split('_')[0], self.symbol.split('_')[1]
+                        quote, base = symbol.split('_')[0], symbol.split('_')[1]
                         quote_amount = yield self.exchange.get_asset_amount(quote)
                         base_amount = yield self.exchange.get_asset_amount(base)
-                        amount_info = {quote:quote_amount, base:base_amount}
+                        amount_info = {'quote':quote_amount, 'base':base_amount}
                         print 'yyyyy',symbol,info, amount_info
                         self.cache.setvalue(symbol, self.exchange.name, info, amount_info)
                 except Exception, e:
-                    slogger.info('wisp [%s] depth [%s] exception' % self.exchange.name,symbol)
+                    slogger.info('wisp [%s] depth [%s] exception' % (self.exchange.name,symbol))
                     slogger.exception(e)
             slogger.info('wisp depth [%s] done, time cost:%s' % (self.exchange.name, str(time.time() - begin)))
         except Exception, e:
