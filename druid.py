@@ -68,7 +68,8 @@ class Druid:
         #              }
         # }
         # '''
-        alogger.info('heart: scan symbol start')
+        if int(time.time()) % 30 == 0:
+            alogger.info('heart: scan symbol')
         for symbol, value in self.cache.data.iteritems():
             exs = self.cache.data[symbol].keys()
             perm_list = util.permutation(exs)
@@ -89,7 +90,6 @@ class Druid:
                         self.tset.produce(trade)
                 except Exception as e:
                     alogger.exception(e)
-        alogger.info('heart: scan symbol end')
         IOLoop.instance().add_timeout(time.time() + 1, self.scanSymbol)
 
 if __name__ == '__main__':
