@@ -111,11 +111,12 @@ class HuobiEx(Exchange):
 
         try:
             r = yield HuobiService.get_balance() 
-            for asset in asset_list:
-                for item in r['data']['list']:
-                    if item['currency'] == asset:
-                        ret[asset] = Decimal(item['balance'])
-                        break
+            if r['status'] == 'ok':
+                for asset in asset_list:
+                    for item in r['data']['list']:
+                        if item['currency'] == asset:
+                            ret[asset] = Decimal(item['balance'])
+                            break
         except Exception,e:
             alogger.exception(e) 
         finally:
