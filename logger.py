@@ -10,6 +10,12 @@ logging.getLogger('sqlalchemy.engine').setLevel(LOGLEVEL)
 logging.getLogger("requests").setLevel(LOGLEVEL)
 logging.getLogger("urllib3").setLevel(LOGLEVEL)
 
+#from requests.packages.urllib3.exceptions import InsecureRequestWarning
+#requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 #LOGFORMAT = '[%(asctime)s] %(message)s'
 LOGFORMAT = '[%(asctime)s] %(levelname)s %(module)s:%(lineno)d %(message)s'
 BACKCOUNT = 15

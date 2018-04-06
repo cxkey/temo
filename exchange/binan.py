@@ -153,7 +153,7 @@ class BinanceEx(Exchange):
         else:
             raise gen.Return(Decimal(0.00))
 
-    @coroutine
+    @gen.coroutine
     def get_assets_amount(self, asset_list):
         ret = {}
         try:

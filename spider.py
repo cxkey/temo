@@ -157,7 +157,7 @@ if __name__ == '__main__':
     EXCHANGES = {
         'binance': {'instance': BinanceEx.instance(), 'enabled': True},
         'huobi':   {'instance': HuobiEx.instance(),   'enabled': True},
-        #'okex':    {'instance': OkexEx.instance(),    'enabled': True},
+        'okex':    {'instance': OkexEx.instance(),    'enabled': True},
     }
     Spider.instance().start(EXCHANGES)
     IOLoop.instance().start() 
