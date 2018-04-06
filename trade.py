@@ -279,7 +279,8 @@ class TradeSet:
             try:
                 real_check_result = True
                 if time.time() - trade.create_time > 5:
-                    real_check_result = yield trade.check_again()
+                    #real_check_result = yield trade.check_again()
+                    real_check_result = False
 
                 if real_check_result:
                     amount = yield trade.calc_final_amount()
