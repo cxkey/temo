@@ -66,8 +66,8 @@ class Wisp:
                         ret_amount = yield self.exchange.get_assets_amount([quote, base])
                         quote_amount, base_amount = ret_amount[quote], ret_amount[base]
                         amount_info = {'quote':quote_amount, 'base':base_amount}
-                        print 'yyyyy',symbol,info, amount_info
-                        slogger.info('spider value {}, {}, {}'.format(symbol, info, amount_info))
+                        #print 'yyyyy',symbol,info, amount_info
+                        #slogger.info('spider value {}, {}, {}'.format(symbol, info, amount_info))
                         self.cache.setvalue(symbol, self.exchange.name, info, amount_info)
                 except Exception, e:
                     slogger.info('wisp [%s] depth [%s] exception' % (self.exchange.name,symbol))
