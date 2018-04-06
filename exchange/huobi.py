@@ -59,34 +59,31 @@ class HuobiEx(Exchange):
             'bids': [],
             'asks': [],
         }
-        if not symbol:
-            raise gen.Return( None)
 
-        symbol = symbol.replace('_', '')
-
-        r = yield HuobiService.get_depth(symbol, 'step0')
-        if r.get('status', None) is not None:
-            tick = r.get('tick', None)
-            if tick is not None:
-                bids = tick.get('bids', [])
-                if bids:
-                    ret['bids'] = [Decimal(i) for i in bids[0]]
-                
-                asks = tick.get('asks', [])
-                if asks:
-                    ret['asks'] = [Decimal(i) for i in asks[0]]
-
-                if (not ret['asks']) and (not ret['bids']):
-                    raise gen.Return(None)
-                    return
-                else:
-                    raise gen.Return(ret)
-                    return
+        try:
+            symbol = symbol.replace('_', '')
+            r = yield HuobiService.get_depth(symbol, 'step0')
+            if r.get('status', None) is None:
+                ret = None
             else:
-                raise gen.Return(None)
-                return
-        
-        raise gen.Return(None)
+                tick = r.get('tick', None)
+                if tick is None:
+                    ret = None
+                else:
+                    bids = tick.get('bids', [])
+                    if bids:
+                        ret['bids'] = [Decimal(i) for i in bids[0]]
+                    
+                    asks = tick.get('asks', [])
+                    if asks:
+                        ret['asks'] = [Decimal(i) for i in asks[0]]
+
+                    if (not ret['asks']) and (not ret['bids']):
+                        ret = None
+        except Exception,e:
+            alogger.exception(e)
+        finally:
+            raise gen.Return(ret)
 
     @coroutine
     def get_asset_amount(self,asset):        

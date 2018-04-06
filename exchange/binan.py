@@ -98,28 +98,27 @@ class BinanceEx(Exchange):
             'bids': [],
             'asks': [],
         }
-        if not symbol:
-            raise gen.Return(None)
 
-        symbol = symbol.replace('_', '').upper()
-        r = yield gen.Task(self._get_depth, symbol)
-        if r is None:
-            raise gen.Return(None)
-            return
+        try:
+            symbol = symbol.replace('_', '').upper()
+            r = yield gen.Task(self._get_depth, symbol)
+            if r is None:
+                ret = None
+            else:
+                bids = r.get('bids', [])
+                if bids:
+                    ret['bids'] = [Decimal(i) for i in bids[0][0:-1]]
+                
+                asks = r.get('asks', [])
+                if asks:
+                    ret['asks'] = [Decimal(i) for i in asks[0][0:-1]]
 
-        bids = r.get('bids', [])
-        if bids:
-            ret['bids'] = [Decimal(i) for i in bids[0][0:-1]]
-        
-        asks = r.get('asks', [])
-        if asks:
-            ret['asks'] = [Decimal(i) for i in asks[0][0:-1]]
-
-        if (not ret['asks']) and (not ret['bids']):
-            raise gen.Return(None)
-            return
-
-        raise gen.Return(ret)
+                if (not ret['asks']) and (not ret['bids']):
+                    ret = None
+        except Exception,e:
+            alogger.exception(e)
+        finally:
+            raise gen.Return(ret)
 
     def get_all_tickers(self):
         r = self.client.get_all_tickers()
