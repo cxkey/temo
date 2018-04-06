@@ -47,6 +47,15 @@ class Trade:
 
         self.status = Trade.TRADE_INIT
 
+        self.sign = util.gen_md5(self.__str__())
+
+    def __eq__(self, other):
+        return self.symbol == other.symbol and self.buyer.name == other.buyer.name and \
+               self.buy_price == other.buy_price and self.buy_amount == other.buy_amount and \
+               self.buyer_asset_amount == other.buyer_asset_amount and self.seller.name == other.seller.name and \
+               self.sell_price == other.sell_price and self.sell_amount == other.sell_amount and \
+               self.seller_asset_amount == other.seller_asset_amount and self.status == other.status 
+        
     def db_action(self, side, amount, fee, status):
         params = {}
         params['tid'] = self.tid
@@ -327,7 +336,10 @@ class TradeSet:
 
 def test():
     t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.0003472'), 100, OkexEx.instance(), Decimal('0.0003488'), 100)
-    TradeSet.instance().produce(t) 
+    print t.sig
+    t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.0003472'), 100, OkexEx.instance(), Decimal('0.0003488'), 100)
+    print t.sig
+    #TradeSet.instance().produce(t) 
 
 if __name__ == '__main__':
     init_logger('.')
