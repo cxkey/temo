@@ -53,9 +53,6 @@ def httpPost(url,resource,params):
     headers = {
             "Content-type" : "application/x-www-form-urlencoded",
     }
-    print url
-    print resource
-    print params
     temp_params = urllib.urlencode(params)
     response = requests.post(url + resource, data= temp_params, headers=headers,verify=False)
     data = response.text
