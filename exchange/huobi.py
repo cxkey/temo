@@ -27,10 +27,9 @@ class HuobiEx(Exchange):
     @coroutine
     def get_symbols(self):
         r = yield HuobiService.get_symbols()
-        raise gen.Return(r)
-        return 
+
         if 'data' not in r:
-            raise gen.Return( None)
+            raise gen.Return(None)
 
         ret = {}
         for s in r['data']:
