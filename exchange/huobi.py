@@ -13,6 +13,7 @@ sys.path.append('../')
 
 from singleton import singleton
 from logger import alogger, elogger
+import decimal
 from decimal import Decimal
 from enum import *
 from redisclient import redis
