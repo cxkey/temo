@@ -153,6 +153,22 @@ class BinanceEx(Exchange):
         else:
             raise gen.Return(Decimal(0.00))
 
+    @coroutine
+    def get_assets_amount(self, asset_list):
+        ret = {}
+        try:
+            for asset in asset_list:
+                binan_asset = asset.replace('_', '').upper()            
+                r = self.client.get_asset_balance(asset=binan_asset)
+                if r and 'free' in r:
+                    ret[asset] = Decimal(r['free'])
+                else:
+                    ret[asset] = Decimal(0.00)
+        except Exception,e:
+            alogger.exception(e) 
+        finally:
+            raise gen.Return(ret)
+
     @gen.coroutine
     def get_balance(self,):
         r = self.client.get_account()

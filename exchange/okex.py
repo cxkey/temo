@@ -82,6 +82,21 @@ class OkexEx(Exchange):
             raise gen.Return(ret)
 
     @coroutine
+    def get_assets_amount(self, asset_list):
+        ret = { }
+        try:
+            r = okcoinSpot.userinfo()
+            for asset in asset_list:
+                if asset in r['info']['funds']['free'].keys():
+                    ret[asset] = Decimal(r['info']['funds']['free'][asset])
+                else:
+                    ret[asset] = Decimal(0.00)
+        except Exception,e:
+            alogger.exception(e) 
+        finally:
+            raise gen.Return(ret)
+
+    @coroutine
     def get_balance(self,):
         ret = {}
         ZERO = Decimal(0.00)

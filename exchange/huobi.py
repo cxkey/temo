@@ -90,22 +90,40 @@ class HuobiEx(Exchange):
 
     @coroutine
     def get_asset_amount(self,asset):        
-        ret = {}
         if not asset: 
             raise gen.Return(Decimal(0.00)) 
             return
 
-        r = yield HuobiService.get_balance() 
-        if r['status'] != 'ok':
-            raise gen.Return(Decimal(0.00)) 
-            return
+        ret = Decimal(0.00)
+        try:
+            r = yield HuobiService.get_balance() 
+            if r['status'] == 'ok':
+                for item in r['data']['list']:
+                    if item['currency'] == asset:
+                        ret = Decimal(item['balance'])
+                        break
+        except Exception,e:
+            alogger.exception(e) 
+        finally:
+            raise gen.Return(ret)
 
-        for item in r['data']['list']:
-            if item['currency'] == asset:
-                raise gen.Return(Decimal(item['balance']))
-                return
+    @coroutine
+    def get_assets_amount(self,asset_list):        
+        ret = {}
+        for asset in asset_list:
+            ret[asset] = Decimal(0.00)
 
-        raise gen.Return(Decimal(0.00)) 
+        try:
+            r = yield HuobiService.get_balance() 
+            for asset in asset_list:
+                for item in r['data']['list']:
+                    if item['currency'] == asset:
+                        ret[asset] = Decimal(item['balance'])
+                        break
+        except Exception,e:
+            alogger.exception(e) 
+        finally:
+            raise gen.Return(ret)
 
     @coroutine
     def get_balance(self,):
