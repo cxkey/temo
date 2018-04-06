@@ -47,7 +47,15 @@ class Trade:
 
         self.status = Trade.TRADE_INIT
 
-        self.sign = util.gen_md5(self.__str__())
+        sign_str = '[%s] [buyer:%s|%s|%s|%s] [seller:%s|%s|%s|%s]' % (self.symbol, self.buyer.name, \
+            str(self.buy_price.quantize(Decimal('0.0000000001'), rounding=ROUND_HALF_EVEN)), \
+            str(self.buy_amount), \
+            str(self.buyer_asset_amount), \
+            self.seller.name, \
+            str(self.sell_price.quantize(Decimal('0.0000000001'), rounding=ROUND_HALF_EVEN)), \
+            str(self.sell_amount), \
+            str(self.seller_asset_amount)) 
+        self.sign = util.gen_md5(sign_str)
 
     def __eq__(self, other):
         return self.symbol == other.symbol and self.buyer.name == other.buyer.name and \
@@ -243,6 +251,7 @@ class Trade:
 class TradeSet:
     def __init__(self):
         self.queue = Queue()
+        self.sign_set = set()
         self.check_status_queue = Queue()
         self._thread = None
 
@@ -258,9 +267,6 @@ class TradeSet:
         finally:
             return item
 
-    def push(self, trade):
-        self.queue.put(trade)
-
     def pop(self):
         trade = None
         try:
@@ -272,7 +278,12 @@ class TradeSet:
             return trade  
     
     def produce(self, trade):
-        self.queue.put(trade)
+        if trade.sign in self.sign_set:
+            alogger.info('trade with same sign already produce. {} {}'.format(trade.sign, str(trade)))
+        else:
+            self.sign_set.add(trade.sign)
+            alogger.info('trade with sign produce. {} {}'.format(trade.sign, str(trade)))
+            self.queue.put(trade)
         #if self._thread == None or self._thread.is_alive() == False:
         #    self._thread = threading.Thread(target=self._process)
         #    self._thread.start()
@@ -282,11 +293,12 @@ class TradeSet:
         while True:
             trade = self.pop()
             if trade is None:
-                if int(time.time()) % 30 == 0:
+                if int(time.time()*1000) % (30*1000) == 0:
                     alogger.info('heart: trade_set is empty')
                 IOLoop.instance().add_timeout(time.time() + 0.1, self._process)
                 break
             try:
+                self.sign_set.remove(trade.sign)
                 real_check_result = True
                 if time.time() - trade.create_time > 5:
                     #real_check_result = yield trade.check_again()
@@ -305,6 +317,8 @@ class TradeSet:
             except Exception as e :
                 alogger.info('trade process exception. tid:{}'.format(str(trade.tid)))
                 alogger.exception(e)
+            finally:
+                pass
     
     @gen.coroutine
     def check_status():
@@ -336,9 +350,9 @@ class TradeSet:
 
 def test():
     t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.0003472'), 100, OkexEx.instance(), Decimal('0.0003488'), 100)
-    print t.sig
+    print t.sign
     t = Trade('ost_eth', HuobiEx.instance(), Decimal('0.0003472'), 100, OkexEx.instance(), Decimal('0.0003488'), 100)
-    print t.sig
+    print t.sign
     #TradeSet.instance().produce(t) 
 
 if __name__ == '__main__':

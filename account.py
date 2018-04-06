@@ -84,26 +84,11 @@ class Account:
                                 elif (asset == 'usdt' and b == 'btc'):
                                     ret_price = yield v['instance'].get_depth('btc_usdt')
                                     ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
-                                #elif (asset == 'eth' and b == 'btc'):
-                                #    ret_price = yield v['instance'].get_depth('eth_btc')
-                                #    ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
                                 else:
-                                    #alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
                                     continue
                             else:
                                 ret_price = ret['price']
 
-                            #if not (ret_price and 'bids' in ret_price): 
-                            #    if (asset == b):
-                            #        ret_price = {'bids':[Decimal(1), Decimal(1)]}
-                            #    elif (asset == 'usdt' and b == 'btc'):
-                            #        ret_price = yield v['instance'].get_depth('btc_usdt')
-                            #        ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
-                            #    else:
-                            #        #alogger.info('no cache data {}_{} {}'.format(asset, b, ex_name))
-                            #        continue
-
-                            #alogger.info('cache data {}_{} {}'.format(asset, b, ex_name))
                             data[ex_name][asset][b] = [vb['free'] + vb['lock'], ret_price['bids'][0], (vb['free'] + vb['lock']) * ret_price['bids'][0]]
             alogger.info('data: {}'.format(data))
 

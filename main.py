@@ -86,7 +86,7 @@ class DaemonWrapper(Daemon):
 
     def shutdown(self, sig, frame):
         alogger.info('stopping http server')
-        self.app.stop()
+        app.stop()
         io_loop = tornado.ioloop.IOLoop.instance()
 
         deadline = time.time() + 5
