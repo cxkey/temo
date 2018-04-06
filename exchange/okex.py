@@ -46,18 +46,18 @@ class OkexEx(Exchange):
             'bids':[],
             'asks':[],
         }
-        if not symbol:
-            raise gen.Return(None)
-
-        r = yield okcoinSpot.depth(symbol)
-        bids = r.get('bids',[])
-        if bids:
-            ret['bids'] = [Decimal(i) for i in bids[0]]
-            asks = r.get('asks',[])
-            if asks:
-                ret['asks'] = [Decimal(i) for i in asks[-1]]
+        try:
+            r = yield okcoinSpot.depth(symbol)
+            bids = r.get('bids',[])
+            if bids:
+                ret['bids'] = [Decimal(i) for i in bids[0]]
+                asks = r.get('asks',[])
+                if asks:
+                    ret['asks'] = [Decimal(i) for i in asks[-1]]
+        except Exception,e:
+            alogger.exception(e)
+        finally:
             raise gen.Return(ret)
-        raise gen.Return(None)
 
     @coroutine
     def get_history(self,symbol):        
