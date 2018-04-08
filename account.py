@@ -64,6 +64,7 @@ class Account:
             data = {}
             #bases = ['btc', 'eth', 'usdt']
             bases = ['btc', 'usdt']
+            create_time = datetime.datetime.now()
             for ex_name, v in self.exchanges.items():
                 if ex_name not in data:
                     data[ex_name] = {}
@@ -96,7 +97,7 @@ class Account:
             for ex, v1 in data.items():
                 for asset, v2 in v1.items():
                     p = {
-                        'date': util.get_time_ten_min_align(),
+                        'date': util.get_time_ten_min_align(create_time),
                         'exchange': ex,
                         'asset': asset,
                         'base': BASE,
