@@ -68,6 +68,8 @@ def init_precision():
 
     #get okex precision
     for s in symbols:
+        if s not in okex_precision:
+            continue
         r = okex_precision[s]
         info = {}
         info['price-precision'] = str(r['precision'])

@@ -44,7 +44,7 @@ GAOXIAOVIDEO_INDEX_DISPLAY_NUM = 8
 UPLOAD_DIR = '/tmp/'
 
 RISK_RATE = 10000
-PROFIT_RATE = 0.006
+PROFIT_RATE = 0.005
 
 #from exchange.binan import BinanceEx
 #from exchange.huobi import HuobiEx
@@ -61,6 +61,9 @@ INIT_AMOUNT = {
     'chat' : { 'binance':{'amount': 198},        'huobi':{'amount': 198},          'okex':{'amount': 198} },
     'ost'  : { 'binance':{'amount': 100},        'huobi':{'amount': 100},          'okex':{'amount': 100} },
     'iost' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
+    'bnb' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
+    'trx' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
+    'ht' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
 }
 
 # base is USDT

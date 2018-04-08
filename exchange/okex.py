@@ -173,7 +173,7 @@ class OkexEx(Exchange):
 @gen.engine 
 def main():
     okex = OkexEx.instance()
-    #r = yield okex.get_balance()
+    r = yield okex.get_balance()
     #print r
     #r = yield okex.get_symbols()
     #r = yield okex.trade_info('ost_btc','5234048')
@@ -186,7 +186,7 @@ def main():
         #break
     #r = yield okex.get_asset_amount('chat')
     #print r
-    r = yield okex.create_trade('ost_eth', Decimal(4.81), Decimal('0.0003444300'), BUY)
+    #r = yield okex.create_trade('ost_eth', Decimal(4.81), Decimal('0.0003444300'), BUY)
 #    r = yield okex.create_trade('ost_eth', Decimal(4.21), Decimal('0.0003444300'), BUY)
     print r
 

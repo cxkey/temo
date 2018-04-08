@@ -34,10 +34,21 @@ class Druid:
         trade = None
 
         price1, price2 = item1['price'], item2['price']
-        bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
-        ask1, ask1_amount = price1['asks'][0], price1['asks'][1]
-        bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
-        ask2, ask2_amount = price2['asks'][0], price2['asks'][1]
+        if price1 and 'bids' in price1 and len(price1['bids']) == 2 \
+                  and 'asks' in price1 and len(price1['asks']) == 2:
+            bid1, bid1_amount = price1['bids'][0], price1['bids'][1] 
+            ask1, ask1_amount = price1['asks'][0], price1['asks'][1]
+        else:
+            raise gen.Return((False, None))
+            return
+
+        if price2 and 'bids' in price2 and len(price2['bids']) == 2 \
+                  and 'asks' in price2 and len(price2['asks']) == 2:
+            bid2, bid2_amount = price2['bids'][0], price2['bids'][1]
+            ask2, ask2_amount = price2['asks'][0], price2['asks'][1]
+        else:
+            raise gen.Return((False, None))
+            return
 
         if ask1 < bid2 and util.profit_rate(ask1, bid2) > conf.PROFIT_RATE:
             trade = Trade(symbol, ex1, ask1, ask1_amount, ex2, bid2, bid2_amount)
