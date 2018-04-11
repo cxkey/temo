@@ -155,7 +155,8 @@ class DBStatistics:
         conn = ConnectionPool.instance().connection()
         try:
             cur = conn.cursor()
-            sql = "select date, asset, sum(value) from `statistics` s group by date, asset "
+            now = datetime.datetime.now() - datetime.timedelta(days=3)
+            sql = "select date, asset, sum(value) from `statistics` s group by date, asset having date > '%s';" % str(now)
             cur.execute(sql)
             r = cur.fetchall()
             return r
@@ -178,7 +179,9 @@ class DBStatistics:
         conn = ConnectionPool.instance().connection()
         try:
             cur = conn.cursor()
-            sql = "select id, date, exchange, asset, base, amount, price, value, create_time from statistics;"
+            now = datetime.datetime.now() - datetime.timedelta(days=3)
+            sql = "select id, date, exchange, asset, base, amount, price, value, create_time from statistics where date > '%s';" % str(now)
+            print sql
             cur.execute(sql)
             r = cur.fetchall()
             for i in r:

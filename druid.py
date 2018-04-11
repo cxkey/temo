@@ -79,7 +79,7 @@ class Druid:
         #              }
         # }
         # '''
-        if int(time.time()) % 30 == 0:
+        if int(time.time()) % 5 == 0:
             alogger.info('heart: scan symbol')
         for symbol, value in self.cache.data.iteritems():
             exs = self.cache.data[symbol].keys()

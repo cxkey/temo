@@ -218,15 +218,18 @@ class Trade:
             if info['amount-min'] and trade_amount <= Decimal(info['amount-min']):
                 alogger.info('strict buy amount-min {}'.format(self.__str__()))
                 raise gen.Return(Decimal('0'))
+                return
             if info['amount-max'] and trade_amount >= Decimal(info['amount-max']):
                 alogger.info('strict buy price-max {}'.format(self.__str__()))
                 raise gen.Return(Decimal('0'))
+                return
             if info['value-min'] and self.buy_price * trade_amount <= Decimal(info['value-min']):
                 alogger.info('strict buy value-min {}'.format(self.__str__()))
                 raise gen.Return(Decimal('0'))
+                return
 
-            #self.buy_price = Decimal(self.buy_price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
-            buy_trade_amount = Decimal(trade_amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
+        #self.buy_price = Decimal(self.buy_price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
+        buy_trade_amount = Decimal(trade_amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
 
         sell_key = 'precision' + ':' + self.symbol + ':' + self.seller.name
         info = redis.get(sell_key)
@@ -235,14 +238,18 @@ class Trade:
             if info['amount-min'] and trade_amount <= Decimal(info['amount-min']):
                 alogger.info('strict sell amount-min {}'.format(self.__str__()))
                 raise gen.Return(Decimal('0'))
+                return
             if info['amount-max'] and trade_amount >= Decimal(info['amount-max']):
                 alogger.info('strict sell price-max {}'.format(self.__str__()))
                 raise gen.Return(Decimal('0'))
+                return
             if info['value-min'] and self.sell_price * trade_amount <= Decimal(info['value-min']):
                 alogger.info('strict sell value-min {}'.format(self.__str__()))
                 raise gen.Return(Decimal('0'))
-            #self.sell_price = Decimal(self.buy_price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
-            sell_trade_amount = Decimal(trade_amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
+                return
+
+        #self.sell_price = Decimal(self.buy_price).quantize(Decimal('{0:g}'.format(float(info['price-precision']))))
+        sell_trade_amount = Decimal(trade_amount).quantize(Decimal('{0:g}'.format(float(info['amount-precision']))))
 
         trade_amount = min(buy_trade_amount, sell_trade_amount)
         raise gen.Return(trade_amount)
@@ -298,7 +305,7 @@ class TradeSet:
                 IOLoop.instance().add_timeout(time.time() + 0.1, self._process)
                 break
             try:
-                self.sign_set.remove(trade.sign)
+                #self.sign_set.remove(trade.sign)
                 real_check_result = True
                 if time.time() - trade.create_time > 5:
                     #real_check_result = yield trade.check_again()
@@ -318,6 +325,7 @@ class TradeSet:
                 alogger.info('trade process exception. tid:{}'.format(str(trade.tid)))
                 alogger.exception(e)
             finally:
+                self.sign_set.remove(trade.sign)
                 pass
     
     @gen.coroutine

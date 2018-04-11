@@ -76,7 +76,7 @@ def init_precision():
         info['price-min'] = ''
         info['price-max'] = ''
         info['amount-precision'] = str(r['min_trade_size'])
-        info['amount-min'] = ''
+        info['amount-min'] = str(r['min_trade_size'])
         info['amount-max'] = ''
         info['value-min'] = ''
         key = 'precision:' + s + ':' + 'okex'
