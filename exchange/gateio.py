@@ -99,12 +99,13 @@ class GateioEx(Exchange):
                     if asset not in ret:
                         ret[asset.lower()] = { 'free': ZERO, 'lock': ZERO, } 
                     ret[asset.lower()]['free'] = amount
-            for asset in r['locked'].keys():
-                amount = Decimal(r['locked'][asset])
-                if amount > ZERO:
-                    if asset not in ret:
-                        ret[asset.lower()] = { 'free': ZERO, 'lock': ZERO, } 
-                    ret[asset.lower()]['locked'] = amount
+            if 'locked' in r.keys():                    
+                for asset  in r['locked'].keys():
+                    amount = Decimal(r['locked'][asset])
+                    if amount > ZERO:
+                        if asset not in ret:
+                            ret[asset.lower()] = { 'free': ZERO, 'lock': ZERO, } 
+                        ret[asset.lower()]['lock'] = amount
         except Exception as e:    
             alogger.exception(e)  
         finally:
@@ -170,8 +171,9 @@ def main():
     #r = yield gateio.get_depth('ont_eth')
     #r = yield gateio.get_asset_amount('ost')
     #r = yield gateio.create_trade('ost_usdt','0.2000', '98', SELL)
-    r = yield gateio.cancel_trade('ost_usdt','523366237')
+    #r = yield gateio.cancel_trade('ost_usdt','523366237')
     #r = yield gateio.get_assets_amount(['ost'])
+    r = yield gateio.get_balance()
     print r
 
 if __name__ == '__main__':
