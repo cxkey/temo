@@ -82,6 +82,9 @@ class Druid:
         if int(time.time()) % 5 == 0:
             alogger.info('heart: scan symbol')
         for symbol, value in self.cache.data.iteritems():
+            if 'ht' in symbol or 'eos' in symbol:
+                continue
+
             exs = self.cache.data[symbol].keys()
             perm_list = util.permutation(exs)
             for item in perm_list:
