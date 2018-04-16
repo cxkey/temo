@@ -97,14 +97,14 @@ class GateioEx(Exchange):
                 amount = Decimal(r['available'][asset])
                 if amount > ZERO:
                     if asset not in ret:
-                        ret[asset] = { 'free': ZERO, 'lock': ZERO, } 
-                    ret[asset]['free'] = amount
+                        ret[asset.lower()] = { 'free': ZERO, 'lock': ZERO, } 
+                    ret[asset.lower()]['free'] = amount
             for asset in r['locked'].keys():
                 amount = Decimal(r['locked'][asset])
                 if amount > ZERO:
                     if asset not in ret:
-                        ret[asset] = { 'free': ZERO, 'lock': ZERO, } 
-                    ret[asset]['locked'] = amount
+                        ret[asset.lower()] = { 'free': ZERO, 'lock': ZERO, } 
+                    ret[asset.lower()]['locked'] = amount
         except Exception as e:    
             alogger.exception(e)  
         finally:
