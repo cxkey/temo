@@ -55,17 +55,17 @@ PROFIT_RATE = 0.005
 #}
 
 INIT_AMOUNT = {
-    'usdt' : { 'binance':{'amount': 0},          'huobi':{'amount': 155.52099500}, 'okex':{'amount': 0} },
-    'btc'  : { 'binance':{'amount': 0.02167182}, 'huobi':{'amount': 0.02843271},   'okex':{'amount': 0.02420212} },
-    'eth'  : { 'binance':{'amount': 0.02497500}, 'huobi':{'amount': 0.45345454},   'okex':{'amount': 0.02688146} },
-    'chat' : { 'binance':{'amount': 198},        'huobi':{'amount': 198},          'okex':{'amount': 198} },
-    'ost'  : { 'binance':{'amount': 100},        'huobi':{'amount': 100},          'okex':{'amount': 100} },
-    'iost' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
-    'bnb' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
-    'trx' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
-    'ht' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
-    'ont' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
-    'knc' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0} },
+    'usdt' : { 'binance':{'amount': 0},          'huobi':{'amount': 155.52099500}, 'okex':{'amount': 0},  'gateio':{'amount': 0} },
+    'btc'  : { 'binance':{'amount': 0.02167182}, 'huobi':{'amount': 0.02843271},   'okex':{'amount': 0.02420212},  'gateio':{'amount': 0} },
+    'eth'  : { 'binance':{'amount': 0.02497500}, 'huobi':{'amount': 0.45345454},   'okex':{'amount': 0.02688146}, 'gateio':{'amount': 0} },
+    'chat' : { 'binance':{'amount': 198},        'huobi':{'amount': 198},          'okex':{'amount': 198},  'gateio':{'amount': 0} },
+    'ost'  : { 'binance':{'amount': 100},        'huobi':{'amount': 100},          'okex':{'amount': 100},  'gateio':{'amount': 0} },
+    'iost' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0} },
+    'bnb' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0} },
+    'trx' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0} },
+    'ht' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0} },
+    'ont' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0}, 'gateio':{'amount': 0} },
+    'knc' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0} },
 }
 
 # base is USDT
