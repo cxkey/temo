@@ -6,6 +6,8 @@ from exchange.binan import BinanceEx
 from exchange.huobi import HuobiEx
 from exchange.sdk_huobi import HuobiService 
 from exchange.okex import OkexEx  
+from exchange.sdk_gateio import *
+from exchange.gateio import *
 import conf
 from dao import *
 from redisclient import *
@@ -14,6 +16,8 @@ import json
 binan = BinanceEx.instance()
 huobi = HuobiEx.instance()   
 okex = OkexEx.instance()  
+gateio = GateioEx.instance()
+
 
 redis = Redis.instance() 
 
@@ -81,6 +85,24 @@ def init_precision():
         info['value-min'] = ''
         key = 'precision:' + s + ':' + 'okex'
         redis.set_no_expire(key,json.dumps(info)) 
+
+    #get gaetio precision
+    r = gate_query.marketinfo()
+    for item in r['pairs']:
+        s = item.keys()[0]
+        if s not in symbols:
+            continue
+        info = {}
+        info['price-precision'] = str( '%.10f' % Decimal(pow(0.1 , int(item[s]['decimal_places']))))
+        info['price-min'] = ''
+        info['price-max'] = ''
+        info['amount-precision'] = item[s]['min_amount']
+        info['amount-min'] = item[s]['min_amount']
+        info['value-min'] = ''
+        key = 'precision:' + s + ':' + 'gateio'
+        print key
+        redis.set_no_expire(key,json.dumps(info))
+
 
 if __name__ == '__main__':
     init_precision()

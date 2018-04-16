@@ -19,6 +19,7 @@ import time
 from exchange.binan import BinanceEx
 from exchange.huobi import HuobiEx
 from exchange.okex import OkexEx
+from exchange.gateio import GateioEx 
 
 from tornado.options import define, options
 import tornado.httpserver
@@ -29,6 +30,7 @@ EXCHANGES = {
     'binance': {'instance': BinanceEx.instance(), },
     'huobi':   {'instance': HuobiEx.instance(),   },
     'okex':    {'instance': OkexEx.instance(),    },
+    'gateio':    {'instance': GateEx.instance(),    },
 }
 
 class Application:

@@ -3,6 +3,7 @@ from logger import alogger, slogger, elogger, init_logger
 from exchange.binan import BinanceEx
 from exchange.huobi import HuobiEx
 from exchange.okex import OkexEx
+from exchange.gateio import GateioEx
 from tornado.ioloop import IOLoop
 from tornado import gen
 from tornado.ioloop import IOLoop
@@ -158,6 +159,7 @@ if __name__ == '__main__':
         'binance': {'instance': BinanceEx.instance(), 'enabled': True},
         'huobi':   {'instance': HuobiEx.instance(),   'enabled': True},
         'okex':    {'instance': OkexEx.instance(),    'enabled': True},
+        'gateio':    {'instance': GateioEx.instance(),    'enabled': True},
     }
     Spider.instance().start(EXCHANGES)
     IOLoop.instance().start() 
