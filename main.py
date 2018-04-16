@@ -30,7 +30,7 @@ EXCHANGES = {
     'binance': {'instance': BinanceEx.instance(), },
     'huobi':   {'instance': HuobiEx.instance(),   },
     'okex':    {'instance': OkexEx.instance(),    },
-    'gateio':    {'instance': GateEx.instance(),    },
+    'gateio':    {'instance': GateioEx.instance(),    },
 }
 
 class Application:
