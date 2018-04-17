@@ -77,21 +77,25 @@ class Account:
                     if asset not in data[ex_name]:
                         data[ex_name][asset] = {}
                         for b in bases:
-                            data[ex_name][asset][b] = []
-                            ret = self.cache.get('{}_{}'.format(asset, b), ex_name)
-                            if not (ret and 'price' in ret):
-                                if (asset == b):
-                                    ret_price = {'bids':[Decimal(1), Decimal(0)]} # [price, amount]
-                                elif (asset == 'usdt' and b == 'btc'):
-                                    ret_price = yield v['instance'].get_depth('btc_usdt')
-                                    ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
+                            try:
+                                data[ex_name][asset][b] = []
+                                ret = self.cache.get('{}_{}'.format(asset, b), ex_name)
+                                if not (ret and 'price' in ret):
+                                    if (asset == b):
+                                        ret_price = {'bids':[Decimal(1), Decimal(0)]} # [price, amount]
+                                    elif (asset == 'usdt' and b == 'btc'):
+                                        ret_price = yield v['instance'].get_depth('btc_usdt')
+                                        ret_price['bids'][0] = Decimal('1.00') /ret_price['bids'][0]
+                                    else:
+                                        continue
                                 else:
-                                    continue
-                            else:
-                                ret_price = ret['price']
+                                    ret_price = ret['price']
 
-                            data[ex_name][asset][b] = [vb['free'] + vb['lock'], ret_price['bids'][0], (vb['free'] + vb['lock']) * ret_price['bids'][0]]
-            alogger.info('data: {}'.format(data))
+                                data[ex_name][asset][b] = [vb['free'] + vb['lock'], ret_price['bids'][0], (vb['free'] + vb['lock']) * ret_price['bids'][0]]
+                            except Exception as e:
+                                alogger.exception(e)
+                                alogger.info('account %s,%s,%s error:%s,%s', ex_name, asset, b, vb,ret)
+            alogger.info('data: {}'.format(data))            
 
             BASE = 'btc'
             for ex, v1 in data.items():

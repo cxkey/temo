@@ -172,8 +172,8 @@ def main():
     #r = yield gateio.get_asset_amount('ost')
     #r = yield gateio.create_trade('ost_usdt','0.2000', '98', SELL)
     #r = yield gateio.cancel_trade('ost_usdt','523366237')
-    #r = yield gateio.get_assets_amount(['ost'])
-    r = yield gateio.get_balance()
+    r = yield gateio.get_assets_amount(['ost','btc'])
+    #r = yield gateio.get_balance()
     print r
 
 if __name__ == '__main__':

@@ -63,10 +63,8 @@ INIT_AMOUNT = {
     'iost' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0} },
     'bnb' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0} },
     'trx' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0} },
-    'ht' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0} },
     'ont' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0}, 'gateio':{'amount': 0} },
     'knc' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0} },
-    'eos' : { 'binance':{'amount': 399.6},      'huobi':{'amount': 487},          'okex':{'amount': 0},  'gateio':{'amount': 0}},
 }
 
 # base is USDT
