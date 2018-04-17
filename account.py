@@ -74,6 +74,9 @@ class Account:
                     continue
 
                 for asset, vb in ex_balance.items():
+                    if asset in ['ht','eos']:
+                        continue
+
                     if asset not in data[ex_name]:
                         data[ex_name][asset] = {}
                         for b in bases:

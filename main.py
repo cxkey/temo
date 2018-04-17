@@ -38,15 +38,15 @@ class Application:
         pass
         
     def start(self):
-        #print 'start init precision'
-        #init_precision()
-        #print 'end init precision'
+        print 'start init precision'
+        init_precision()
+        print 'end init precision'
 
-        #if len(EXCHANGES.keys()) > 0:
-        #    Spider.instance().start(EXCHANGES)
-        #    Druid.instance().start(EXCHANGES)
-        #    Account.instance().start(EXCHANGES)
-        #    TradeSet.instance().start()
+        if len(EXCHANGES.keys()) > 0:
+            Spider.instance().start(EXCHANGES)
+            Druid.instance().start(EXCHANGES)
+            Account.instance().start(EXCHANGES)
+            TradeSet.instance().start()
 
         self.server = tornado.httpserver.HTTPServer(WebEntry())
         self.server.listen(conf.PORT)
