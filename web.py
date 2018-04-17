@@ -19,8 +19,12 @@ import concurrent.futures
 class WebEntry(tornado.web.Application):
     def __init__(self):
         self.route = [
-            (r"/", IndexHandler),
+            (r"/total", IndexHandler),
+            (r"/ex", ExHandler),
+            (r"/asset", AssetHandler),
             (r"/api/v1/statistics", StatHandler),
+            (r"/api/v1/exchange", StatExHandler),
+            (r"/api/v1/asset", StatAssetHandler),
             (r"/api/v1/stat_amount", StatAmountHandler),
         ]
 
@@ -42,6 +46,27 @@ class IndexHandler(tornado.web.RequestHandler):
         except Exception as e:
             alogger.exception(e)
             self.write(Response(False, 'exception: %s' % str(e)).json())
+
+class ExHandler(tornado.web.RequestHandler):
+    def get(self):
+        try:
+            info = {}
+            exes = ['binance','huobi','okex', 'gateio']
+            self.render('ex.html', exes=exes, res=Response(True, '', info))
+        except Exception as e:
+            alogger.exception(e)
+            self.write(Response(False, 'exception: %s' % str(e)).json())
+
+class AssetHandler(tornado.web.RequestHandler):
+    def get(self):
+        try:
+            info = {}
+            assets = ['btc','ost','chat', 'iost', 'usdt', 'eth', 'trx', 'bnb', 'knc', 'ont']
+            self.render('asset.html', assets=assets, res=Response(True, '', info))
+        except Exception as e:
+            alogger.exception(e)
+            self.write(Response(False, 'exception: %s' % str(e)).json())
+
 
 class StatAmountHandler(tornado.web.RequestHandler):
     def get(self):
@@ -124,6 +149,95 @@ class StatHandler(tornado.web.RequestHandler):
             #2018-03-25 14:00:00    eth    0.0009004194
             #2018-03-25 14:00:00    iost    0.0027212886
             #2018-03-25 14:00:00    usdt    0.0000000000
+
+            dataset = {}
+            dataset['dimensions'] = ['date', 'total']
+
+            tmp = []
+            for r in ret:
+                d = r[0].strftime('%Y.%m.%d %H:%M:%S')
+                asset, value = str(r[1]), str(r[2])
+                flag = False
+                for t in tmp:
+                    if t['date'] == d:
+                        t[asset] = value
+                        flag = True
+                        break
+                if not flag:
+                    tmp.append({'date':d, asset:value})
+
+                if asset not in dataset['dimensions']:
+                    dataset['dimensions'].append(asset)
+
+            for t in tmp:
+                s = Decimal(0.00)
+                for k, v in t.items():
+                    if 'date' == k:
+                        continue
+                    s += Decimal(v)
+                t['total'] = str(s)
+
+            dataset['source'] = tmp
+            
+            info = { 
+                'dataset': dataset
+            }
+            self.write(Response(True, '', info).json())
+        except Exception as e:
+            alogger.exception(e)
+            self.write(Response(False, 'exception: %s' % str(e)).json())
+
+
+class StatExHandler(tornado.web.RequestHandler):
+    def get(self):
+        try:
+            ex = self.get_argument('ex','huobi')
+            ret = DBStatistics.instance().select_asset_by_date_exchange(ex)
+
+            dataset = {}
+            dataset['dimensions'] = ['date', 'total']
+
+            tmp = []
+            for r in ret:
+                d = r[0].strftime('%Y.%m.%d %H:%M:%S')
+                asset, value = str(r[1]), str(r[2])
+                flag = False
+                for t in tmp:
+                    if t['date'] == d:
+                        t[asset] = value
+                        flag = True
+                        break
+                if not flag:
+                    tmp.append({'date':d, asset:value})
+
+                if asset not in dataset['dimensions']:
+                    dataset['dimensions'].append(asset)
+
+            for t in tmp:
+                s = Decimal(0.00)
+                for k, v in t.items():
+                    if 'date' == k:
+                        continue
+                    s += Decimal(v)
+                t['total'] = str(s)
+
+            dataset['source'] = tmp
+            
+            info = { 
+                'dataset': dataset
+            }
+            self.write(Response(True, '', info).json())
+        except Exception as e:
+            alogger.exception(e)
+            self.write(Response(False, 'exception: %s' % str(e)).json())
+
+
+
+class StatAssetHandler(tornado.web.RequestHandler):
+    def get(self):
+        try:
+            asset = self.get_argument('asset','btc')
+            ret = DBStatistics.instance().select_asset_by_date_asset(asset)
 
             dataset = {}
             dataset['dimensions'] = ['date', 'total']

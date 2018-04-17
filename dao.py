@@ -174,6 +174,42 @@ class DBStatistics:
             if cur:
                 cur.close()
 
+    def select_asset_by_date_exchange(self,exchange):
+        ret = []
+        conn = ConnectionPool.instance().connection()
+        try:
+            cur = conn.cursor() 
+            now = datetime.datetime.now() - datetime.timedelta(days=3) 
+            sql = "select date, asset, value from `statistics` s where s.exchange='%s' and s.date > '%s';" % (exchange, str(now))
+            cur.execute(sql)
+            r = cur.fetchall()
+            return r
+        except Exception as e:
+            alogger.exception(e)
+            return None
+        finally:
+            if cur:
+                cur.close()
+
+    def select_asset_by_date_asset(self,asset):
+        ret = []
+        conn = ConnectionPool.instance().connection()
+        try:
+            cur = conn.cursor() 
+            now = datetime.datetime.now() - datetime.timedelta(days=3) 
+            sql = "select date, exchange, value from `statistics` s where s.asset='%s' and s.date > '%s';" % (asset, str(now))
+            cur.execute(sql)
+            r = cur.fetchall()
+            return r
+        except Exception as e:
+            alogger.exception(e)
+            return None
+        finally:
+            if cur:
+                cur.close()
+
+
+
     def select(self,):        
         ret = []
         conn = ConnectionPool.instance().connection()

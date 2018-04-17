@@ -1,0 +1,21 @@
+
+{% extends "ex_base.html" %}
+
+{% include "footer.html" %}
+
+{% block main_body %}
+  <!-- Jumbotron -->
+  <div class="jumbotron">
+    <h2>Fishing 套利</h2>
+    <!--p class="lead">发家致富好帮手</p>
+    <a class="btn btn-large btn-success" href="#">开始使用</a-->
+  </div>
+  {% for ex in exes %}              
+      <span id='stat_{{ex}}_result' name='stat_{{ex}}_result'></span>
+      <div id="{{ex}}" style="width: 800px; height:400px;">
+      </div>
+      <hr>
+  {% end %}          
+  
+{% end %} 
+

@@ -3,7 +3,7 @@ import socket
 import os
 
 HOST = '0.0.0.0'
-PORT = 9998
+PORT = 9997
 
 DB_CONFIG = {
     'host': '10.8.54.165',
