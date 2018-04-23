@@ -7,21 +7,25 @@ from decimal import Decimal
 from exchange.binan import BinanceEx  
 from exchange.huobi import HuobiEx  
 from exchange.okex import OkexEx    
+from exchange.gateio import GateioEx    
 import conf
 
 binan = BinanceEx.instance()
 huobi = HuobiEx.instance()
 okex = OkexEx.instance()
+gateio = GateioEx.instance()
 
 @coroutine
 def get_symbols():
     s1 = yield binan.get_symbols()
     s2 = yield huobi.get_symbols()
     s3 = yield okex.get_symbols()
+    s4 = yield gateio.get_symbols()
     s11 = set(s1.keys())
     s12 = set(s2.keys())
     s13 = set(s3.keys())
-    r = s11 & s12 & s13
+    s14 = set(s4.keys())
+    r = s11 & s12 & s13 & s14
     raise gen.Return(r)
 
 @coroutine
@@ -32,10 +36,12 @@ def get_depth(symbols):
             d1 = yield binan.get_depth(symbol)
             d2 = yield huobi.get_depth(symbol)
             d3 = yield okex.get_depth(symbol)
+            d4 = yield gateio.get_depth(symbol)
             item = {}
             item['binan'] = d1
             item['huobi'] = d2
             item['okex'] = d3
+            item['gateio'] = d4
             if symbol in cache.keys():
                 cache[symbol] = item
             else:
