@@ -7,9 +7,9 @@ from tornado import gen
 from util import permutation
 import time
 from decimal import Decimal
-from exchange.binan import BinanceEx 
-from exchange.huobi import HuobiEx  
-from exchange.okex import OkexEx 
+# from exchange.binan import BinanceEx
+# from exchange.huobi import HuobiEx
+# from exchange.okex import OkexEx
 from Queue import Queue
 from trade import *
 from init import *

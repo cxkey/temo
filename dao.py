@@ -1,3 +1,4 @@
+# coding: utf-8
 from redisclient import Redis
 from tornado import gen
 from tornado.ioloop import IOLoop
@@ -13,7 +14,7 @@ import tornado
 
 class PooledConnection(object):
     def __init__(self, pool, connection):
-        self._connection  = connection
+        self._connection = connection
         self._pool = pool
 
     def close(self):
@@ -127,7 +128,8 @@ class DBProfit:
         finally:
             if cur:
                 cur.close()
-        
+
+# 数据统计表 (账户信息)
 @singleton
 class DBStatistics:
     def __init__(self):

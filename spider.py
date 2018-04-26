@@ -1,9 +1,10 @@
+# coding: utf-8
 from singleton import singleton
 from logger import alogger, slogger, elogger, init_logger
-from exchange.binan import BinanceEx
-from exchange.huobi import HuobiEx
-from exchange.okex import OkexEx
-from exchange.gateio import GateioEx
+# from exchange.binan import BinanceEx
+# from exchange.huobi import HuobiEx
+# from exchange.okex import OkexEx
+# from exchange.gateio import GateioEx
 from tornado.ioloop import IOLoop
 from tornado import gen
 from tornado.ioloop import IOLoop
@@ -14,7 +15,6 @@ from cache import Cache
 import tornado
 from druid import *
 from dao import *
-
 SCAN_TIMEOUT_INTERVAL = 1800 * 1000
 SHOW_CACHE_INTERVAL = 10 * 1000
 PROCESS_BUSY_INTERVAL = 10
@@ -147,8 +147,10 @@ class Spider:
     def start(self, exs):
         self.wisps = [Wisp(v['instance']) for k, v in exs.items()]
 
+        # 定时执行callback，时间单位为毫秒
         tornado.ioloop.PeriodicCallback(self.refresh_symbols, SCAN_TIMEOUT_INTERVAL).start()
         tornado.ioloop.PeriodicCallback(self.show_cache, SHOW_CACHE_INTERVAL).start()
+        # 若干单位时间后执行callback,添加到主线程的实例上
         IOLoop.instance().add_timeout(time.time() + 10, self.refresh_symbols)
         IOLoop.instance().add_timeout(time.time() + 3, self.runLoop)
 
@@ -161,6 +163,7 @@ if __name__ == '__main__':
         'okex':    {'instance': OkexEx.instance(),    'enabled': True},
         'gateio':    {'instance': GateioEx.instance(),    'enabled': True},
     }
+    print 'success'
     Spider.instance().start(EXCHANGES)
     IOLoop.instance().start() 
 

@@ -3,3 +3,4 @@
 *.log.*
 S.py
 *DS_Store
+.idea/
