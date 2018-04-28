@@ -246,8 +246,10 @@ def main():
     #        print key, r
 
     t = time.time()
-    r = yield hbex.get_asset_amount('iost')
-    print r, time.time() - t 
+    r= yield hbex.get_symbols()
+    # r = yield hbex.get_asset_amount('iost')
+    print r
+    print time.time() - t
 
     #r = yield hbex.get_depth('ethusdt')   
     #print r

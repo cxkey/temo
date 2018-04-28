@@ -91,6 +91,7 @@ def get_symbols():
     url = MARKET_URL + '/v1/common/symbols'
     params = {}
     res = yield asyc_http_get_request(url, params)
+    print '火币',res
     raise gen.Return(res)
 
 def get_symbols_sync():

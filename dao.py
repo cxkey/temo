@@ -11,7 +11,7 @@ from singleton import singleton
 from logger import alogger, elogger
 import tornado
 
-
+# 从连接池取出的某一个连接，调用close将该连接返回到连接池
 class PooledConnection(object):
     def __init__(self, pool, connection):
         self._connection = connection
@@ -29,9 +29,11 @@ class PooledConnection(object):
     def __del__(self):
         self.close()
 
+# 连接池
 class ConnectionPool:
     _instance_lock = threading.Lock()
 
+    # 返回单例对象
     @staticmethod
     def instance():
         if not hasattr(ConnectionPool, '_instance'):
@@ -40,7 +42,7 @@ class ConnectionPool:
                     ConnectionPool._instance = ConnectionPool()
         return ConnectionPool._instance
 
-
+    # 生成连接池--获取指定的连接数放入连接池，默认值为5
     def __init__(self, maxconnections = 5):
         from Queue import Queue
         self._queue = Queue(maxconnections) # create the queue
@@ -48,7 +50,8 @@ class ConnectionPool:
         for i in xrange(maxconnections):
             conn = self.getConn()
             self._queue.put(conn)
-    
+
+    # 生成连接
     def getConn(self):
         conn = None
         while True:
@@ -62,7 +65,7 @@ class ConnectionPool:
                 time.sleep(1)
         return conn
 
-
+    #
     def connection(self):
         conn = self._queue.get()
         try:        
@@ -72,10 +75,12 @@ class ConnectionPool:
             conn = self.getConn()
         return PooledConnection(self, conn)
 
+    # 返回连接到连接池
     def returnConnection(self, conn):
         self._queue.put(conn)
 
-@singleton  
+# 交易表
+@singleton
 class DBTrade:
     def __init__(self):
         self.tablename = 'trade'
@@ -110,6 +115,7 @@ class DBTrade:
             if cur:
                 cur.close()
 
+# 利润表，目前是空
 @singleton
 class DBProfit:
     def __init__(self):
@@ -129,7 +135,7 @@ class DBProfit:
             if cur:
                 cur.close()
 
-# 数据统计表 (账户信息)
+# 数据统计表
 @singleton
 class DBStatistics:
     def __init__(self):

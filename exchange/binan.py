@@ -272,7 +272,23 @@ def main():
     baex = BinanceEx.instance()
     t1 = time.time()
     baex.ping()
-    print time.time() - t1
+    # baex = BinanceEx.instance()
+    s = yield baex.get_symbols()
+    symbol = s.keys()[0]
+    asset='BTC'
+    # print s
+    # r = yield baex.get_depth(s.keys()[0])
+    # r =  baex.get_all_tickers()
+    r = yield baex.get_history(symbol)
+    print 'get_history',r
+
+    r = yield baex.get_asset_amount(asset)
+    print 'get_asset_amount',r
+    r = yield baex.get_assets_amount( ['BTC','ETH'])
+    print 'get_assets_amount',r
+    r = yield baex.get_balance( )
+    print 'get_balance',r
+    # print time.time() - t1
     #r = yield baex.trade_info('CHATBTC','2726795')
     #print r
     #r = baex.a()
@@ -303,5 +319,6 @@ def main():
    
 if __name__ == '__main__':
     main()
-    IOLoop.instance().start() 
+    IOLoop.instance().start()
+
 

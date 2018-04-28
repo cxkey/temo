@@ -15,6 +15,8 @@ import datetime
 import requests
 import urllib2
 import urlparse
+
+import tornado
 from tornado.gen import coroutine
 from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
@@ -23,6 +25,11 @@ import sys
 sys.path.append('../')
 sys.path.append('../../')
 import S
+import pycurl
+
+
+def prepare_curl_socks5(curl):
+    curl.setopt(pycurl.PROXYTYPE, pycurl.PROXYTYPE_SOCKS5)
 
 # timeout in 5 seconds:
 TIMEOUT = 5
@@ -83,12 +90,26 @@ def asyc_http_get_request(url, params, add_to_headers=None):
         "Content-type": "application/x-www-form-urlencoded",
         'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0'
     }
+    AsyncHTTPClient.configure(
+        "tornado.curl_httpclient.CurlAsyncHTTPClient"
+    )
+
     if add_to_headers:
         headers.update(add_to_headers)
     postdata = urllib.urlencode(params)
     try:
-        http_client = AsyncHTTPClient() 
-        response = yield http_client.fetch(url+'?'+postdata, headers=headers)
+        http_client = AsyncHTTPClient()
+        # print url+'?'+postdata
+        # response = yield requests.get(url + '?' + postdata, headers=headers)
+        # response = yield 'test'
+        http_request = tornado.httpclient.HTTPRequest(
+            url + '?' + postdata,
+            prepare_curl_callback=prepare_curl_socks5,
+            proxy_host="127.0.0.1",
+            proxy_port=1080
+        )
+        response = yield http_client.fetch(http_request)
+        print '返回体',response
         res = json.loads(response.body)
     except Exception as e:
         print e
